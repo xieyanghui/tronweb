@@ -1,23 +1,23 @@
+const pollAccountFor = require('../../helpers/pollAccountFor');
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const assertEqualHex = require('../../helpers/assertEqualHex');
+const waitChainData = require('../../helpers/waitChainData');
+const assertThrow = require('../../helpers/assertThrow');
+const broadcaster = require('../../helpers/broadcaster');
+const txPars = require('../../helpers/txPars');
+const config = require('../../helpers/config');
+const jlog = require('../../helpers/jlog');
+const wait = require('../../helpers/wait');
+const TronWeb = tronWebBuilder.TronWeb;
 const chai = require('chai');
 const assert = chai.assert;
-const txPars = require('../helpers/txPars');
-const jlog = require('../helpers/jlog');
-const assertThrow = require('../helpers/assertThrow');
-const wait = require('../helpers/wait');
-const broadcaster = require('../helpers/broadcaster');
-const pollAccountFor = require('../helpers/pollAccountFor');
 const _ = require('lodash');
-const tronWebBuilder = require('../helpers/tronWebBuilder');
-const assertEqualHex = require('../helpers/assertEqualHex');
-const TronWeb = tronWebBuilder.TronWeb;
-const config = require('../helpers/config');
-const waitChainData = require('../helpers/waitChainData');
 const {
     ADDRESS_BASE58,
     PRIVATE_KEY,
     getTokenOptions,
-} = require('../helpers/config');
-const testRevertContract = require('../fixtures/contracts').testRevert;
+} = require('../util/config');
+const testRevertContract = require('../../fixtures/contracts').testRevert;
 
 describe('TronWeb.trx', function () {
 
@@ -371,11 +371,11 @@ describe('TronWeb.trx', function () {
         });
 
 
-        describe("#multiSignTransaction", async function () {
+        describe.only("#multiSignTransaction", async function () {
 
-            const ownerIdx = 15;
-            const idxS = 15;
-            const idxE = 18;
+            const ownerIdx = 5;
+            const idxS = 5;
+            const idxE = 8;
             const threshold = 3;
 
             before(async function() {
@@ -813,10 +813,10 @@ describe('TronWeb.trx', function () {
             it('should send trx', async function () {
                 this.timeout(10000);
 
-                const balanceBefore = await tronWeb.trx.getUnconfirmedBalance(accounts.hex[toIdx]);
-                await tronWeb.trx.sendTransaction("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7", 10e15);
-                await waitChainData('balance', accounts.hex[toIdx], balanceBefore);
-                const balanceAfter = await tronWeb.trx.getUnconfirmedBalance(accounts.hex[toIdx]);
+                // const balanceBefore = await tronWeb.trx.getUnconfirmedBalance(accounts.hex[toIdx]);
+                await tronWeb.trx.sendTransaction("TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s", 1e15);
+                // await waitChainData('balance', accounts.hex[toIdx], balanceBefore);
+                // const balanceAfter = await tronWeb.trx.getUnconfirmedBalance(accounts.hex[toIdx]);
                 // assert.equal(balanceAfter - balanceBefore, 10e5);
             });
 

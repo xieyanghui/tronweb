@@ -1,8 +1,7 @@
-const chai = require('chai');
-const tronWebBuilder = require('../helpers/tronWebBuilder');
-const TronWeb = tronWebBuilder.TronWeb;
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
 const BigNumber = require('bignumber.js');
-
+const TronWeb = tronWebBuilder.TronWeb;
+const chai = require('chai');
 const assert = chai.assert;
 
 describe('TronWeb.utils', function () {

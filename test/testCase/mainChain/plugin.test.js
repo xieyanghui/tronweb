@@ -1,12 +1,11 @@
-const chai = require('chai');
-const {FULL_NODE_API} = require('../helpers/config');
-const assertThrow = require('../helpers/assertThrow');
-const tronWebBuilder = require('../helpers/tronWebBuilder');
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const assertThrow = require('../../helpers/assertThrow');
+const GetNowBlock = require('../../helpers/GetNowBlock');
+const {FULL_NODE_API} = require('../../helpers/config');
+const BlockLib = require('../../helpers/BlockLib');
+const jlog = require('../../helpers/jlog')
 const TronWeb = tronWebBuilder.TronWeb;
-const GetNowBlock = require('../helpers/GetNowBlock');
-const BlockLib = require('../helpers/BlockLib');
-const jlog = require('../helpers/jlog')
-
+const chai = require('chai');
 const assert = chai.assert;
 
 describe('TronWeb.lib.plugin', async function () {

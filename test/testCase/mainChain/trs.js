@@ -1,6 +1,6 @@
 const arguments = process.argv.splice(2);
 //const TronWeb = require('tronweb')
-const tronWebBuilder = require('../helpers/tronWebBuilder');
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
 const TronWeb = tronWebBuilder.TronWeb;
 const HttpProvider = TronWeb.providers.HttpProvider;
 const fullNode = new HttpProvider("https://api.trongrid.io");

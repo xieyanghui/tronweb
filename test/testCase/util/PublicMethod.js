@@ -1,3 +1,12 @@
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const {ADDRESS_BASE58,PRIVATE_KEY, DEPOSIT_FEE, FEE_LIMIT} = require('./config');
+const jlog = require('../../helpers/jlog')
+const wait = require('../../helpers/wait');
+const chalk = require('chalk')
+const util = require('util');
+const chai = require('chai');
+const assert = chai.assert;
+
 const accAdd = async (A, B) => {
     var r1,r2,m;
     try{r1=arg1.toString().split(".")[1].length}catch(e){r1=0}
@@ -55,8 +64,84 @@ const reduce = async (a, b) => {
     return resultEnd;
 }
 
+const newMainTestAccounts = async (amount) => {
+    const tronWeb = tronWebBuilder.createInstance();
+
+    console.log(chalk.blue(`Generating ${amount} new accounts...`))
+    await tronWeb.fullNode.request('/admin/temporary-accounts-generation?accounts=' + amount);
+    const lastCreated = await getTestAccounts(-1)
+    jlog(lastCreated.b58)
+}
+
+const getTestAccounts = async (block) => {
+    const accounts = {
+        b58: [],
+        hex: [],
+        pks: []
+    }
+    const tronWeb = tronWebBuilder.createInstance();
+    const accountsJson = await tronWeb.fullNode.request('/admin/accounts-json');
+    const index = typeof block === 'number'
+        ? (block > -1 && block < accountsJson.more.length ? block : accountsJson.more.length - 1)
+        : undefined
+    accounts.pks = typeof block === 'number'
+        ? accountsJson.more[index].privateKeys
+        : accountsJson.privateKeys;
+    for (let i = 0; i < accounts.pks.length; i++) {
+        let addr = tronWeb.address.fromPrivateKey(accounts.pks[i]);
+        accounts.b58.push(addr);
+        accounts.hex.push(tronWeb.address.toHex(addr));
+    }
+    return Promise.resolve(accounts);
+}
+
+const newSideTestAccounts = async (amount) => {
+    await newMainTestAccounts(amount);
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let accounts = await tronWebBuilder.getTestAccounts(-1);
+    for (let i = 0; i < amount-1; i++) {
+        let ownerAddress = accounts.b58[i];
+        let ownerPk = accounts.pks[i];
+        const callValue = 3000000000;
+        console.log("deposit--"+i+",ownerPk: "+ownerPk)
+        const depositId = await tronWeb.sidechain.depositTrx(callValue, DEPOSIT_FEE,FEE_LIMIT,{},ownerPk.toString(),false);
+        console.log("deposit--"+i+",txId: "+depositId)
+        assert.equal(depositId.length, 64);
+        /*const depositInfo =await tronWeb.sidechain.mainchain.trx.getTransactionInfo(depositId);
+        console.log("depositInfo:"+util.inspect(depositInfo))
+        console.log("depositInfo.receipt.result:"+util.inspect(depositInfo).receipt.result)
+        assert.equal(depositInfo.receipt.result, "SUCCESS");*/
+    }
+        await wait(90);
+}
+
+const getSideTestAccounts = async (block) => {
+    /*const accounts = {
+        b58: [],
+        hex: [],
+        pks: []
+    }
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    const accountsJson = await tronWeb.sidechain.sidechain.fullNode.request('/admin/accounts-json');
+    const index = typeof block === 'number'
+        ? (block > -1 && block < accountsJson.more.length ? block : accountsJson.more.length - 1)
+        : undefined
+    accounts.pks = typeof block === 'number'
+        ? accountsJson.more[index].privateKeys
+        : accountsJson.privateKeys;
+    for (let i = 0; i < accounts.pks.length; i++) {
+        let addr = tronWeb.address.fromPrivateKey(accounts.pks[i]);
+        accounts.b58.push(addr);
+        accounts.hex.push(tronWeb.address.toHex(addr));
+    }
+    return Promise.resolve(accounts);*/
+}
+
 module.exports = {
     reduce,
     sumBigNumber,
-    accAdd
+    accAdd,
+    newMainTestAccounts,
+    getTestAccounts,
+    newSideTestAccounts
 }

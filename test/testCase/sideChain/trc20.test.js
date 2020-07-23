@@ -1,11 +1,10 @@
-const {PRIVATE_KEY,CONTRACT_ADDRESS20,ADDRESS20_MAPPING,DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, ADDRESS_BASE58} = require('./config');
-
-const tronWebBuilder = require('../helpers/tronWebBuilder');
+const {PRIVATE_KEY,CONTRACT_ADDRESS20,ADDRESS20_MAPPING,DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, ADDRESS_BASE58} = require('../util/config');
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const assertThrow = require('../../helpers/assertThrow');
+const publicMethod = require('../util/PublicMethod');
+const wait = require('../../helpers/wait');
 const chai = require('chai');
 const assert = chai.assert;
-const assertThrow = require('../helpers/assertThrow');
-const wait = require('../helpers/wait');
-const publicMethod = require('./util/PublicMethod');
 
 describe('TronWeb Instance', function() {
     describe('#depositTrc20', function () {

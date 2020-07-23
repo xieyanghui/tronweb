@@ -34,7 +34,8 @@ const broadcasterInSideChain = async (func, pk, transaction) =>  {
     if( !transaction) {
         transaction = await func;
     }
-    const signedTransaction = await tronWeb.sidechain.sidechain.trx.sign(transaction, pk);
+    // const signedTransaction = await tronWeb.sidechain.sign(transaction, pk);
+    const signedTransaction = await tronWeb.sidechain.signTransaction(pk, transaction);
     console.log("signedTransaction:"+util.inspect(signedTransaction))
     let result = {
         transaction,

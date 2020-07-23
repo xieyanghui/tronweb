@@ -1,13 +1,12 @@
-const {ADDRESS_BASE58,PRIVATE_KEY, FEE_LIMIT} = require('./config');
-const testDeployRevert = require('./util/contracts').testDeployRevert;
-const testTriggerError = require('./util/contracts').testTriggerError;
-const tronWebBuilder = require('../helpers/tronWebBuilder');
-const broadcaster = require('./util/broadcaster');
-const wait = require('../helpers/wait');
+const {ADDRESS_BASE58,PRIVATE_KEY, FEE_LIMIT} = require('../util/config');
+const testDeployRevert = require('../util/contracts').testDeployRevert;
+const testTriggerError = require('../util/contracts').testTriggerError;
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const broadcaster = require('../util/broadcaster');
+const wait = require('../../helpers/wait');
 const chai = require('chai');
 const assert = chai.assert;
 const util = require('util');
-
 
 describe('TronWeb feelimit test', function() {
     describe('#mainChain', function() {
@@ -237,7 +236,7 @@ describe('TronWeb feelimit test', function() {
             }
         })
         describe('#use default feelimit', function () {
-            it.only('createSmartContract use default feelimit in sideChain', async function () {
+            it('createSmartContract use default feelimit in sideChain', async function () {
                 // before create
                 const accountBalanceBefore = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceBefore: ' + accountBalanceBefore);

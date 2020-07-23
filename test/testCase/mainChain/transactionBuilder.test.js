@@ -1,17 +1,16 @@
+const {testRevert, testConstant, arrayParam} = require('../../fixtures/contracts');
+const assertThrow = require('../../helpers/assertThrow');
+const broadcaster = require('../../helpers/broadcaster');
+const pollAccountFor = require('../../helpers/pollAccountFor');
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const assertEqualHex = require('../../helpers/assertEqualHex');
+const waitChainData = require('../../helpers/waitChainData');
+const txPars = require('../../helpers/txPars');
+const wait = require('../../helpers/wait');
+const jlog = require('../../helpers/jlog');
 const chai = require('chai');
 const assert = chai.assert;
-const txPars = require('../helpers/txPars');
-const jlog = require('../helpers/jlog');
-const assertThrow = require('../helpers/assertThrow');
-const wait = require('../helpers/wait');
-const broadcaster = require('../helpers/broadcaster');
-const pollAccountFor = require('../helpers/pollAccountFor');
 const _ = require('lodash');
-const tronWebBuilder = require('../helpers/tronWebBuilder');
-const assertEqualHex = require('../helpers/assertEqualHex');
-const {testRevert, testConstant, arrayParam} = require('../fixtures/contracts');
-const waitChainData = require('../helpers/waitChainData');
-
 const TronWeb = tronWebBuilder.TronWeb;
 const {
     ADDRESS_HEX,

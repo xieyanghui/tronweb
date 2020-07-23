@@ -11,8 +11,10 @@ module.exports = {
     NETWORK_ID: "*",
     /*ADDRESS_HEX: '41928c9af0651632157ef27a2cf17ca72c575a4d21',
     ADDRESS_BASE58: 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY',*/
-    ADDRESS_HEX: '415624c12e308b03a1a6b21d9b86e3942fac1ab92b',
-    ADDRESS_BASE58: 'THph9K2M2nLvkianrMGswRhz5hjSA9fuH7',
+    /*ADDRESS_HEX: '415624c12e308b03a1a6b21d9b86e3942fac1ab92b',
+    ADDRESS_BASE58: 'THph9K2M2nLvkianrMGswRhz5hjSA9fuH7',*/
+    ADDRESS_HEX: '415ab90009b529c5406b4f8a6fc4dab8a2bc778c75',
+    ADDRESS_BASE58: 'TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s',
     UPDATED_TEST_TOKEN_OPTIONS: {
         description: 'Very useless utility token',
         url: 'https://none.example.com',

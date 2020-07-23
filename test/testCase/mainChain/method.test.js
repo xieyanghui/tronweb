@@ -1,14 +1,13 @@
-const chai = require('chai');
-const assert = chai.assert;
-const wait = require('../../helpers/wait');
-const assertThrow = require('../../helpers/assertThrow');
-const broadcaster = require('../../helpers/broadcaster');
-const _ = require('lodash');
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
-const TronWeb = tronWebBuilder.TronWeb;
-
 const testRevertContract = require('../../fixtures/contracts').testRevert;
 const testSetValContract = require('../../fixtures/contracts').testSetVal;
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const assertThrow = require('../../helpers/assertThrow');
+const broadcaster = require('../../helpers/broadcaster');
+const wait = require('../../helpers/wait');
+const TronWeb = tronWebBuilder.TronWeb;
+const chai = require('chai');
+const assert = chai.assert;
+const _ = require('lodash');
 
 describe('#contract.method', function () {
 

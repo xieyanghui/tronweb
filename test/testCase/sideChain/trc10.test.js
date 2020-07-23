@@ -1,13 +1,10 @@
-const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, TOKEN_ID} = require('./config');
-
-const tronWebBuilder = require('../helpers/tronWebBuilder');
-const TronWeb = tronWebBuilder.TronWeb;
-const log = require('../helpers/log')
+const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, TOKEN_ID} = require('../util/config');
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const assertThrow = require('../../helpers/assertThrow');
+const publicMethod = require('../util/PublicMethod');
+const wait = require('../../helpers/wait');
 const chai = require('chai');
 const assert = chai.assert;
-const assertThrow = require('../helpers/assertThrow');
-const wait = require('../helpers/wait');
-const publicMethod = require('./util/PublicMethod');
 
 describe('TronWeb Instance', function() {
     describe('#trx', function() {

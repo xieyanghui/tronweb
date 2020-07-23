@@ -1,18 +1,14 @@
-const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT} = require('./config');
-
-const tronWebBuilder = require('../helpers/tronWebBuilder');
+const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT} = require('../util/config');
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const assertThrow = require('../../helpers/assertThrow');
+const wait = require('../../helpers/wait');
 const chai = require('chai');
 const assert = chai.assert;
-const assertThrow = require('../helpers/assertThrow');
-const wait = require('../helpers/wait');
 
 describe('TronWeb Instance', function() {
-
     describe('#trx normal', function() {
-
         describe('#depositTrx()', function () {
             const tronWeb = tronWebBuilder.createInstanceSide();
-
             it('deposit trx from main chain to side chain', async function () {
                 const mAccountBefore = await tronWeb.sidechain.mainchain.trx.getAccount();
                 const sAccountBefore = await tronWeb.sidechain.sidechain.trx.getAccount();

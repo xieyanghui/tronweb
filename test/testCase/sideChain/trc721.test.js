@@ -1,13 +1,10 @@
-const {PRIVATE_KEY,ADDRESS_HEX, TRC721_ID,ADDRESS721_MAPPING,CONTRACT_ADDRESS721, DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN} = require('./config');
-
-const tronWebBuilder = require('../helpers/tronWebBuilder');
-const TronWeb = tronWebBuilder.TronWeb;
-const log = require('../helpers/log')
+const {PRIVATE_KEY,ADDRESS_HEX, TRC721_ID,ADDRESS721_MAPPING,CONTRACT_ADDRESS721, DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN} = require('../util/config');
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const assertThrow = require('../../helpers/assertThrow');
+const wait = require('../../helpers/wait');
 const chai = require('chai');
-const assert = chai.assert;
-const assertThrow = require('../helpers/assertThrow');
-const wait = require('../helpers/wait');
 const util = require('util');
+const assert = chai.assert;
 
 describe('TronWeb Instance', function() {
     describe('#depositTrc721', function () {

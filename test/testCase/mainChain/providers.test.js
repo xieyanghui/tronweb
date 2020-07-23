@@ -1,9 +1,8 @@
-const chai = require('chai');
-const {FULL_NODE_API} = require('../helpers/config');
-const assertThrow = require('../helpers/assertThrow');
-const tronWebBuilder = require('../helpers/tronWebBuilder');
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const assertThrow = require('../../helpers/assertThrow');
+const {FULL_NODE_API} = require('../../helpers/config');
 const TronWeb = tronWebBuilder.TronWeb;
-
+const chai = require('chai');
 const assert = chai.assert;
 
 describe('TronWeb.lib.providers', async function () {

@@ -1,9 +1,8 @@
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const assertThrow = require('../../helpers/assertThrow');
+const wait = require('../../helpers/wait');
 const chai = require('chai');
 const assert = chai.assert;
-
-const assertThrow = require('../helpers/assertThrow');
-const tronWebBuilder = require('../helpers/tronWebBuilder');
-const wait = require('../helpers/wait');
 const { PRIVATE_KEY,
     CONSUME_USER_RESOURCE_PERCENT,
     DEPOSIT_FEE,

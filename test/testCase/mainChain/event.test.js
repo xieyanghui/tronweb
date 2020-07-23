@@ -1,12 +1,11 @@
-const chai = require('chai');
-const {FULL_NODE_API} = require('../helpers/config');
-const assertThrow = require('../helpers/assertThrow');
-const tronWebBuilder = require('../helpers/tronWebBuilder');
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const {FULL_NODE_API} = require('../../helpers/config');
+const assertThrow = require('../../helpers/assertThrow');
+const broadcaster = require('../../helpers/broadcaster');
+const jlog = require('../../helpers/jlog')
+const wait = require('../../helpers/wait')
 const TronWeb = tronWebBuilder.TronWeb;
-const jlog = require('../helpers/jlog')
-const broadcaster = require('../helpers/broadcaster');
-const wait = require('../helpers/wait')
-
+const chai = require('chai');
 const assert = chai.assert;
 
 describe('TronWeb.lib.event', async function () {

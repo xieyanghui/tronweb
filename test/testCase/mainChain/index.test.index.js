@@ -1,15 +1,13 @@
-const chai = require('chai');
 const {ADDRESS_HEX, ADDRESS_BASE58, FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SIDE_CHAIN, SUN_NETWORK} = require('./helpers/config');
-const tronWebBuilder = require('./helpers/tronWebBuilder');
-const TronWeb = tronWebBuilder.TronWeb;
-const log = require('./helpers/log')
-const BigNumber = require('bignumber.js');
-const broadcaster = require('./helpers/broadcaster');
-const wait = require('./helpers/wait')
-
-
-const assert = chai.assert;
+const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const broadcaster = require('../../helpers/broadcaster');
 const HttpProvider = TronWeb.providers.HttpProvider;
+const BigNumber = require('bignumber.js');
+const TronWeb = tronWebBuilder.TronWeb;
+const wait = require('../../helpers/wait')
+const log = require('../../helpers/log')
+const chai = require('chai');
+const assert = chai.assert;
 
 describe('TronWeb Instance', function () {
 
