@@ -1,5 +1,5 @@
 const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN} = require('../util/config');
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const tronWebBuilder = require('../util/tronWebBuilder');
 const assertThrow = require('../../helpers/assertThrow');
 const publicMethod = require('../util/PublicMethod');
 const broadcaster = require('../util/broadcaster');
@@ -82,6 +82,13 @@ describe('TronWeb Instance', function() {
                 console.log('mainGatewayAddress: ' + mainGatewayAddress);
                 assert.equal(SIDE_CHAIN.sideOptions.mainGatewayAddress, mainGatewayAddress);
             })
+        });
+        describe('#injectFund()', function () {
+            it.only('injectFund', async function () {
+                const tronWeb = tronWebBuilder.createInstanceSide();
+                const txID = await tronWeb.sidechain.injectFund(1000000, FEE_LIMIT);
+                assert.equal(txID.length, 64);
+            });
         });
     });
 });

@@ -1,4 +1,4 @@
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const tronWebBuilder = require('../util/tronWebBuilder');
 const {FULL_NODE_API} = require('../../helpers/config');
 const assertThrow = require('../../helpers/assertThrow');
 const broadcaster = require('../../helpers/broadcaster');

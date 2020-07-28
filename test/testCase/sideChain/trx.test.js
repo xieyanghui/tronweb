@@ -1,6 +1,7 @@
 const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT} = require('../util/config');
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const tronWebBuilder = require('../util/tronWebBuilder');
 const assertThrow = require('../../helpers/assertThrow');
+const publicMethod = require('../util/PublicMethod');
 const wait = require('../../helpers/wait');
 const chai = require('chai');
 const assert = chai.assert;
@@ -17,15 +18,10 @@ describe('TronWeb Instance', function() {
                 console.log('mDepositBalanceBefore: ' + mDepositBalanceBefore);
                 console.log('sDepositBalanceBefore: ' + sDepositBalanceBefore);
 
-                const callValue = 10000000;
-                const depositId = await tronWeb.sidechain.depositTrx(callValue, DEPOSIT_FEE,FEE_LIMIT);
-                console.log("depositId:"+depositId)
-                assert.equal(depositId.length, 64);
-                await wait(90);
-                const depositInfo =await tronWeb.sidechain.mainchain.trx.getTransactionInfo(depositId);
-                console.log("depositInfo:"+depositInfo)
-                const depositTxFee = typeof(depositInfo.fee)=="undefined"?0:depositInfo.fee;
-                console.log('depositTxFee: ' + depositTxFee)
+                // depositTrx
+                const depositNum = 10e6;
+                let depositTrxMap = await publicMethod.depositTrx(depositNum);
+                let depositTxFee = depositTrxMap.get("depositTxFee");
 
                 const mAccountAfter = await tronWeb.sidechain.mainchain.trx.getAccount();
                 const sAccountAfter = await tronWeb.sidechain.sidechain.trx.getAccount();
@@ -33,8 +29,8 @@ describe('TronWeb Instance', function() {
                 const sDepositBalanceAfter = sAccountAfter.balance;
                 console.log('mDepositBalanceAfter: ' +  mDepositBalanceAfter)
                 console.log('sDepositBalanceAfter: ' +  sDepositBalanceAfter)
-                assert.equal(mDepositBalanceAfter, mDepositBalanceBefore - callValue - depositTxFee - DEPOSIT_FEE);
-                assert.equal(sDepositBalanceAfter, sDepositBalanceBefore + callValue);
+                assert.equal(mDepositBalanceAfter, mDepositBalanceBefore - depositNum - depositTxFee - DEPOSIT_FEE);
+                assert.equal(sDepositBalanceAfter, sDepositBalanceBefore + depositNum);
             });
         });
 
@@ -48,25 +44,19 @@ describe('TronWeb Instance', function() {
                 console.log('mWithdrawBalanceBefore: ' + mWithdrawBalanceBefore);
                 console.log('sWithdrawBalanceBefore: ' + sWithdrawBalanceBefore);
 
-                const callValue = 10000000;
-                const withdrawId = await tronWeb.sidechain.withdrawTrx(callValue, WITHDRAW_FEE,FEE_LIMIT);
-                console.log("withdrawId: "+withdrawId);
-                assert.equal(withdrawId.length, 64);
-                await wait(90);
-                const withdrawInfo =await tronWeb.sidechain.sidechain.trx.getTransactionInfo(withdrawId);
-                const withdrawTxFee = typeof(withdrawInfo.fee)=="undefined"?0:withdrawInfo.fee;
-                console.log('withdrawTxFee: ' + withdrawTxFee)
+                // withdrawTrx
+                const withdrawNum = 10e6;
+                let withdrawTrxMap = await publicMethod.withdrawTrx(withdrawNum);
+                let withdrawTxFee = withdrawTrxMap.get("withdrawTxFee");
 
-                const result =await tronWeb.sidechain.mainchain.trx.getTransactionInfo(withdrawId);
-                console.log("result:"+result)
                 const mAccountAfter = await tronWeb.sidechain.mainchain.trx.getAccount();
                 const sAccountAfter = await tronWeb.sidechain.sidechain.trx.getAccount();
                 const mWithdrawBalanceAfter = mAccountAfter.balance;
                 const sWithdrawBalanceAfter = sAccountAfter.balance;
                 console.log('mWithdrawBalanceAfter: ' +  mWithdrawBalanceAfter)
                 console.log('sWithdrawBalanceAfter: ' +  sWithdrawBalanceAfter)
-                assert.equal(mWithdrawBalanceBefore + callValue, mWithdrawBalanceAfter);
-                assert.equal(sWithdrawBalanceAfter, sWithdrawBalanceBefore - callValue - WITHDRAW_FEE - withdrawTxFee);
+                assert.equal(mWithdrawBalanceBefore + withdrawNum, mWithdrawBalanceAfter);
+                assert.equal(sWithdrawBalanceAfter, sWithdrawBalanceBefore - withdrawNum - WITHDRAW_FEE - withdrawTxFee);
             });
 
         });

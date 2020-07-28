@@ -1,5 +1,5 @@
 const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN} = require('../util/config');
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const tronWebBuilder = require('../util/tronWebBuilder');
 const assertThrow = require('../../helpers/assertThrow');
 const publicMethod = require('../util/PublicMethod');
 const broadcaster = require('../util/broadcaster');
@@ -97,42 +97,18 @@ describe('TronWeb Instance', function() {
 
             });
 
-            it.only('should multi-sign a transaction by owner permission (permission id inside tx)', async function () {
-                const transactionMain = await tronWeb.sidechain.mainchain.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 0});
-
+            it('should multi-sign a transaction by owner permission (permission id inside tx)', async function () {
                 const transaction = await tronWeb.sidechain.sidechain.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 0});
-                // console.log("transactionSide:"+util.inspect(transaction.raw_data.contract))
-                // console.log("transactionMain:"+util.inspect(transactionMain.raw_data.contract))
 
-                let signedTransactionMain = transactionMain;
                 let signedTransaction = transaction;
-                let signWeight;
                 for (let i = idxS; i < idxE; i++) {
-                    signedTransactionMainAfter = await tronWeb.trx.multiSign(signedTransactionMain, accounts.pks[i]);
-
-                    signedTransactionAfter = await tronWeb.sidechain.multiSign(signedTransaction, accounts.pks[i]);
-
-                    console.log("signedTransaction-beforeMain:"+util.inspect(signedTransactionMainAfter.raw_data.contract))
-                    console.log("signedTransaction-before:"+util.inspect(signedTransactionAfter.raw_data.contract))
-                    // signWeight = await tronWeb.sidechain.sidechain.trx.getSignWeight(signedTransaction);
-                    // console.log("signedTransaction-after:"+util.inspect(signedTransaction.raw_data.contract))
-
-                    /*if (i < idxE - 1) {
-                        assert.equal(signWeight.result.code, 'NOT_ENOUGH_PERMISSION');
-                    }
-                    assert.equal(signWeight.approved_list.length, i - idxS + 1);*/
+                    signedTransaction = await tronWeb.sidechain.multiSign(signedTransaction, accounts.pks[i]);
                 }
 
                 assert.equal(signedTransaction.signature.length, 2);
-                console.log("signedTransaction:"+util.inspect(signedTransaction))
-
-                /*// get approved list
-                const approvedList = await tronWeb.sidechain.sidechain.trx.getApprovedList(signedTransaction);
-                assert.isTrue(approvedList.approved_list.length === threshold);*/
 
                 // broadcast multi-sign transaction
                 const result = await tronWeb.sidechain.sidechain.trx.broadcast(signedTransaction);
-                console.log("result:"+util.inspect(result))
                 assert.isTrue(result.result);
 
             });
@@ -164,7 +140,7 @@ describe('TronWeb Instance', function() {
 
             });
 
-            it.only('should verify weight after multi-sign by owner permission (permission id inside tx)', async function () {
+            it('should verify weight after multi-sign by owner permission (permission id inside tx)', async function () {
 
                 // create transaction and do multi-sign
                 const transaction = await tronWeb.sidechain.sidechain.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 0});
@@ -238,11 +214,11 @@ describe('TronWeb Instance', function() {
                 let signedTransaction = transaction;
                 for (let i = idxS; i < idxE; i++) {
                     signedTransaction = await tronWeb.sidechain.multiSign(signedTransaction, accounts.pks[i]);
+                    console.log("signedTransaction:"+util.inspect(signedTransaction.raw_data.contract))
+
                 }
 
                 assert.equal(signedTransaction.signature.length, 2);
-
-                console.log("signedTransaction:"+util.inspect(signedTransaction))
 
                 // broadcast multi-sign transaction
                 const result = await tronWeb.sidechain.sidechain.trx.broadcast(signedTransaction);

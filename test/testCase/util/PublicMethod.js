@@ -1,7 +1,11 @@
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
-const {ADDRESS_BASE58,PRIVATE_KEY, DEPOSIT_FEE, FEE_LIMIT} = require('./config');
+const {PRIVATE_KEY, TOKEN_ID, DEPOSIT_FEE, WITHDRAW_FEE, MAPPING_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN} = require('./config');
+const trc721Contract = require('./contracts').trc721Contract;
+const trc20Contract = require('./contracts').trc20Contract;
+const tronWebBuilder = require('./tronWebBuilder');
+const broadcaster = require('./broadcaster');
 const jlog = require('../../helpers/jlog')
 const wait = require('../../helpers/wait');
+const HashMap = require('hashmap') ;
 const chalk = require('chalk')
 const util = require('util');
 const chai = require('chai');
@@ -64,84 +68,456 @@ const reduce = async (a, b) => {
     return resultEnd;
 }
 
-const newMainTestAccounts = async (amount) => {
-    const tronWeb = tronWebBuilder.createInstance();
-
-    console.log(chalk.blue(`Generating ${amount} new accounts...`))
-    await tronWeb.fullNode.request('/admin/temporary-accounts-generation?accounts=' + amount);
-    const lastCreated = await getTestAccounts(-1)
-    jlog(lastCreated.b58)
-}
-
-const getTestAccounts = async (block) => {
-    const accounts = {
-        b58: [],
-        hex: [],
-        pks: []
-    }
-    const tronWeb = tronWebBuilder.createInstance();
-    const accountsJson = await tronWeb.fullNode.request('/admin/accounts-json');
-    const index = typeof block === 'number'
-        ? (block > -1 && block < accountsJson.more.length ? block : accountsJson.more.length - 1)
-        : undefined
-    accounts.pks = typeof block === 'number'
-        ? accountsJson.more[index].privateKeys
-        : accountsJson.privateKeys;
-    for (let i = 0; i < accounts.pks.length; i++) {
-        let addr = tronWeb.address.fromPrivateKey(accounts.pks[i]);
-        accounts.b58.push(addr);
-        accounts.hex.push(tronWeb.address.toHex(addr));
-    }
-    return Promise.resolve(accounts);
-}
-
-const newSideTestAccounts = async (amount) => {
-    await newMainTestAccounts(amount);
+const depositTrx = async (depositNum) =>{
     const tronWeb = tronWebBuilder.createInstanceSide();
-    let accounts = await tronWebBuilder.getTestAccounts(-1);
-    for (let i = 0; i < amount-1; i++) {
-        let ownerAddress = accounts.b58[i];
-        let ownerPk = accounts.pks[i];
-        const callValue = 3000000000;
-        console.log("deposit--"+i+",ownerPk: "+ownerPk)
-        const depositId = await tronWeb.sidechain.depositTrx(callValue, DEPOSIT_FEE,FEE_LIMIT,{},ownerPk.toString(),false);
-        console.log("deposit--"+i+",txId: "+depositId)
-        assert.equal(depositId.length, 64);
-        /*const depositInfo =await tronWeb.sidechain.mainchain.trx.getTransactionInfo(depositId);
-        console.log("depositInfo:"+util.inspect(depositInfo))
-        console.log("depositInfo.receipt.result:"+util.inspect(depositInfo).receipt.result)
-        assert.equal(depositInfo.receipt.result, "SUCCESS");*/
-    }
-        await wait(90);
+    let map = new HashMap();
+    let depositNonce = "";
+    let depositTxFee = "";
+    const depositId = await tronWeb.sidechain.depositTrx(depositNum, DEPOSIT_FEE,FEE_LIMIT);
+    // console.log("depositId:"+depositId)
+    assert.equal(depositId.length, 64);
+    await wait(90);
+    const depositInfo =await tronWeb.sidechain.mainchain.trx.getTransactionInfo(depositId);
+    assert.equal("SUCCESS", depositInfo.receipt.result);
+    depositNonce = depositInfo.contractResult[0];
+    depositNonce = tronWeb.BigNumber(depositNonce, 16).valueOf();
+    // console.log("depositInfo:"+depositInfo)
+    depositTxFee = typeof(depositInfo.fee)=="undefined"?0:depositInfo.fee;
+    console.log('depositTxFee: ' + depositTxFee)
+
+    map.set("depositNonce", depositNonce);
+    map.set("depositTxFee", depositTxFee);
+    return map;
 }
 
-const getSideTestAccounts = async (block) => {
-    /*const accounts = {
-        b58: [],
-        hex: [],
-        pks: []
-    }
+const withdrawTrx = async (withdrawNum) =>{
     const tronWeb = tronWebBuilder.createInstanceSide();
-    const accountsJson = await tronWeb.sidechain.sidechain.fullNode.request('/admin/accounts-json');
-    const index = typeof block === 'number'
-        ? (block > -1 && block < accountsJson.more.length ? block : accountsJson.more.length - 1)
-        : undefined
-    accounts.pks = typeof block === 'number'
-        ? accountsJson.more[index].privateKeys
-        : accountsJson.privateKeys;
-    for (let i = 0; i < accounts.pks.length; i++) {
-        let addr = tronWeb.address.fromPrivateKey(accounts.pks[i]);
-        accounts.b58.push(addr);
-        accounts.hex.push(tronWeb.address.toHex(addr));
+    let map = new HashMap();
+    let withdrawNonce = "";
+    let withdrawTxFee = "";
+    const withdrawId = await tronWeb.sidechain.withdrawTrx(withdrawNum, WITHDRAW_FEE,FEE_LIMIT);
+    console.log("withdrawId: "+withdrawId);
+    assert.equal(withdrawId.length, 64);
+    await wait(90);
+    const withdrawInfo =await tronWeb.sidechain.sidechain.trx.getTransactionInfo(withdrawId);
+    assert.equal("SUCCESS", withdrawInfo.receipt.result);
+    withdrawNonce = withdrawInfo.contractResult[0];
+    withdrawNonce = tronWeb.BigNumber(withdrawNonce, 16).valueOf();
+    withdrawTxFee = typeof(withdrawInfo.fee)=="undefined"?0:withdrawInfo.fee;
+    console.log('withdrawTxFee: ' + withdrawTxFee)
+
+    map.set("withdrawNonce", withdrawNonce);
+    map.set("withdrawTxFee", withdrawTxFee);
+    return map;
+}
+
+const depositTrc10 = async (depositNum) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let depositNonce = "";
+    let depositTxFee = "";
+
+    const depositId = await tronWeb.sidechain.depositTrc10(TOKEN_ID, depositNum, DEPOSIT_FEE, FEE_LIMIT);
+    console.log('depositId: ' + depositId)
+    assert.equal(depositId.length, 64);
+    await wait(80);
+    const depositInfo =await tronWeb.sidechain.mainchain.trx.getTransactionInfo(depositId);
+    assert.equal("SUCCESS", depositInfo.receipt.result);
+    depositNonce = depositInfo.contractResult[0];
+    depositNonce = tronWeb.BigNumber(depositNonce, 16).valueOf();
+    depositTxFee = typeof(depositInfo.fee)=="undefined"?0:depositInfo.fee;
+    console.log('depositTxFee: ' + depositTxFee)
+
+    map.set("depositNonce", depositNonce);
+    map.set("depositTxFee", depositTxFee);
+    return map;
+}
+
+const withdrawTrc10 = async (withdrawNum) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let withdrawNonce = "";
+    let withdrawTxFee = "";
+
+    const withdrawId = await tronWeb.sidechain.withdrawTrc10(TOKEN_ID, withdrawNum, WITHDRAW_FEE, FEE_LIMIT);
+    console.log('withdrawId: ' + withdrawId)
+    assert.equal(withdrawId.length, 64);
+    await wait(90);
+    const withdrawInfo =await tronWeb.sidechain.sidechain.trx.getTransactionInfo(withdrawId);
+    assert.equal("SUCCESS", withdrawInfo.receipt.result);
+    withdrawNonce = withdrawInfo.contractResult[0];
+    withdrawNonce = tronWeb.BigNumber(withdrawNonce, 16).valueOf();
+    withdrawTxFee = typeof(withdrawInfo.fee)=="undefined"?0:withdrawInfo.fee;
+    console.log('withdrawTxFee: ' + withdrawTxFee)
+
+    map.set("withdrawNonce", withdrawNonce);
+    map.set("withdrawTxFee", withdrawTxFee);
+    return map;
+}
+
+const approveTrc20 = async (approveNum, contractAddress) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let approveTxFee = "";
+
+    const approveId = await tronWeb.sidechain.approveTrc20(approveNum, FEE_LIMIT, contractAddress)
+    console.log("approveId: "+approveId);
+    assert.equal(approveId.length, 64);
+    await wait(90);
+    const approveInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(approveId);
+    assert.equal("SUCCESS", approveInfo.receipt.result);
+    approveTxFee = typeof(approveInfo.fee)=="undefined"?0:approveInfo.fee;
+    console.log('approveTxFee: ' + approveTxFee)
+
+    map.set("approveTxFee", approveTxFee);
+    return map;
+}
+
+const depositTrc20 = async (depositNum, contractAddress) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let depositNonce = "";
+    let depositTxFee = "";
+
+    const depositId = await tronWeb.sidechain.depositTrc20(depositNum, DEPOSIT_FEE, FEE_LIMIT, contractAddress);
+    console.log("depositId: "+depositId);
+    assert.equal(depositId.length, 64);
+    await wait(80);
+    const depositInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(depositId);
+    assert.equal("SUCCESS", depositInfo.receipt.result);
+    depositNonce = depositInfo.contractResult[0];
+    depositNonce = tronWeb.BigNumber(depositNonce, 16).valueOf();
+    depositTxFee = typeof(depositInfo.fee)=="undefined"?0:depositInfo.fee;
+    console.log('depositTxFee: ' + depositTxFee)
+
+    map.set("depositNonce", depositNonce);
+    map.set("depositTxFee", depositTxFee);
+    return map;
+}
+
+const withdrawTrc20 = async (withdrawNum, sideChainContractAddress) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let withdrawNonce = "";
+    let withdrawTxFee = "";
+
+    const withdrawId = await tronWeb.sidechain.withdrawTrc20(withdrawNum, WITHDRAW_FEE, FEE_LIMIT, sideChainContractAddress);
+    assert.equal(withdrawId.length, 64);
+    console.log("withdrawId: "+withdrawId);
+    await wait(80);
+    const withdrawInfo =await tronWeb.sidechain.sidechain.trx.getTransactionInfo(withdrawId);
+    assert.equal("SUCCESS", withdrawInfo.receipt.result);
+    withdrawNonce = withdrawInfo.contractResult[0];
+    withdrawNonce = tronWeb.BigNumber(withdrawNonce, 16).valueOf();
+    withdrawTxFee = typeof(withdrawInfo.fee)=="undefined"?0:withdrawInfo.fee;
+    console.log('withdrawTxFee: ' + withdrawTxFee)
+
+    map.set("withdrawNonce", withdrawNonce);
+    map.set("withdrawTxFee", withdrawTxFee);
+    return map;
+}
+
+const approveTrc721 = async (trc721Id, contractAddress) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let approveTxFee = "";
+
+    const approveId = await tronWeb.sidechain.approveTrc721(trc721Id, FEE_LIMIT, contractAddress)
+    console.log("approveId: "+approveId);
+    assert.equal(approveId.length, 64);
+    await wait(90);
+    const approveInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(approveId);
+    assert.equal("SUCCESS", approveInfo.receipt.result);
+    approveTxFee = typeof(approveInfo.fee)=="undefined"?0:approveInfo.fee;
+    console.log('approveTxFee: ' + approveTxFee)
+
+    map.set("approveTxFee", approveTxFee);
+    return map;
+}
+
+const depositTrc721 = async (trc721Id, contractAddress) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let depositNonce = "";
+    let depositTxFee = "";
+
+    const depositId = await tronWeb.sidechain.depositTrc721(trc721Id, DEPOSIT_FEE,FEE_LIMIT, contractAddress);
+    console.log("depositId: "+depositId);
+    assert.equal(depositId.length, 64);
+    await wait(90);
+    const depositInfo =await tronWeb.sidechain.mainchain.trx.getTransactionInfo(depositId);
+    // console.log("depositInfo: "+util.inspect(depositInfo));
+    assert.equal("SUCCESS", depositInfo.receipt.result);
+    depositNonce = depositInfo.contractResult[0];
+    depositNonce = tronWeb.BigNumber(depositNonce, 16).valueOf();
+    depositTxFee = typeof(depositInfo.fee)=="undefined"?0:depositInfo.fee;
+    console.log('depositTxFee: ' + depositTxFee)
+
+    map.set("depositNonce", depositNonce);
+    map.set("depositTxFee", depositTxFee);
+    return map;
+}
+
+const withdrawTrc721 = async (trc721Id, sideChainContractAddress) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let withdrawNonce = "";
+    let withdrawTxFee = "";
+
+    const withdrawId = await tronWeb.sidechain.withdrawTrc721(trc721Id, WITHDRAW_FEE,FEE_LIMIT, sideChainContractAddress);
+    console.log("withdrawId: "+withdrawId);
+    assert.equal(withdrawId.length, 64);
+    await wait(90);
+    const withdrawInfo =await tronWeb.sidechain.sidechain.trx.getTransactionInfo(withdrawId);
+    assert.equal("SUCCESS", withdrawInfo.receipt.result);
+    withdrawNonce = withdrawInfo.contractResult[0];
+    withdrawNonce = tronWeb.BigNumber(withdrawNonce, 16).valueOf();
+    withdrawTxFee = typeof(withdrawInfo.fee)=="undefined"?0:withdrawInfo.fee;
+    console.log('withdrawTxFee: ' + withdrawTxFee)
+
+    map.set("withdrawNonce", withdrawNonce);
+    map.set("withdrawTxFee", withdrawTxFee);
+    return map;
+}
+
+const deployTrc20ContractAndMapping = async () =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let createTxId = "";
+    let contractAddress = "";
+    let sideChainContractAddress = "";
+    let deployMap = await deployTrc20Contract();
+    createTxId = deployMap.get("createTxId");
+    contractAddress = deployMap.get("contractAddress");
+    let mappingMap = await mappingTrc20Contract(contractAddress, createTxId);
+    sideChainContractAddress = mappingMap.get("sideChainContractAddress");
+
+    map.set("createTxId", createTxId);
+    map.set("contractAddress", contractAddress);
+    map.set("sideChainContractAddress", sideChainContractAddress);
+    return map;
+}
+
+const deployTrc20Contract = async () =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let createTxId = "";
+    let contractAddress = "";
+    // deploy trc20 contract in mainChain
+    const options = {
+        abi: trc20Contract.abi,
+        bytecode: trc20Contract.bytecode,
+        parameters: [ADDRESS_BASE58]
+    };
+    const createTransaction = await tronWeb.sidechain.mainchain.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+    const createTx = await broadcaster.broadcasterInSideMain(null, PRIVATE_KEY, createTransaction);
+    // console.log("createTx:"+util.inspect(createTx))
+    createTxId = createTx.transaction.txID;
+    console.log("createTxId:"+createTxId)
+    assert.equal(createTxId.length, 64);
+    let createInfo;
+    while (true) {
+        createInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(createTxId);
+        if (Object.keys(createInfo).length === 0) {
+            await wait(3);
+            continue;
+        } else {
+            // console.log("createInfo:"+util.inspect(createInfo))
+            break;
+        }
     }
-    return Promise.resolve(accounts);*/
+    assert.equal("SUCCESS", createInfo.receipt.result);
+    contractAddress = createInfo.contract_address;
+    contractAddress = tronWeb.address.fromHex(contractAddress)
+    console.log("contractAddress:"+tronWeb.address.fromHex(contractAddress))
+
+    map.set("createTxId", createTxId);
+    map.set("contractAddress", contractAddress);
+    return map;
+}
+
+const mappingTrc20Contract = async (contractAddress, createTxId) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let mappingNonce = "";
+    let sideChainContractAddress = "";
+    // mapping
+    let mappingId = await tronWeb.sidechain.mappingTrc20(createTxId, MAPPING_FEE, FEE_LIMIT);
+    // console.log("mappingTrc20Id:"+util.inspect(mappingId,true,null,true))
+    assert.equal(mappingId.length, 64);
+    await wait(90);
+    const mappingInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(mappingId);
+    assert.equal("SUCCESS", mappingInfo.receipt.result);
+    // console.log("mappingTrc20Info:"+util.inspect(mappingInfo,true,5,true))
+    mappingNonce = mappingInfo.contractResult[0];
+    mappingNonce = tronWeb.BigNumber(mappingNonce, 16).valueOf();
+    const mappingTxFee = typeof(mappingInfo.fee)=="undefined"?0:mappingInfo.fee;
+    // console.log('mappingTxFee: ' + mappingTxFee)
+
+    // mainToSideContractMap
+    const sideChainContractResult = await tronWeb.sidechain.sidechain.transactionBuilder.triggerConstantContract(
+        SIDE_CHAIN.sideOptions.sideGatewayAddress,
+        "mainToSideContractMap(address)",
+        {},
+        [{type: 'address', value: contractAddress}]);
+    console.log("sideChainContractResult:"+util.inspect(sideChainContractResult,true,5,true))
+    sideChainContractAddress = sideChainContractResult.constant_result;
+    sideChainContractAddress = tronWeb.address.fromHex("41"+sideChainContractAddress.toString().substr(24))
+    console.log("sideChainContractAddress:"+sideChainContractAddress);
+
+    map.set("mappingNonce", mappingNonce);
+    map.set("sideChainContractAddress", sideChainContractAddress);
+    return map;
+}
+
+const deployTrc721ContractAndMappingAndMint = async () =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let createTxId;
+    let contractAddress;
+    let trc721Id;
+    let sideChainContractAddress;
+    let deployMap = await deployTrc721Contract();
+    createTxId = deployMap.get("createTxId");
+    contractAddress = deployMap.get("contractAddress");
+    let mappingMap = await mappingTrc721Contract(contractAddress, createTxId);
+    sideChainContractAddress = mappingMap.get("sideChainContractAddress");
+    let mintMap = await mintTrc721(contractAddress);
+    trc721Id = mintMap.get("trc721Id");
+
+    map.set("trc721Id", trc721Id);
+    map.set("createTxId", createTxId);
+    map.set("contractAddress", contractAddress);
+    map.set("sideChainContractAddress", sideChainContractAddress);
+    return map;
+}
+
+const deployTrc721Contract = async () =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let createTxId;
+    let contractAddress;
+    // deploy trc721 contract in mainChain
+    const options = {
+        abi: trc721Contract.abi,
+        bytecode: trc721Contract.bytecode,
+        feeLimit:20000000,
+        parameters: [ADDRESS_BASE58,"721s","721"]
+    };
+    const createTransaction = await tronWeb.sidechain.mainchain.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+    // console.log("createTransaction:"+JSON.stringify(createTransaction))
+    const createTx = await broadcaster.broadcasterInSideMain(null, PRIVATE_KEY, createTransaction);
+    createTxId = createTx.transaction.txID;
+    // console.log("createTx:"+JSON.stringify(createTx))
+    assert.equal(createTxId.length, 64);
+    let createInfo;
+    while (true) {
+        createInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(createTxId);
+        if (Object.keys(createInfo).length === 0) {
+            await wait(3);
+            continue;
+        } else {
+            // console.log("createInfo:"+util.inspect(createInfo))
+            break;
+        }
+    }
+    assert.equal("SUCCESS", createInfo.receipt.result);
+    contractAddress = createInfo.contract_address;
+    contractAddress = tronWeb.address.fromHex(contractAddress)
+    console.log("contractAddress:"+contractAddress)
+
+    map.set("createTxId", createTxId);
+    map.set("contractAddress", contractAddress);
+    return map;
+}
+
+const mappingTrc721Contract = async (contractAddress, createTxId) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let mappingNonce = "";
+    let sideChainContractAddress;
+    // mapping
+    let mappingId = await tronWeb.sidechain.mappingTrc721(createTxId, MAPPING_FEE, FEE_LIMIT);
+    console.log("mappingTrc721Id:"+util.inspect(mappingId,true,null,true))
+    assert.equal(mappingId.length, 64);
+    await wait(90);
+    const mappingInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(mappingId);
+    assert.equal("SUCCESS", mappingInfo.receipt.result);
+    console.log("mappingTrc721Info:"+util.inspect(mappingInfo,true,5,true))
+    mappingNonce = mappingInfo.contractResult[0];
+    mappingNonce = tronWeb.BigNumber(mappingNonce, 16).valueOf();
+    const mappingTxFee = typeof(mappingInfo.fee)=="undefined"?0:mappingInfo.fee;
+    console.log('mappingTxFee: ' + mappingTxFee)
+
+    // mainToSideContractMap
+    const sideChainContractResult = await tronWeb.sidechain.sidechain.transactionBuilder.triggerConstantContract(
+        SIDE_CHAIN.sideOptions.sideGatewayAddress,
+        "mainToSideContractMap(address)",
+        {},
+        [{type: 'address', value: contractAddress}]);
+    // console.log("sideChainContractResult:"+util.inspect(sideChainContractResult,true,5,true))
+    sideChainContractAddress = sideChainContractResult.constant_result;
+    sideChainContractAddress = tronWeb.address.fromHex("41"+sideChainContractAddress.toString().substr(24))
+    console.log("sideChainContractAddress:"+sideChainContractAddress)
+
+    map.set("mappingNonce", mappingNonce);
+    map.set("sideChainContractAddress", sideChainContractAddress);
+    return map;
+}
+
+const mintTrc721 = async (contractAddress) =>{
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    let map = new HashMap();
+    let trc721Id;
+    // mint(address,uint256)
+    const functionSelector = 'mint(address,uint256)';
+    trc721Id = 1001;
+    const mintTransaction = await tronWeb.sidechain.mainchain.transactionBuilder.triggerSmartContract(
+        contractAddress,
+        functionSelector,
+        {},
+        [{type: 'address', value: ADDRESS_BASE58},{type: 'uint256', value: trc721Id}]);
+    // console.log("mintTransaction:"+util.inspect(mintTransaction))
+    const mintTx = await broadcaster.broadcasterInSideMain(null, PRIVATE_KEY, mintTransaction.transaction);
+    // console.log("mintTx:"+util.inspect(mintTx))
+    assert.equal(mintTx.transaction.txID.length, 64);
+    let mintInfo;
+    while (true) {
+        mintInfo = await tronWeb.sidechain.mainchain.trx.getUnconfirmedTransactionInfo(mintTx.transaction.txID);
+        if (Object.keys(mintInfo).length === 0) {
+            await wait(3);
+            continue;
+        } else {
+            // console.log("mintInfo:"+util.inspect(mintInfo))
+            break;
+        }
+    }
+    assert.equal("SUCCESS", mintInfo.receipt.result);
+
+    map.set("trc721Id", trc721Id);
+    await wait(20);
+    return map;
 }
 
 module.exports = {
     reduce,
     sumBigNumber,
     accAdd,
-    newMainTestAccounts,
-    getTestAccounts,
-    newSideTestAccounts
+    depositTrx,
+    withdrawTrx,
+    depositTrc10,
+    withdrawTrc10,
+    approveTrc20,
+    depositTrc20,
+    withdrawTrc20,
+    approveTrc721,
+    depositTrc721,
+    withdrawTrc721,
+    deployTrc20ContractAndMapping,
+    deployTrc20Contract,
+    mappingTrc20Contract,
+    deployTrc721ContractAndMappingAndMint,
+    deployTrc721Contract,
+    mappingTrc721Contract,
+    mintTrc721
 }

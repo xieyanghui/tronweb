@@ -1,11 +1,12 @@
-const {ADDRESS_HEX, ADDRESS_BASE58, FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SIDE_CHAIN, SUN_NETWORK} = require('./helpers/config');
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
-const broadcaster = require('../../helpers/broadcaster');
+const {ADDRESS_HEX, ADDRESS_BASE58, FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SIDE_CHAIN, SUN_NETWORK} = require('../util/config');
+const tronWebBuilder = require('../util/tronWebBuilder');
+const broadcaster = require('../util/broadcaster');
+const TronWeb = tronWebBuilder.TronWeb;
 const HttpProvider = TronWeb.providers.HttpProvider;
 const BigNumber = require('bignumber.js');
-const TronWeb = tronWebBuilder.TronWeb;
 const wait = require('../../helpers/wait')
 const log = require('../../helpers/log')
+const util = require('util');
 const chai = require('chai');
 const assert = chai.assert;
 
@@ -15,20 +16,19 @@ describe('TronWeb Instance', function () {
         it('should create a full instance', function () {
             const tronWeb = tronWebBuilder.createInstance();
             assert.instanceOf(tronWeb, TronWeb);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
+            }
         });
 
-        it('should create an instance using an options object without private key', function () {
+        it('should reject create an instance using fullnode', function () {
             const fullNode = new HttpProvider(FULL_NODE_API);
-            const solidityNode = new HttpProvider(SOLIDITY_NODE_API);
-            const eventServer = EVENT_API;
 
-            const tronWeb = new TronWeb({
-                fullNode,
-                solidityNode,
-                eventServer
-            });
-
-            assert.equal(tronWeb.defaultPrivateKey, false);
+            assert.throws(() => new TronWeb(
+                fullNode
+            ), 'Invalid solidity node provided');
         });
 
         it('should create an instance using a full options object', function () {
@@ -45,6 +45,11 @@ describe('TronWeb Instance', function () {
             });
 
             assert.equal(tronWeb.defaultPrivateKey, privateKey);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
+            }
         });
 
         it('should create an instance without a private key', function () {
@@ -59,9 +64,34 @@ describe('TronWeb Instance', function () {
             );
 
             assert.equal(tronWeb.defaultPrivateKey, false);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
+            }
         });
 
         it('should create an instance without an event server', function () {
+            const fullNode = FULL_NODE_API;
+            const solidityNode = SOLIDITY_NODE_API;
+            const privateKey = PRIVATE_KEY;
+
+            const tronWeb = new TronWeb({
+                fullNode,
+                solidityNode,
+                privateKey
+            });
+
+            assert.equal(tronWeb.eventServer, false);
+            assert.equal(tronWeb.defaultPrivateKey, privateKey);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
+            }
+        });
+
+        it('should create an instance without an event server without a private key', function () {
             const fullNode = new HttpProvider(FULL_NODE_API);
             const solidityNode = new HttpProvider(SOLIDITY_NODE_API);
 
@@ -71,6 +101,99 @@ describe('TronWeb Instance', function () {
             );
 
             assert.equal(tronWeb.eventServer, false);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
+            }
+        });
+
+        it('should reject create an instance using fullNode eventServer', function () {
+            const fullNode = FULL_NODE_API;
+            const eventServer = EVENT_API;
+
+            assert.throws(() => new TronWeb({
+                fullNode,
+                eventServer
+            }), 'Invalid solidity node provided');
+        });
+
+        it('should reject create an instance using fullNode eventServer private key', function () {
+            const fullNode = FULL_NODE_API;
+            const eventServer = EVENT_API;
+            const privateKey = PRIVATE_KEY;
+
+            assert.throws(() => new TronWeb({
+                fullNode,
+                eventServer,
+                privateKey
+            }), 'Invalid solidity node provided');
+        });
+
+        it('should reject create an instance using solidityNode', function () {
+            const solidityNode = SOLIDITY_NODE_API;
+
+            assert.throws(() => new TronWeb({
+                solidityNode
+            }), 'Invalid full node provided');
+        });
+
+        it('should reject create an instance using solidityNode eventServer', function () {
+            const solidityNode = SOLIDITY_NODE_API;
+            const eventServer = EVENT_API;
+
+            assert.throws(() => new TronWeb({
+                solidityNode,
+                eventServer
+            }), 'Invalid full node provided');
+        });
+
+        it('should reject create an instance using solidityNode private key', function () {
+            const solidityNode = SOLIDITY_NODE_API;
+            const privateKey = PRIVATE_KEY;
+
+            assert.throws(() => new TronWeb({
+                solidityNode,
+                privateKey
+            }), 'Invalid full node provided');
+        });
+
+        it('should reject create an instance using solidityNode eventServer private key', function () {
+            const solidityNode = SOLIDITY_NODE_API;
+            const eventServer = EVENT_API;
+            const privateKey = PRIVATE_KEY;
+
+            assert.throws(() => new TronWeb({
+                solidityNode,
+                eventServer,
+                privateKey
+            }), 'Invalid full node provided');
+        });
+
+        it('should reject create an instance using eventServer', function () {
+            const eventServer = EVENT_API;
+
+            assert.throws(() => new TronWeb({
+                eventServer
+            }), 'Invalid full node provided');
+        });
+
+        it('should reject create an instance using private key', function () {
+            const privateKey = PRIVATE_KEY;
+
+            assert.throws(() => new TronWeb({
+                privateKey
+            }), 'Invalid full node provided');
+        });
+
+        it('should reject create an instance using eventServer private key', function () {
+            const eventServer = EVENT_API;
+            const privateKey = PRIVATE_KEY;
+
+            assert.throws(() => new TronWeb({
+                eventServer,
+                privateKey
+            }), 'Invalid full node provided');
         });
 
         it('should reject an invalid full node URL', function () {
@@ -102,6 +225,19 @@ describe('TronWeb Instance', function () {
             ), 'Invalid URL provided to HttpProvider');
         });
 
+        it('should reject an invalid private key', function () {
+            const fullNode = new HttpProvider(FULL_NODE_API);
+            const solidityNode = new HttpProvider(SOLIDITY_NODE_API);
+            const eventServer = SIDE_CHAIN.eventServer;
+
+            assert.throws(() => new TronWeb(
+                fullNode,
+                solidityNode,
+                eventServer,
+                '$' + PRIVATE_KEY
+            ), 'Invalid private key provided');
+        });
+
         it('should create an instance using an options and sideOptions object without private key', function () {
             const fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
             const solidityNode = new HttpProvider(SIDE_CHAIN.solidityNode);
@@ -114,6 +250,11 @@ describe('TronWeb Instance', function () {
             }, SIDE_CHAIN.sideOptions);
 
             assert.equal(tronWeb.defaultPrivateKey, false);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
+            }
         });
 
         it('should create an instance using a full options and a full sideOptions object', function () {
@@ -127,6 +268,11 @@ describe('TronWeb Instance', function () {
                 privateKey
             }, sideOptions);
             assert.equal(tronWeb.defaultPrivateKey, privateKey);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key],true,null,true));
+            }
         });
 
         it('should create an instance with a full sideOptions without a private key', function () {
@@ -149,6 +295,11 @@ describe('TronWeb Instance', function () {
             );
 
             assert.equal(tronWeb.defaultPrivateKey, false);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
+            }
         });
 
         it('should create an instance with a fullhost in sideOptions without a private key', function () {
@@ -169,6 +320,11 @@ describe('TronWeb Instance', function () {
             );
 
             assert.equal(tronWeb.defaultPrivateKey, false);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
+            }
         });
 
         it('should create an instance with a full sideOptions without an event server', function () {
@@ -190,8 +346,12 @@ describe('TronWeb Instance', function () {
             );
 
             assert.equal(tronWeb.eventServer, false);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
+            }
         });
-
 
         it('should create an instance with a full sideOptions without an event server in sideOptions', function () {
             const fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
@@ -211,6 +371,11 @@ describe('TronWeb Instance', function () {
             );
 
             assert.equal(tronWeb.eventServer, false);
+            let keys = Object.keys(tronWeb);
+            let values = Object.values(tronWeb);
+            for(let key in keys){
+                console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
+            }
         });
 
         it('should reject an invalid full node URL in sideOptions', function () {
@@ -265,6 +430,27 @@ describe('TronWeb Instance', function () {
                     sideChainId: SIDE_CHAIN.sideOptions.sideChainId
                 }
             ), 'Invalid URL provided to HttpProvider');
+        });
+
+        it('should reject an invalid private key ', function () {
+
+            const fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
+            const solidityNode = new HttpProvider(SIDE_CHAIN.solidityNode);
+            const eventServer = SIDE_CHAIN.eventServer;
+            assert.throws(() => new TronWeb(
+                fullNode,
+                solidityNode,
+                eventServer,
+                '$' + PRIVATE_KEY,
+                {
+                    fullNode: SIDE_CHAIN.sideOptions.fullNode,
+                    solidityNode: SIDE_CHAIN.sideOptions.solidityNode,
+                    eventServer: '$' + SIDE_CHAIN.sideOptions.eventServer,
+                    mainGatewayAddress: SIDE_CHAIN.sideOptions.mainGatewayAddress,
+                    sideGatewayAddress: SIDE_CHAIN.sideOptions.sideGatewayAddress,
+                    sideChainId: SIDE_CHAIN.sideOptions.sideChainId
+                }
+            ), 'Invalid private key provided');
         });
 
     });
@@ -946,7 +1132,7 @@ describe('TronWeb Instance', function () {
             tronWeb = tronWebBuilder.createInstance();
             accounts = await tronWebBuilder.getTestAccounts(-1);
 
-            const result = await broadcaster(tronWeb.transactionBuilder.createSmartContract({
+            const result = await broadcaster.broadcaster(tronWeb.transactionBuilder.createSmartContract({
                 abi: [
                     {
                         "anonymous": false,
@@ -991,6 +1177,7 @@ describe('TronWeb Instance', function () {
                 ],
                 bytecode: "0x608060405234801561001057600080fd5b50610145806100206000396000f300608060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063bed7111f14610046575b600080fd5b34801561005257600080fd5b50610091600480360381019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610093565b005b3373ffffffffffffffffffffffffffffffffffffffff167f9f08738e168c835bbaf7483705fb1c0a04a1a3258dd9687f14d430948e04e3298383604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019250505060405180910390a250505600a165627a7a7230582033629e2b0bba53f7b5c49769e7e360f2803ae85ac80e69dd61c7bb48f9f401f30029"
             }, accounts.hex[0]), accounts.pks[0])
+            // console.log("createTransaction:"+JSON.stringify(createTransaction))
 
             contractAddress = result.receipt.transaction.contract_address
             contract = await tronWeb.contract().at(contractAddress)
@@ -998,7 +1185,7 @@ describe('TronWeb Instance', function () {
         });
 
 
-        it('should emit an unconfirmed event and get it', async function () {
+        it.only('should emit an unconfirmed event and get it', async function () {
 
             this.timeout(60000)
             tronWeb.setPrivateKey(accounts.pks[1])
@@ -1035,7 +1222,7 @@ describe('TronWeb Instance', function () {
             tronWeb = tronWebBuilder.createInstance();
             accounts = await tronWebBuilder.getTestAccounts(-1);
 
-            const result = await broadcaster(tronWeb.transactionBuilder.createSmartContract({
+            const result = await broadcaster.broadcaster(tronWeb.transactionBuilder.createSmartContract({
                 abi: [
                     {
                         "anonymous": false,

@@ -1,6 +1,6 @@
 const testRevertContract = require('../../fixtures/contracts').testRevert;
 const testSetValContract = require('../../fixtures/contracts').testSetVal;
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const tronWebBuilder = require('../util/tronWebBuilder');
 const assertThrow = require('../../helpers/assertThrow');
 const broadcaster = require('../../helpers/broadcaster');
 const wait = require('../../helpers/wait');

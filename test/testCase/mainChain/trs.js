@@ -1,6 +1,6 @@
 const arguments = process.argv.splice(2);
 //const TronWeb = require('tronweb')
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const tronWebBuilder = require('../util/tronWebBuilder');
 const TronWeb = tronWebBuilder.TronWeb;
 const HttpProvider = TronWeb.providers.HttpProvider;
 const fullNode = new HttpProvider("https://api.trongrid.io");
@@ -21,6 +21,18 @@ async function getEventByTransactionID(input) {
         function(data){console.log(data)}
         );
 }
+
+async function listExchangesPaginated() {
+    console.log("input:"+input)
+    //console.log(await tronWeb.getEventByTransactionID(input))
+    // tronWeb.getEventByTransactionID(input).then(
+    //     function(data){console.log(data)}
+    //     );
+    let list = await tronWeb.trx.listExchangesPaginated(20, 0);
+    console.log("list:"+JSON.stringify(list))
+
+}node
+
 switch(arguments[0]) {
     case "getContractFromAbi":
         getContractFromAbi()
@@ -30,6 +42,9 @@ switch(arguments[0]) {
         break;
     case "getEventByTransactionID":
         getEventByTransactionID(arguments[1])
+        break;
+    case "listExchangesPaginated":
+        listExchangesPaginated()
         break;
     default:
         break;

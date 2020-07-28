@@ -1,7 +1,7 @@
 const {ADDRESS_BASE58,PRIVATE_KEY, FEE_LIMIT} = require('../util/config');
 const testDeployRevert = require('../util/contracts').testDeployRevert;
 const testTriggerError = require('../util/contracts').testTriggerError;
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const tronWebBuilder = require('../util/tronWebBuilder');
 const broadcaster = require('../util/broadcaster');
 const wait = require('../../helpers/wait');
 const chai = require('chai');

@@ -1,4 +1,4 @@
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const tronWebBuilder = require('../util/tronWebBuilder');
 const chai = require('chai');
 const assert = chai.assert;
 

@@ -1,4 +1,4 @@
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const tronWebBuilder = require('./tronWebBuilder');
 const wait = require('../../helpers/wait');
 const util = require('util');
 
@@ -57,8 +57,36 @@ const broadcasterInSideChain = async (func, pk, transaction) =>  {
     return Promise.resolve(result);
 }
 
+const broadcasterInSideMain = async (func, pk, transaction) =>  {
+    const tronWeb = tronWebBuilder.createInstanceSide();
+    if( !transaction) {
+        transaction = await func;
+    }
+    // const signedTransaction = await tronWeb.sidechain.sign(transaction, pk);
+    const signedTransaction = await tronWeb.sidechain.mainchain.trx.signTransaction(transaction, pk);
+    // console.log("signedTransaction:"+JSON.stringify(signedTransaction))
+    let result = {
+        transaction,
+        signedTransaction,
+        receipt: await tronWeb.sidechain.mainchain.trx.sendRawTransaction(signedTransaction)
+    };
+
+    let times = 0;
+    while (times++ <= 10 && result.receipt.toString().indexOf("code") != -1 &&
+    result.receipt.code == "SERVER_BUSY") {
+        console.log("retry num is " + times);
+        result = {
+            transaction,
+            signedTransaction,
+            receipt: await tronWeb.sidechain.mainchain.trx.sendRawTransaction(signedTransaction)
+        };
+        await wait(1);
+    }
+    return Promise.resolve(result);
+}
 
 module.exports = {
     broadcaster,
-    broadcasterInSideChain
+    broadcasterInSideChain,
+    broadcasterInSideMain
 }

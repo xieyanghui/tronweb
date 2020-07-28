@@ -1,9 +1,9 @@
 const pollAccountFor = require('../../helpers/pollAccountFor');
-const tronWebBuilder = require('../../helpers/tronWebBuilder');
+const tronWebBuilder = require('../util/tronWebBuilder');
 const assertEqualHex = require('../../helpers/assertEqualHex');
 const waitChainData = require('../../helpers/waitChainData');
 const assertThrow = require('../../helpers/assertThrow');
-const broadcaster = require('../../helpers/broadcaster');
+const broadcaster = require('../util/broadcaster');
 const txPars = require('../../helpers/txPars');
 const config = require('../../helpers/config');
 const jlog = require('../../helpers/jlog');
@@ -371,7 +371,7 @@ describe('TronWeb.trx', function () {
         });
 
 
-        describe.only("#multiSignTransaction", async function () {
+        describe("#multiSignTransaction", async function () {
 
             const ownerIdx = 5;
             const idxS = 5;
