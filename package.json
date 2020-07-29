@@ -9,7 +9,7 @@
         "build:dev": "NODE_ENV=development npm run build",
         "clean": "rimraf dist",
         "newaccount": "node scripts/test-node.js && node test/helpers/newAccounts 50",
-        "test": "node scripts/test-node.js && node test/helpers/newAccounts 5 npm run-script newaccount && npx mocha 'test/testCase/mainChain/index.test.index.js'  --timeout 9550000",
+        "test": "node scripts/test-node.js && node test/helpers/newAccounts 0 npm run-script newaccount && npx mocha 'test/testCase/mainChain/wm1.js'  --timeout 9550000",
         "test-no-accounts": "node scripts/test-node.js && npx mocha 'test/**/*.test.js'",
         "test:browser": "npm run-script newaccount && node scripts/test-browser.js && npx karma start --single-run --browsers ChromeHeadless",
         "coverage": "npm run-script test:browser && npm run-script test",
