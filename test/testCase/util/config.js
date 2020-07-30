@@ -86,7 +86,7 @@ module.exports = {
             sideChainId: '41F7AFFF7316CDA1E1BC9B21B7CC98BB84A4EA5510'
         }
     },
-    TOKEN_ID: 1000002,
+    TOKEN_ID: 1000001,
     DEPOSIT_FEE: 0,
     MAPPING_FEE: 0,
     WITHDRAW_FEE: 0,
