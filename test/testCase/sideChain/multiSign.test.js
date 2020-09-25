@@ -23,8 +23,15 @@ describe('TronWeb Instance', function() {
             let tronWeb;
 
             before(async function() {
-                this.timeout(20000);
                 tronWeb = tronWebBuilder.createInstanceSide();
+                /*const sendTrxTx = await tronWeb.sidechain.sidechain.trx.sendTrx("TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s", 100000000000);
+                const sendTrxTx2 = await tronWeb.sidechain.sidechain.trx.sendTrx("TELLNvWTiYbMEyGu1DQSr8UDQA8aJzpx6x", 10000000000);
+                console.log("sendTrxTx1:"+JSON.stringify(sendTrxTx))
+                console.log("sendTrxTx2:"+JSON.stringify(sendTrxTx2))
+                assert.isTrue(sendTrxTx.result);
+                assert.isTrue(sendTrxTx2.result);
+                await wait(15);*/
+                this.timeout(20000);
                 let pk0 = "8f48434338fc2b8e6e164e3495416de6d2fdfb0e176f82094c1c45405bb26afa";
                 let addr = tronWeb.address.fromPrivateKey(pk0);
                 accounts.pks.push(pk0);
@@ -38,7 +45,7 @@ describe('TronWeb Instance', function() {
                 let ownerAddress = accounts.hex[ownerIdx];
                 let ownerPk = accounts.pks[ownerIdx];
 
-                /*// update account permission
+               /* // update account permission
                 let ownerPermission = { type: 0, permission_name: 'owner' };
                 ownerPermission.threshold = threshold;
                 ownerPermission.keys  = [];
@@ -322,7 +329,7 @@ describe('TronWeb Instance', function() {
                     const transaction = await tronWeb.sidechain.sidechain.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
                     await tronWeb.sidechain.multiSign(transaction, accounts.pks[ownerIdx], 1);
                 } catch (e) {
-                    assert.isTrue(e.indexOf('permission isn\'t exit') != -1);
+                    assert.isTrue(e.indexOf('Permission for this, does not exist!') != -1);
                 }
 
             });

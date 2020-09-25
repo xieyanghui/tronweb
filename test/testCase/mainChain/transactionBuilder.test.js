@@ -19,7 +19,7 @@ const {
     PRIVATE_KEY,
     getTokenOptions,
     isProposalApproved
-} = require('../helpers/config');
+} = require('../util/config');
 
 describe('TronWeb.transactionBuilder', function () {
 
@@ -1007,7 +1007,7 @@ describe('TronWeb.transactionBuilder', function () {
     });
 
 
-    describe("#deleteProposal", async function () {
+    describe.only("#deleteProposal", async function () {
 
 
         let proposals;

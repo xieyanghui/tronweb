@@ -90,7 +90,7 @@ describe('TronWeb Instance', function() {
                 assert.equal(txID.length, 64);
             });
         });
-        describe.only('#Sign()', function () {
+        describe('#Sign()', function () {
             it('sign with visible is true', async function () {
                 const tronWeb = tronWebBuilder.createInstanceSide();
                 var transac1 = {

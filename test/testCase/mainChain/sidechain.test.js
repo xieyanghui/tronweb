@@ -21,7 +21,7 @@ const { PRIVATE_KEY,
     RETRY_WITHDRAW_FEE,
     TRC721_ID,
     NONCE,
-    SIDE_CHAIN } = require('../helpers/config');
+    SIDE_CHAIN } = require('../util/config');
 
 describe("TronWeb.sidechain", function () {
     describe('#deposit', function () {

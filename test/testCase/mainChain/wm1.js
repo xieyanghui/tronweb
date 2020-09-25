@@ -1,9 +1,12 @@
 const tronWebBuilder = require('../util/tronWebBuilder');
 const TronWeb = tronWebBuilder.TronWeb;
+const wait = require('../../helpers/wait');
+const util = require('util');
+
 const options = {
-    fullNode: 'https://api.nileex.io',
-    solidityNode: 'https://api.nileex.io',
-    eventServer: 'https://event.nileex.io',
+    fullNode: 'http://39.107.81.225:9193',
+    solidityNode: 'http://39.107.81.225:9197',
+    eventServer: 'http://39.107.81.225:9190',
     privateKey : '',
 };
 const tronWeb = new TronWeb(options);
@@ -25,41 +28,48 @@ console.log(tronWeb.toHex(),14);
 // tronWeb.trx.getAccount('TDQsxPhq9bgmnw9CeDSrXsYjqt2rb1b3pg').then(function(data) {
 //     console.log(data);
 // });
-var priKey = "553c7b0dee17d3f5b334925f5a90fe99fb0b93d47073d69ec33eead8459d171e";
-var transac1 = {
-    "result": {
-        "result": true
-    },
-    "transaction": {
-        "txID": "3c8fab6e6b94384bbdac8b5dca884aadc8283d43b85b1878fb296ef27ca72e59",
-        "raw_data": {
-            "contract": [
-                {
+
+describe("#multiSignTransaction", async function () {
+
+    var priKey = "4a2f422b1451b667b7879dbb941f70e651e7f307d310cd51fbb317d0f7ed449c";
+    var transac1 ={
+        "result": {
+            "result": true
+        },
+        "transaction": {
+            "visible": true,
+            "txID": "d2c52a12bcdf3c1f61c8eb0a0e14fa104168804ebe5bdc4a61937b94c7915826",
+            "raw_data": {
+                "contract": [{
                     "parameter": {
                         "value": {
-                            "data": "464c4dae0000000000000000000000000000000000000000000000000000000000000001",
-                            "owner_address": "4173fc381d3e2afefcced94a57d49520291c38afbb",
-                            "contract_address": "4138e16f3d0d982875d7ca8e221dbb511a4e836983"
+                            "data": "3be9ece7000000000000000000000000b0a2e61466fd35c9e96dd05970dfa9c5279c980600000000000000000000000000000000000000000000000000000000000f424d0000000000000000000000000000000000000000000000000000000000000001",
+                            "token_id": 1000013,
+                            "owner_address": "TAQ6xsTwofjeqp6MnqU7igizEs31QsS1un",
+                            "call_token_value": 20,
+                            "contract_address": "TPw5dcyngR4pbe5ng5s2AfKCxW1FnwRYuf",
+                            "call_value": 10
                         },
                         "type_url": "type.googleapis.com/protocol.TriggerSmartContract"
                     },
-                    "type": "TriggerSmartContract",
-                    "Permission_id": 2
-                }
-            ],
-            "ref_block_bytes": "b5fd",
-            "ref_block_hash": "6a8d83db006c6271",
-            "expiration": 1589532207000,
-            "fee_limit": 1000000000,
-            "timestamp": 1589532149919
-        },
-        "raw_data_hex": "0a02b5fd22086a8d83db006c62714098cf82bca12e5a9001081f1289010a31747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e54726967676572536d617274436f6e747261637412540a154173fc381d3e2afefcced94a57d49520291c38afbb12154138e16f3d0d982875d7ca8e221dbb511a4e8369832224464c4dae00000000000000000000000000000000000000000000000000000000000000012802709f91ffbba12e90018094ebdc03"
-    }
-};
-tronWeb.trx.sign(transac1.transaction,priKey,true,true,false).then(function (data) {
-    console.log(data.valueOf()["raw_data"]["contract"][0]);
-    console.log(data);
-});
-tronWeb.trx.broadcast(transac1.transaction).then(function (data) {
-    console.log(data)
-});
+                    "type": "TriggerSmartContract"
+                }],
+                "ref_block_bytes": "28e5",
+                "ref_block_hash": "6d84a14b962cfa66",
+                "expiration": 1600855236000,
+                "fee_limit": 1000000000,
+                "timestamp": 1600855177653
+            },
+            "raw_data_hex": "0a0228e522086d84a14b962cfa6640a0bba1d3cb2e5ad701081f12d2010a31747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e54726967676572536d617274436f6e7472616374129c010a154104b55be7bf693b787759c1122ca41530f60ba4a0121541992ac6f6b3a5cd83c51985caf30d442957215b3a180a22643be9ece7000000000000000000000000b0a2e61466fd35c9e96dd05970dfa9c5279c980600000000000000000000000000000000000000000000000000000000000f424d0000000000000000000000000000000000000000000000000000000000000001281430cd843d70b5f39dd3cb2e90018094ebdc03"
+        }
+    };
+    it('sign', async function () {
+        // broadcast update transaction
+        const signedUpdateTransaction = await tronWeb.trx.sign(
+            transac1.transaction, priKey, true,true,false);
+        const result = await tronWeb.trx.broadcast(signedUpdateTransaction);
+        await wait(3);
+        console.log("result: "+util.inspect(result,true,null,true))
+    });
+
+})
