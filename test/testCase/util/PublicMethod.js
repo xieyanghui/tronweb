@@ -499,6 +499,40 @@ const mintTrc721 = async (contractAddress) =>{
     return map;
 }
 
+const deployContract = async (contract, parametersArray = []) =>{
+    const tronWeb = tronWebBuilder.createInstance();
+    let createTxId = "";
+    let contractAddress = "";
+    // deploy contract in mainChain
+    const options = {
+        abi: contract.abi,
+        bytecode: contract.bytecode,
+        feeLimit:FEE_LIMIT,
+        parameters: parametersArray
+    };
+    const createTransaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+    const createTx = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction);
+    createTxId = createTx.transaction.txID;
+    console.log("createTxId: "+createTxId)
+    assert.equal(createTxId.length, 64);
+    let createInfo;
+    while (true) {
+        createInfo = await tronWeb.trx.getTransactionInfo(createTxId);
+        if (Object.keys(createInfo).length === 0) {
+            await wait(3);
+            continue;
+        } else {
+            // console.log("createInfo:"+util.inspect(createInfo))
+            break;
+        }
+    }
+    assert.equal("SUCCESS", createInfo.receipt.result);
+    contractAddress = createInfo.contract_address;
+    contractAddress = tronWeb.address.fromHex(contractAddress)
+    console.log("contractAddress: "+contractAddress)
+    return contractAddress;
+}
+
 module.exports = {
     reduce,
     sumBigNumber,
@@ -519,5 +553,6 @@ module.exports = {
     deployTrc721ContractAndMappingAndMint,
     deployTrc721Contract,
     mappingTrc721Contract,
-    mintTrc721
+    mintTrc721,
+    deployContract
 }
