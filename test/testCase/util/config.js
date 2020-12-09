@@ -119,6 +119,6 @@ module.exports = {
         solidityNode: 'https://api.nileex.io/',
         shieldedTRC20ContractAddress: 'TPcKtz5TRfP4xUZSos81RmXB9K2DBqj2iu',
         trc20ContractAddress: 'TFUD8x3iAZ9dF7NDCGBtSjznemEomE5rP9',
-        transParentToAddress: 'TRM11TZjzC8Gksria7tpYZvHEWpGW2T68r'
+        transParentToAddress: 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY'
     }
 }

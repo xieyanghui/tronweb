@@ -6,6 +6,7 @@ import injectpromise from 'injectpromise';
 import Validator from 'paramValidator';
 import utils from 'utils';
 import * as m from 'redjubjub-js';
+const util = require('util');
 
 export default class ZTron {
     constructor(tronWeb = false) {
@@ -229,6 +230,7 @@ export default class ZTron {
             alpha,
             tx_hash: txHash
         }
+        console.log("wallet/createspendauthsig: "+util.inspect(params,true,null,true))
 
         this.tronWeb.fullNode.request('wallet/createspendauthsig', params, 'post')
             .then(data => callback(null, data))
@@ -277,6 +279,7 @@ export default class ZTron {
         ], callback))
             return;
 
+        console.log("ovk:"+ovk)
         const params = {
             ovk,
             from_amount: fromAmount,
@@ -285,6 +288,7 @@ export default class ZTron {
             ...options
         }
 
+        console.log("createMintparameters-params:"+util.inspect(params,true,null,true))
         this.tronWeb.fullNode.request('wallet/createshieldedcontractparameters', params, 'post')
             .then(data => callback(null, data))
             .catch(err => callback(err));
@@ -482,6 +486,7 @@ export default class ZTron {
             ...options
         }
 
+        console.log("wallet/createshieldedcontractparameterswithoutask: "+util.inspect(params,true,null,true))
         this.tronWeb.fullNode.request('wallet/createshieldedcontractparameterswithoutask', params, 'post')
             .then(data => callback(null, data))
             .catch(err => callback(err));
@@ -710,6 +715,8 @@ export default class ZTron {
             spend_authority_signature: spendAuthoritySignature,
             ...options
         }
+        console.log("wallet/gettriggerinputforshieldedtrc20contract: "+util.inspect(params,true,null,true))
+
         this.tronWeb.fullNode.request('wallet/gettriggerinputforshieldedtrc20contract', params, 'post')
             .then(data => callback(null, data))
             .catch(err => callback(err));
@@ -899,6 +906,8 @@ export default class ZTron {
             shielded_TRC20_contract_address: options && options.visible ? shieldedTRC20ContractAddress : this.tronWeb.address.toHex(shieldedTRC20ContractAddress),
             ...options
         }
+        console.log("scanshieldedtrc20notesbyovk-params:"+util.inspect(params,true,null,true))
+
         this.tronWeb.fullNode.request('wallet/scanshieldedtrc20notesbyovk', params, 'post')
             .then(data => callback(null, data))
             .catch(err => callback(err));

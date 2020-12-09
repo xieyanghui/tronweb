@@ -8,6 +8,7 @@ async function makeAndSendTransaction(tronWeb, contractAddress, functionSelector
         tronWeb.address.toHex(issuerAddress)
     );
     const signedTransaction = await tronWeb.trx.sign(transaction.transaction, tronWeb.defaultPrivateKey);
+    console.log("transaction-txid: "+transaction.transaction.txID);
     return tronWeb.trx.sendRawTransaction(signedTransaction);
 }
 
