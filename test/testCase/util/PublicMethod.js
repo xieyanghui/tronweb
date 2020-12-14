@@ -13,10 +13,10 @@ const assert = chai.assert;
 
 const accAdd = async (A, B) => {
     var r1,r2,m;
-    try{r1=arg1.toString().split(".")[1].length}catch(e){r1=0}
-    try{r2=arg2.toString().split(".")[1].length}catch(e){r2=0}
+    try{r1=A.toString().split(".")[1].length}catch(e){r1=0}
+    try{r2=B.toString().split(".")[1].length}catch(e){r2=0}
     m=Math.pow(10,Math.max(r1,r2))
-    return (arg1*m+arg2*m)/m
+    return (A*m+B*m)/m
 }
 
 const sumBigNumber = async (a, b) => {
@@ -502,7 +502,7 @@ const mintTrc721 = async (contractAddress) =>{
 }
 
 const deployContract = async (contract, parametersArray = []) =>{
-    const tronWeb = tronWebBuilder.createInstanceSide();
+    const tronWeb = tronWebBuilder.createInstance();
     let createTxId = "";
     let contractAddress = "";
     // deploy contract in mainChain
@@ -512,14 +512,14 @@ const deployContract = async (contract, parametersArray = []) =>{
         feeLimit:FEE_LIMIT,
         parameters: parametersArray
     };
-    const createTransaction = await tronWeb.sidechain.mainchain.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
-    const createTx = await broadcaster.broadcasterInSideMain(null, PRIVATE_KEY, createTransaction);
+    const createTransaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+    const createTx = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction);
     createTxId = createTx.transaction.txID;
     console.log("createTxId: "+createTxId)
     assert.equal(createTxId.length, 64);
     let createInfo;
     while (true) {
-        createInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(createTxId);
+        createInfo = await tronWeb.trx.getTransactionInfo(createTxId);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
             continue;

@@ -8,6 +8,7 @@ const waitChainData = require('../../helpers/waitChainData');
 const txPars = require('../../helpers/txPars');
 const wait = require('../../helpers/wait');
 const jlog = require('../../helpers/jlog');
+const util = require('util');
 const chai = require('chai');
 const assert = chai.assert;
 const _ = require('lodash');
@@ -224,6 +225,50 @@ describe('TronWeb.transactionBuilder', function () {
             }
         });
 
+        it.only(`should allow create a TestToken with precision is 0 or 6`, async function () {
+            if (isAllowSameTokenNameApproved) {
+
+                const options = getTokenOptions();
+
+                options.precision = 0;
+                let transaction = await tronWeb.transactionBuilder.createToken(options, accounts.b58[9]);
+                let parameter = txPars(transaction);
+                console.log("parameter: "+util.inspect(parameter,true,null,true));
+                const precision = typeof (parameter.value.precision) === 'number' ? (parameter.value.precision) : 0;
+                assert.equal(transaction.txID.length, 64);
+                assert.equal(parameter.value.vote_score, options.voteScore);
+                assert.equal(precision, options.precision);
+                assert.equal(parameter.value.total_supply, options.totalSupply);
+                await assertEqualHex(parameter.value.abbr, options.abbreviation);
+                assert.equal(parameter.value.owner_address, accounts.hex[9]);
+                assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AssetIssueContract');
+                await broadcaster.broadcaster(null, accounts.pks[9], transaction)
+                let tokenList = await tronWeb.trx.getTokensIssuedByAddress(accounts.b58[9])
+                let tokenID = tokenList[options.name].id
+                let token = await tronWeb.trx.getTokenByID(tokenID)
+                const tokenPrecision = typeof (token.precision) === 'number' ? (token.precision) : 0;
+                assert.equal(tokenPrecision, options.precision);
+
+                options.precision = 6;
+                transaction = await tronWeb.transactionBuilder.createToken(options, accounts.b58[10]);
+                parameter = txPars(transaction);
+                console.log("parameter: "+util.inspect(parameter,true,null,true));
+                assert.equal(transaction.txID.length, 64);
+                assert.equal(parameter.value.vote_score, options.voteScore);
+                assert.equal(parameter.value.precision, options.precision);
+                assert.equal(parameter.value.total_supply, options.totalSupply);
+                await assertEqualHex(parameter.value.abbr, options.abbreviation);
+                assert.equal(parameter.value.owner_address, accounts.hex[10]);
+                assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AssetIssueContract');
+                await broadcaster.broadcaster(null, accounts.pks[10], transaction)
+                tokenList = await tronWeb.trx.getTokensIssuedByAddress(accounts.b58[10])
+                tokenID = tokenList[options.name].id
+                token = await tronWeb.trx.getTokenByID(tokenID)
+                assert.equal(token.precision, options.precision);
+            } else {
+                this.skip()
+            }
+        });
 
         it('should throw if an invalid name is passed', async function () {
 
@@ -444,6 +489,25 @@ describe('TronWeb.transactionBuilder', function () {
             await assertThrow(
                 tronWeb.transactionBuilder.createToken(options, '0xzzzww'),
                 'Invalid issuer address provided'
+            );
+
+        });
+
+        it('should throw if precision is invalid', async function () {
+
+            const options = getTokenOptions();
+            options.precision = -1;
+
+            await assertThrow(
+                tronWeb.transactionBuilder.createToken(options),
+                'precision must be a positive integer >= 0 and <= 6'
+            );
+
+            options.precision = 7;
+
+            await assertThrow(
+                tronWeb.transactionBuilder.createToken(options),
+                'precision must be a positive integer >= 0 and <= 6'
             );
 
         });
@@ -849,7 +913,7 @@ describe('TronWeb.transactionBuilder', function () {
             assert.equal(token.name, tokenOptions.name)
         })
 
-        it.only("should allow accounts [7]  to send a token to accounts[1]", async function () {
+        it("should allow accounts [7]  to send a token to accounts[1]", async function () {
 
             this.timeout(30000)
 

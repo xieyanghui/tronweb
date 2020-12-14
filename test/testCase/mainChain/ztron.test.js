@@ -13,7 +13,7 @@ const util = require('util');
 const assert = chai.assert;
 
 describe('TronWeb ztron', function() {
-    const tronWeb = tronWebBuilder.createInstanceSide();
+    const tronWeb = tronWebBuilder.createInstance();
     let scalingFactor = 10;
     let trc20ContractAddress;
     let shieldedTRC20ContractAddress;
@@ -24,7 +24,6 @@ describe('TronWeb ztron', function() {
     let shieldedInfo;
     let shieldedInfo2;
     let newOtherAccountKey;
-    let newOtherAccount;
     let newOtherAddress;
     let ownerAddress;
     before(async function () {
@@ -1290,7 +1289,8 @@ describe('TronWeb ztron', function() {
             it('should get transferParams without ask, ak is an object', async function (){
                 // build params
                 await wait(10)
-                let pathInfo = await methodInstance.getPath(noteTxs[0].position).call();
+                const position = typeof (noteTxs[0].position) === 'number' ? (noteTxs[0].position) : 0;
+                let pathInfo = await methodInstance.getPath(position).call();
                 console.log("noteTxs[0]: "+util.inspect(noteTxs[0],true,null,true));
                 console.log("rcm: "+util.inspect(noteTxs[0].note.rcm,true,null,true));
                 shieldedSpends = [{
@@ -1298,7 +1298,7 @@ describe('TronWeb ztron', function() {
                     "alpha": (await tronWeb.ztron.getRcm()).value,
                     "root":  pathInfo[0].replace('0x', ''),
                     "path":  pathInfo[1].map(v => v.replace('0x', '')).join(''),
-                    "pos": noteTxs[0].position
+                    "pos": position
                 }];
                 console.log("shieldedSpends: "+util.inspect(shieldedSpends,true,null,true));
                 shieldedReceives = [{
@@ -1435,7 +1435,7 @@ describe('TronWeb ztron', function() {
                 assert.ok(result.noteTxs.length == 1);
             })
 
-            /*it('should get transferParams without ask, The parameters are expanded', async function (){
+            it('should get transferParams without ask, The parameters are expanded', async function (){
                 const result = await tronWeb.ztron.createTransferParamsWithoutAsk(shieldedInfo.ak, shieldedInfo.nsk, shieldedInfo.ovk,
                     shieldedSpends, shieldedReceives, shieldedTRC20ContractAddress, {});
                 assert.ok(result && result.binding_signature && result.message_hash);
@@ -1623,10 +1623,10 @@ describe('TronWeb ztron', function() {
                         'Invalid shieldedTRC20Parameters.parameter_type provided'
                     )
                 })
-            })*/
+            })
         })
 
-        describe.only("#createBurnParams", function (){
+        describe("#createBurnParams", function (){
             const visibleOptions = {
                 visible: true
             }
@@ -1697,13 +1697,15 @@ describe('TronWeb ztron', function() {
                 noteTxs = result.noteTxs;
                 console.log("noteTxs: "+util.inspect(noteTxs))
 
-                const pathInfo = await methodInstance.getPath(noteTxs[0].position).call();
+                const position = typeof (noteTxs[0].position) === 'number' ? (noteTxs[0].position) : 0;
+                console.log("position:"+position);
+                const pathInfo = await methodInstance.getPath(position).call();
                 burnShieldedSpends = [{
                     "note": noteTxs[0].note,
                     "alpha": (await tronWeb.ztron.getRcm()).value,
                     "root":  pathInfo[0].replace('0x', ''),
                     "path":  pathInfo[1].map(v => v.replace('0x', '')).join(''),
-                    "pos": noteTxs[0].position
+                    "pos": position
                 }];
 
                 // generate new shieldedTRC20ContractAddress
@@ -1748,7 +1750,7 @@ describe('TronWeb ztron', function() {
                 trc20Contract = await tronWeb.contract().at(trc20ContractAddress);
                 let trc20BalanceAfter = await trc20Contract.balanceOf(ADDRESS_BASE58).call();
                 console.log("trc20BalanceAfter: "+trc20BalanceAfter);
-                assert.equal(parseInt(parseInt(trc20BalanceBefore)+10),parseInt(trc20BalanceAfter));
+                assert.equal(parseInt(trc20BalanceBefore)+parseInt(10), parseInt(trc20BalanceAfter));
 
                 // isShieldedTRC20ContractNoteSpent
                 await wait(10);
@@ -1875,7 +1877,7 @@ describe('TronWeb ztron', function() {
             })
         })
 
-        describe.only("#createBurnParamsWithoutAsk chain", function (){
+        describe("#createBurnParamsWithoutAsk chain", function (){
             let burnParamsResult;
             let spendAuthoritySignature;
             let burnTriggerContractInput;
@@ -2162,29 +2164,35 @@ describe('TronWeb ztron', function() {
         it('should all passed.', function (){
             const keys = tronWeb.ztron.generate_keys();
             assert.ok(keys.sk && keys.ask && keys.nsk && keys.ovk && keys.ak && keys.nk && keys.ivk && keys.d && keys.pk_d && keys.payment_address)
+            console.log("keys: "+util.inspect(keys,true,null,true))
 
             const keysBySk = tronWeb.ztron.generate_keys_by_sk(keys.sk)
             assert.ok(keysBySk.sk && keysBySk.ask && keysBySk.nsk && keysBySk.ovk && keysBySk.ak && keysBySk.nk
                 && keysBySk.ivk && keysBySk.d && keysBySk.pk_d && keysBySk.payment_address)
+            console.log("keysBySk: "+util.inspect(keysBySk,true,null,true))
 
             const keysByskd = tronWeb.ztron.generate_keys_by_sk_d(keys.sk, keysBySk.d)
             assert.ok(keysByskd.sk && keysByskd.ask && keysByskd.nsk && keysByskd.ovk && keysByskd.ak && keysByskd.nk
                 && keysByskd.ivk && keysByskd.d && keysByskd.pk_d && keysByskd.payment_address)
+            console.log("keysByskd: "+util.inspect(keysByskd,true,null,true))
 
             const rk_by_ask = tronWeb.ztron.generate_rk_by_ask(keys.ask, '2608999c3a97d005a879ecdaa16fd29ae434fb67b177c5e875b0c829e6a1db05')
             assert.ok(rk_by_ask)
+            console.log("rk_by_ask: "+util.inspect(rk_by_ask,true,null,true))
 
             const spend_auth_sign = tronWeb.ztron.generate_spend_auth_sig(keys.ask, '2608999c3a97d005a879ecdaa16fd29ae434fb67b177c5e875b0c829e6a1db05', '3b78fee6e956f915ffe082284c5f18640edca9c57a5f227e5f7d7eb65ad61502')
             assert.ok(spend_auth_sign)
-
+            console.log("spend_auth_sign: "+util.inspect(spend_auth_sign,true,null,true))
             const  verifySpendAuthSig = tronWeb.ztron.verify_spend_auth_sig(rk_by_ask, '3b78fee6e956f915ffe082284c5f18640edca9c57a5f227e5f7d7eb65ad61502', spend_auth_sign)
             assert.ok(verifySpendAuthSig === true)
 
             const generate_pk_by_sk = tronWeb.ztron.generate_pk_by_sk(keys.ask);
             assert.ok(generate_pk_by_sk)
+            console.log("generate_pk_by_sk: "+util.inspect(generate_pk_by_sk,true,null,true))
 
             const generate_binding_sig = tronWeb.ztron.generate_binding_sig(keys.ask, '3b78fee6e956f915ffe082284c5f18640edca9c57a5f227e5f7d7eb65ad61502');
             assert.ok(generate_binding_sig)
+            console.log("generate_binding_sig: "+util.inspect(generate_binding_sig,true,null,true))
 
             const verify_binding_sig = tronWeb.ztron.verify_binding_sig(generate_pk_by_sk, '3b78fee6e956f915ffe082284c5f18640edca9c57a5f227e5f7d7eb65ad61502', generate_binding_sig)
             assert.ok(verify_binding_sig === true)
