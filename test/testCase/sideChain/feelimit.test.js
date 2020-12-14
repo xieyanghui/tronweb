@@ -12,11 +12,18 @@ describe('TronWeb feelimit test', function() {
     describe('#mainChain', function() {
         const tronWeb = tronWebBuilder.createInstance();
         before(async function () {
+            const accountBalanceBefore = await tronWeb.trx.getBalance(ADDRESS_BASE58);
+            console.log('accountBalanceBefore: ' + accountBalanceBefore);
             await tronWeb.trx.freezeBalance(10e6, 3, 'BANDWIDTH', {}, ADDRESS_BASE58)
             await wait(9);
+            let accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
+            while (accountBalanceAfter!=(accountBalanceBefore-10e6)) {
+                await wait(3);
+                accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
+            }
         })
         describe('#use default feelimit', function () {
-            it('createSmartContract use default feelimit in mainChain', async function () {
+            it.only('createSmartContract use default feelimit in mainChain', async function () {
                 // before create
                 const accountBalanceBefore = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceBefore: ' + accountBalanceBefore);
@@ -48,10 +55,10 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(createInfo.result, "FAILED");
                 assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-                assert.equal(createTxFee, 2e7);
+                assert.equal(createTxFee, 4e7);
                 const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-2e7, accountBalanceAfter);
+                assert.equal(accountBalanceBefore-4e7, accountBalanceAfter);
             });
             it('triggerSmartContract use default feelimit in mainChain', async function () {
                 // createSmartContract
@@ -107,10 +114,10 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(triggerInfo.result, "FAILED");
                 assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-                assert.equal(triggerTxFee, 2e7);
+                assert.equal(triggerTxFee, 4e7);
                 const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-2e7, accountBalanceAfter);
+                assert.equal(accountBalanceBefore-4e7, accountBalanceAfter);
             });
         });
 
@@ -268,10 +275,10 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(createInfo.result, "FAILED");
                 assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-                assert.equal(createTxFee, 2e7);
+                assert.equal(createTxFee, 4e7);
                 const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-2e7, accountBalanceAfter);
+                assert.equal(accountBalanceBefore-4e7, accountBalanceAfter);
             });
             it('triggerSmartContract use default feelimit in sideChain', async function () {
                 // createSmartContract
@@ -327,10 +334,10 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(triggerInfo.result, "FAILED");
                 assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-                assert.equal(triggerTxFee, 2e7);
+                assert.equal(triggerTxFee, 4e7);
                 const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-2e7, accountBalanceAfter);
+                assert.equal(accountBalanceBefore-4e7, accountBalanceAfter);
             });
         });
 

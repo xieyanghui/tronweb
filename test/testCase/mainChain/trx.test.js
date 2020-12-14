@@ -639,7 +639,7 @@ describe('TronWeb.trx', function () {
                 }
 
             });
-            it.only('should multi-sign a transaction with wrong permission id error', async function () {
+            it('should multi-sign a transaction with wrong permission id error', async function () {
 
                 try {
                     const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
@@ -807,7 +807,7 @@ describe('TronWeb.trx', function () {
             const fromIdx = 3;
             const toIdx = 4;
 
-            it.only('should send trx', async function () {
+            it('should send trx', async function () {
                 this.timeout(10000);
 
                 // const balanceBefore = await tronWeb.trx.getUnconfirmedBalance(accounts.hex[toIdx]);

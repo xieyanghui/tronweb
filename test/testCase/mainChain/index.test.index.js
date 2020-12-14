@@ -1185,7 +1185,7 @@ describe('TronWeb Instance', function () {
         });
 
 
-        it.only('should emit an unconfirmed event and get it', async function () {
+        it('should emit an unconfirmed event and get it', async function () {
 
             this.timeout(60000)
             tronWeb.setPrivateKey(accounts.pks[1])

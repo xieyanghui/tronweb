@@ -157,6 +157,50 @@ describe('TronWeb Instance', function() {
                 assert.equal(mTrc20BalanceBefore+depositNum,mTrc20BalanceAfter);
                 assert.equal(sTrc20BalanceBefore-depositNum,sTrc20BalanceAfter);
             });
+
+            it('withdrawTrc20 with the defined private key', async function () {
+                const num = 10;
+                const options = {};
+                const txID = await tronWeb.sidechain.withdrawTrc20(num, WITHDRAW_FEE, FEE_LIMIT, sideChainContractAddress, options, PRIVATE_KEY);
+                assert.equal(txID.length, 64);
+            });
+
+            it('withdrawTrc20 with permissionId in options object', async function () {
+                const num = 10;
+                const options = { permissionId: 0 };
+                const txID = await tronWeb.sidechain.withdrawTrc20(num, WITHDRAW_FEE, FEE_LIMIT, sideChainContractAddress, options);
+                assert.equal(txID.length, 64);
+            });
+
+            it('withdrawTrc20 with permissionId in options object and the defined private key', async function () {
+                const num = 10;
+                const options = { permissionId: 0 };
+                const txID = await tronWeb.sidechain.withdrawTrc20(num, WITHDRAW_FEE, FEE_LIMIT, sideChainContractAddress, options, PRIVATE_KEY);
+                assert.equal(txID.length, 64);
+            });
+
+            it('should throw if an invalid num is passed', async function () {
+                const num = 10.01;
+                await assertThrow(
+                    tronWeb.sidechain.withdrawTrc20(num, WITHDRAW_FEE, FEE_LIMIT, sideChainContractAddress),
+                    'Invalid numOrId provided'
+                );
+            });
+
+            it('should throw if an invalid fee limit is passed', async function () {
+                const feeLimit = 100000000000;
+                await assertThrow(
+                    tronWeb.sidechain.withdrawTrc20(100, WITHDRAW_FEE, feeLimit, sideChainContractAddress),
+                    'Invalid feeLimit provided'
+                );
+            });
+
+            it('should throw if an invalid contract address is passed', async function () {
+                await assertThrow(
+                    tronWeb.sidechain.withdrawTrc20(100, WITHDRAW_FEE, FEE_LIMIT, 'aaaaaaaaaa'),
+                    'Invalid contractAddress address provided'
+                );
+            });
         });
     });
 });

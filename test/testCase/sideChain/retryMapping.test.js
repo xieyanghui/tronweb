@@ -44,7 +44,7 @@ describe('TronWeb Instance', function() {
         trc721ContractAddress = deployTrc721Map.get("contractAddress");
     });
     describe('#retryMappingTrc20、721', function () {
-        it.only('retryMappingTrc20、721 normal(sideOracle balance is zero)', async function () {
+        it('retryMappingTrc20、721 normal(sideOracle balance is zero)', async function () {
             // freezeBalance sideOracle for get bandwidth
             const freezeForBandwidthTx = await tronWeb.sidechain.sidechain.trx.freezeBalance(10e6, 3, 'BANDWIDTH', {privateKey:ORACLE_PRIVATE_KEY});
             // console.log("freezeForBandwidthTx:"+freezeForBandwidthTx.inspect(freezeTx))

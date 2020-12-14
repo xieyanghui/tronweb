@@ -23,7 +23,7 @@ describe('TronWeb Instance', function() {
         sideChainContractAddress = deployMap.get("sideChainContractAddress");
     });
     describe('#depositTrc721', function () {
-        it.only('deposit trc721 from main chain to side chain', async function () {
+        it('deposit trc721 from main chain to side chain', async function () {
             await wait(10);
             // before trx balance
             const mAccountbefore = await tronWeb.sidechain.mainchain.trx.getAccount();

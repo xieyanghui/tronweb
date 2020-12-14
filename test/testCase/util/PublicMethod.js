@@ -307,7 +307,8 @@ const deployTrc20Contract = async () =>{
     const options = {
         abi: trc20Contract.abi,
         bytecode: trc20Contract.bytecode,
-        parameters: [ADDRESS_BASE58]
+        parameters: [ADDRESS_BASE58],
+        feeLimit:FEE_LIMIT,
     };
     const createTransaction = await tronWeb.sidechain.mainchain.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
     const createTx = await broadcaster.broadcasterInSideMain(null, PRIVATE_KEY, createTransaction);
@@ -401,13 +402,14 @@ const deployTrc721Contract = async () =>{
     const options = {
         abi: trc721Contract.abi,
         bytecode: trc721Contract.bytecode,
-        feeLimit:20000000,
+        feeLimit:FEE_LIMIT,
         parameters: [ADDRESS_BASE58,"721s","721"]
     };
     const createTransaction = await tronWeb.sidechain.mainchain.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
     // console.log("createTransaction:"+JSON.stringify(createTransaction))
     const createTx = await broadcaster.broadcasterInSideMain(null, PRIVATE_KEY, createTransaction);
     createTxId = createTx.transaction.txID;
+    console.log("deployTrc721ContractTxId:"+createTxId)
     // console.log("createTx:"+JSON.stringify(createTx))
     assert.equal(createTxId.length, 64);
     let createInfo;
@@ -500,7 +502,7 @@ const mintTrc721 = async (contractAddress) =>{
 }
 
 const deployContract = async (contract, parametersArray = []) =>{
-    const tronWeb = tronWebBuilder.createInstance();
+    const tronWeb = tronWebBuilder.createInstanceSide();
     let createTxId = "";
     let contractAddress = "";
     // deploy contract in mainChain
@@ -510,14 +512,14 @@ const deployContract = async (contract, parametersArray = []) =>{
         feeLimit:FEE_LIMIT,
         parameters: parametersArray
     };
-    const createTransaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
-    const createTx = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction);
+    const createTransaction = await tronWeb.sidechain.mainchain.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+    const createTx = await broadcaster.broadcasterInSideMain(null, PRIVATE_KEY, createTransaction);
     createTxId = createTx.transaction.txID;
     console.log("createTxId: "+createTxId)
     assert.equal(createTxId.length, 64);
     let createInfo;
     while (true) {
-        createInfo = await tronWeb.trx.getTransactionInfo(createTxId);
+        createInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(createTxId);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
             continue;

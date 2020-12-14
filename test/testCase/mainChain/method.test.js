@@ -75,7 +75,7 @@ describe('#contract.method', function () {
 
     });
 
-    describe('#empty abi()', function () {
+    describe.only('#empty abi()', function () {
 
         let testRevert
         let testSetVal
@@ -130,7 +130,7 @@ describe('#contract.method', function () {
             const contractResult = triggerInfo &&new tronWeb.BigNumber(triggerInfo.contractResult[0], 16).valueOf();
             console.log("contractResult: "+contractResult);
         });
-        it("abi is []", async function () {
+        it("abi is [{}]", async function () {
             const functionSelector = 'set(uint256)';
             const parameter = [
                 {type: 'uint256', value: 123}
@@ -156,15 +156,15 @@ describe('#contract.method', function () {
             const contractResult2 = triggerInfo2 &&new tronWeb.BigNumber(triggerInfo2.contractResult[0], 16).valueOf();
             console.log("contractResult2: "+contractResult2);
         });
-        it("abi is []", async function () {
+        it("abi is {}", async function () {
             const functionSelector = 'set(uint256)';
             const parameter = [
                 {type: 'uint256', value: 123}
             ]
             // clear abi
-            const clearAbiTransaction = await tronWeb.transactionBuilder.clearABI(contractAddress3, ADDRESS_BASE58);
+            const clearAbiTransaction = await tronWeb.transactionBuilder.clearABI(contractAddress3, accounts.b58[0]);
             console.log("clearAbiTransaction:"+util.inspect(clearAbiTransaction))
-            const clearAbiTx = await broadcaster.broadcaster(null, PRIVATE_KEY, clearAbiTransaction);
+            const clearAbiTx = await broadcaster.broadcaster(null, accounts.pks[0], clearAbiTransaction);
             while (true) {
                 let clearAbiInfo = await tronWeb.trx.getTransactionInfo(clearAbiTx.transaction.txID);
                 if (Object.keys(clearAbiInfo).length === 0) {

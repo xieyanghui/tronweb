@@ -24,15 +24,16 @@ describe('TronWeb Instance', function() {
 
             before(async function() {
                 tronWeb = tronWebBuilder.createInstanceSide();
-                /*const sendTrxTx = await tronWeb.sidechain.sidechain.trx.sendTrx("TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s", 100000000000);
+                const sendTrxTx = await tronWeb.sidechain.sidechain.trx.sendTrx("TRxh1GnspMRadaU37UzrRRpkME2EkwCHg4", 100000000000);
                 const sendTrxTx2 = await tronWeb.sidechain.sidechain.trx.sendTrx("TELLNvWTiYbMEyGu1DQSr8UDQA8aJzpx6x", 10000000000);
                 console.log("sendTrxTx1:"+JSON.stringify(sendTrxTx))
                 console.log("sendTrxTx2:"+JSON.stringify(sendTrxTx2))
                 assert.isTrue(sendTrxTx.result);
                 assert.isTrue(sendTrxTx2.result);
-                await wait(15);*/
-                this.timeout(20000);
-                let pk0 = "8f48434338fc2b8e6e164e3495416de6d2fdfb0e176f82094c1c45405bb26afa";
+                await wait(15);
+
+                // this.timeout(20000);
+                let pk0 = "4521c13f65cc9f5c1daa56923b8598d4015801ad28379675c64106f5f6afec30";
                 let addr = tronWeb.address.fromPrivateKey(pk0);
                 accounts.pks.push(pk0);
                 accounts.b58.push(addr);
@@ -45,7 +46,7 @@ describe('TronWeb Instance', function() {
                 let ownerAddress = accounts.hex[ownerIdx];
                 let ownerPk = accounts.pks[ownerIdx];
 
-               /* // update account permission
+                // update account permission
                 let ownerPermission = { type: 0, permission_name: 'owner' };
                 ownerPermission.threshold = threshold;
                 ownerPermission.keys  = [];
@@ -71,10 +72,13 @@ describe('TronWeb Instance', function() {
 
                 console.log("ownerPk:"+ownerPk)
                 console.log("updateTransaction:"+util.inspect(updateTransaction))
+                await wait(30);
                 const updateTx = await broadcaster.broadcasterInSideChain(null, ownerPk, updateTransaction);
                 console.log("updateTx:"+util.inspect(updateTx))
                 console.log("updateTx.txID:"+updateTx.transaction.txID)
                 assert.equal(updateTx.transaction.txID.length, 64);
+                await wait(30);
+
                 let updateInfo;
                 while (true) {
                     updateInfo = await tronWeb.sidechain.sidechain.trx.getTransactionInfo(updateTx.transaction.txID);
@@ -85,7 +89,7 @@ describe('TronWeb Instance', function() {
                         console.log("updateInfo:"+util.inspect(updateInfo))
                         break;
                     }
-                }*/
+                }
             });
 
             it('should multi-sign a transaction by owner permission', async function () {

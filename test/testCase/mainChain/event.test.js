@@ -1,7 +1,7 @@
 const tronWebBuilder = require('../util/tronWebBuilder');
-const {FULL_NODE_API} = require('../../helpers/config');
+const {FULL_NODE_API} = require('../util/config');
 const assertThrow = require('../../helpers/assertThrow');
-const broadcaster = require('../../helpers/broadcaster');
+const broadcaster = require('../util/broadcaster');
 const jlog = require('../../helpers/jlog')
 const wait = require('../../helpers/wait')
 const TronWeb = tronWebBuilder.TronWeb;
@@ -20,7 +20,7 @@ describe('TronWeb.lib.event', async function () {
         tronWeb = tronWebBuilder.createInstance();
         accounts = await tronWebBuilder.getTestAccounts(-1);
 
-        const result = await broadcaster(tronWeb.transactionBuilder.createSmartContract({
+        const result = await broadcaster.broadcaster(tronWeb.transactionBuilder.createSmartContract({
             abi: [
                 {
                     "anonymous": false,
@@ -67,6 +67,7 @@ describe('TronWeb.lib.event', async function () {
         }, accounts.hex[0]), accounts.pks[0])
 
         contractAddress = result.receipt.transaction.contract_address
+        this.timeout(10000)
         contract = await tronWeb.contract().at(contractAddress)
 
     });

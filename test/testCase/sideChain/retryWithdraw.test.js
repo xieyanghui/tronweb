@@ -134,7 +134,7 @@ describe('TronWeb Instance', function() {
         assert.equal(sTrc721OwnerAfter,ADDRESS_HEX)
     });
     describe('#retryWithdraw', function () {
-        it.only('retryWithdraw normal(mainOracle balance is zero)', async function () {
+        it('retryWithdraw normal(mainOracle balance is zero)', async function () {
             // freezeBalance mainOracle for get bandwidth
             const freezeForBandwidthTx = await tronWeb.sidechain.mainchain.trx.freezeBalance(10e6, 3, 'BANDWIDTH', {privateKey:ORACLE_PRIVATE_KEY});
             // console.log("freezeForBandwidthTx:"+freezeForBandwidthTx.inspect(freezeTx))
