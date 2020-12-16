@@ -339,8 +339,6 @@ export default class Method {
                 if (latestEvent){
                     lastBlock = latestEvent.block;
                     since = latestEvent.timestamp;
-                } else {
-                    since = since + 3000;
                 }
 
                 return newEvents;
