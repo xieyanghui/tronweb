@@ -54,6 +54,9 @@ describe('TronWeb ztron', function() {
     });
 
     describe('#create function', function() {
+        const visibleFalseOptions = {
+            visible: false
+        }
 
         describe("#createTransferParams 1V2", function (){
             const visibleOptions = {
@@ -78,12 +81,13 @@ describe('TronWeb ztron', function() {
                         shielded_TRC20_contract_address: shieldedTRC20ContractAddress,
                         ovk: "4364c875deeb663781a2f1530f9e4f87ea81cc3c757ca2a30fa4768940de2f98"
                     }
-                    const result = await tronWeb.ztron.createMintParams(params);
+                    console.log("noteTxs-false: "+util.inspect(noteTxs,true,null,true))
+                    const result = await tronWeb.ztron.createMintParams(params,visibleOptions);
                     assert.ok(result);
                     assert.ok(result.trigger_contract_input);
                     const address = tronWeb.defaultAddress.base58;
                     //approve
-                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', {},
+                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', visibleOptions,
                         [{type: 'address', value: shieldedTRC20ContractAddress},{type: 'uint256', value: narrowValue * scalingFactor}], address)
 
                     const options = {
@@ -107,19 +111,32 @@ describe('TronWeb ztron', function() {
 
                 // scanByIvk
                 endBlockIndex = startBlockIndex + 90;
-                const params = {
+                let params = {
+                    "start_block_index": startBlockIndex,
+                    "end_block_index": endBlockIndex,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
+                    "ivk": shieldedInfo.ivk,
+                    "ak": shieldedInfo.ak,
+                    "nk": shieldedInfo.nk,
+                }
+                console.log("params: "+util.inspect(params,true,null,true))
+                let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
+                assert.ok(result && result.noteTxs && result.noteTxs.length == 2);
+                noteTxs = result.noteTxs;
+                console.log("noteTxs-false: "+util.inspect(noteTxs,true,null,true))
+
+                params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
                     "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
                     "ivk": shieldedInfo.ivk,
                     "ak": shieldedInfo.ak,
                     "nk": shieldedInfo.nk,
-                    "visible": true
                 }
-                let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
                 assert.ok(result && result.noteTxs && result.noteTxs.length == 2);
                 noteTxs = result.noteTxs;
-                console.log("noteTxs: "+util.inspect(noteTxs))
+                console.log("noteTxs-true: "+util.inspect(noteTxs,true,null,true))
 
                 // generate new shieldedAddress
                 shieldedInfo1 = await tronWeb.ztron.getNewShieldedAddress();
@@ -203,7 +220,7 @@ describe('TronWeb ztron', function() {
                     shielded_TRC20_contract_address: shieldedTRC20ContractAddress
                 };
                 console.log("params: "+util.inspect(params));
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params,visibleOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result));
                 assert.isEmpty(result);
 
@@ -216,7 +233,7 @@ describe('TronWeb ztron', function() {
                     ask: shieldedInfo.ask,
                     nsk: shieldedInfo.nsk
                 };
-                result = await tronWeb.ztron.createTransferParams(params);
+                result = await tronWeb.ztron.createTransferParams(params,visibleOptions);
                 assert.ok(result && result.trigger_contract_input);
                 const options = {
                     shieldedParameter: result.trigger_contract_input,
@@ -236,10 +253,10 @@ describe('TronWeb ztron', function() {
                     position: shieldedSpends[0].pos,
                     shielded_TRC20_contract_address: shieldedTRC20ContractAddress
                 }
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params, visibleOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result,true,null,true))
                 assert.ok(result);
-                assert.ok(result.is_spent);
+                assert.isTrue(result.is_spent);
 
                 // scanByOvk length is 2 after transfer
                 await wait(10)
@@ -266,7 +283,7 @@ describe('TronWeb ztron', function() {
                     "ak": shieldedInfo1.ak,
                     "nk": shieldedInfo1.nk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, options);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
                 console.log("scanByIvk-noteTxs-after: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.noteTxs);
@@ -280,7 +297,7 @@ describe('TronWeb ztron', function() {
                     "ak": shieldedInfo2.ak,
                     "nk": shieldedInfo2.nk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, options);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
                 console.log("scanByIvk-noteTxs-after: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.noteTxs);
@@ -308,16 +325,16 @@ describe('TronWeb ztron', function() {
                                 rcm: rcmInfo.value
                             }
                         },
-                        shielded_TRC20_contract_address: shieldedTRC20ContractAddress,
+                        shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                         ovk: "4364c875deeb663781a2f1530f9e4f87ea81cc3c757ca2a30fa4768940de2f98"
                     }
-                    const result = await tronWeb.ztron.createMintParams(params);
+                    const result = await tronWeb.ztron.createMintParams(params, visibleFalseOptions);
                     assert.ok(result);
                     assert.ok(result.trigger_contract_input);
                     const address = tronWeb.defaultAddress.base58;
                     //approve
-                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', {},
-                        [{type: 'address', value: shieldedTRC20ContractAddress},{type: 'uint256', value: narrowValue * scalingFactor}], address)
+                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', visibleFalseOptions,
+                        [{type: 'address', value: await tronWeb.address.toHex(shieldedTRC20ContractAddress)},{type: 'uint256', value: narrowValue * scalingFactor}], address)
 
                     const options = {
                         shieldedParameter: result.trigger_contract_input
@@ -332,7 +349,6 @@ describe('TronWeb ztron', function() {
                             await wait(3);
                             continue;
                         } else {
-                            // console.log("createInfo:"+util.inspect(createInfo))
                             break;
                         }
                     }
@@ -343,13 +359,13 @@ describe('TronWeb ztron', function() {
                 const params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo.ivk,
                     "ak": shieldedInfo.ak,
                     "nk": shieldedInfo.nk,
                     "visible": true
                 }
-                let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
+                let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
                 assert.ok(result && result.noteTxs && result.noteTxs.length == 2);
                 noteTxs = result.noteTxs;
                 console.log("noteTxs: "+util.inspect(noteTxs))
@@ -400,10 +416,10 @@ describe('TronWeb ztron', function() {
                 let params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ovk": shieldedInfo.ovk,
                 };
-                let result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleOptions);
+                let result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleFalseOptions);
                 console.log("scanByOvk-noteTxs-before: "+util.inspect(result));
                 assert.isEmpty(result);
 
@@ -411,26 +427,26 @@ describe('TronWeb ztron', function() {
                 params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo1.ivk,
                     "ak": shieldedInfo1.ak,
                     "nk": shieldedInfo1.nk,
                     "visible": true
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
                 console.log("scanByIvk-noteTxs-before: "+util.inspect(result));
                 assert.isEmpty(result);
 
                 params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo2.ivk,
                     "ak": shieldedInfo2.ak,
                     "nk": shieldedInfo2.nk,
                     "visible": true
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
                 console.log("scanByIvk-noteTxs-before: "+util.inspect(result));
                 assert.isEmpty(result);
 
@@ -441,10 +457,10 @@ describe('TronWeb ztron', function() {
                     ak: shieldedInfo.ak,
                     nk: shieldedInfo.nk,
                     position: shieldedSpends[0].pos,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress)
                 };
                 console.log("params: "+util.inspect(params));
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params, visibleFalseOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result));
                 assert.isEmpty(result);
 
@@ -453,10 +469,10 @@ describe('TronWeb ztron', function() {
                     ak: shieldedInfo.ak,
                     nk: shieldedInfo.nk,
                     position: shieldedSpends[1].pos,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress)
                 };
                 console.log("params: "+util.inspect(params));
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params, visibleFalseOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result));
                 assert.isEmpty(result);
 
@@ -464,12 +480,12 @@ describe('TronWeb ztron', function() {
                 params = {
                     shielded_spends: shieldedSpends,
                     shielded_receives: shieldedReceives,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress,
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     ovk: shieldedInfo.ovk,
                     ask: shieldedInfo.ask,
                     nsk: shieldedInfo.nsk
                 };
-                result = await tronWeb.ztron.createTransferParams(params);
+                result = await tronWeb.ztron.createTransferParams(params, visibleFalseOptions);
                 assert.ok(result && result.trigger_contract_input);
                 const options = {
                     shieldedParameter: result.trigger_contract_input,
@@ -487,21 +503,21 @@ describe('TronWeb ztron', function() {
                     ak: shieldedInfo.ak,
                     nk: shieldedInfo.nk,
                     position: shieldedSpends[0].pos,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress)
                 }
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params, visibleFalseOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result,true,null,true))
                 assert.ok(result);
-                assert.ok(result.is_spent);
+                assert.isTrue(result.is_spent);
 
                 params = {
                     note: shieldedSpends[1].note,
                     ak: shieldedInfo.ak,
                     nk: shieldedInfo.nk,
                     position: shieldedSpends[1].pos,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress)
                 }
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params, visibleFalseOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result,true,null,true))
                 assert.ok(result);
                 assert.ok(result.is_spent);
@@ -513,10 +529,10 @@ describe('TronWeb ztron', function() {
                 params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ovk": shieldedInfo.ovk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleOptions);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleFalseOptions);
                 console.log("scanByOvk-noteTxs-after: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.noteTxs);
@@ -526,13 +542,13 @@ describe('TronWeb ztron', function() {
                 params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo1.ivk,
                     "ak": shieldedInfo1.ak,
                     "nk": shieldedInfo1.nk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, options);
-                console.log("scanByIvk-noteTxs-after: "+util.inspect(result))
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
+                console.log("scanByIvk-noteTxs-after: "+util.inspect(result,true,null,true))
                 assert.ok(result);
                 assert.ok(result.noteTxs);
                 assert.ok(result.noteTxs.length == 1);
@@ -540,13 +556,13 @@ describe('TronWeb ztron', function() {
                 params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo2.ivk,
                     "ak": shieldedInfo2.ak,
                     "nk": shieldedInfo2.nk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, options);
-                console.log("scanByIvk-noteTxs-after: "+util.inspect(result))
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
+                console.log("scanByIvk-noteTxs-after: "+util.inspect(result,true,null,true))
                 assert.ok(result);
                 assert.ok(result.noteTxs);
                 assert.ok(result.noteTxs.length == 1);
@@ -784,7 +800,7 @@ describe('TronWeb ztron', function() {
             })
         })
 
-        describe("#createTransferParamsWithoutAsk 1V2", function (){
+        describe.only("#createTransferParamsWithoutAsk 1V2", function (){
             const visibleOptions = {
                 visible: true
             }
@@ -812,12 +828,12 @@ describe('TronWeb ztron', function() {
                         shielded_TRC20_contract_address: shieldedTRC20ContractAddress,
                         ovk: "4364c875deeb663781a2f1530f9e4f87ea81cc3c757ca2a30fa4768940de2f98"
                     }
-                    const result = await tronWeb.ztron.createMintParams(params);
+                    const result = await tronWeb.ztron.createMintParams(params,visibleOptions);
                     assert.ok(result);
                     assert.ok(result.trigger_contract_input);
                     const address = tronWeb.defaultAddress.base58;
                     //approve
-                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', {},
+                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', visibleOptions,
                         [{type: 'address', value: shieldedTRC20ContractAddress},{type: 'uint256', value: narrowValue * scalingFactor}], address)
 
                     const options = {
@@ -848,7 +864,6 @@ describe('TronWeb ztron', function() {
                     "ivk": shieldedInfo.ivk,
                     "ak": shieldedInfo.ak,
                     "nk": shieldedInfo.nk,
-                    "visible": true
                 }
                 let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
                 console.log("scanByIvk: "+util.inspect(result,true,null,true))
@@ -910,7 +925,6 @@ describe('TronWeb ztron', function() {
                     "ivk": shieldedInfo1.ivk,
                     "ak": shieldedInfo1.ak,
                     "nk": shieldedInfo1.nk,
-                    "visible": true
                 }
                 result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
                 console.log("scanByIvk-noteTxs-before: "+util.inspect(result));
@@ -923,7 +937,6 @@ describe('TronWeb ztron', function() {
                     "ivk": shieldedInfo2.ivk,
                     "ak": shieldedInfo2.ak,
                     "nk": shieldedInfo2.nk,
-                    "visible": true
                 }
                 result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
                 console.log("scanByIvk-noteTxs-before: "+util.inspect(result));
@@ -939,7 +952,7 @@ describe('TronWeb ztron', function() {
                     shielded_TRC20_contract_address: shieldedTRC20ContractAddress
                 };
                 console.log("params: "+util.inspect(params));
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params,visibleOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result));
                 assert.isEmpty(result);
 
@@ -953,7 +966,7 @@ describe('TronWeb ztron', function() {
                     nsk: shieldedInfo.nsk
                 };
                 console.log("transferParamsResult-params: "+util.inspect(params,true,null,true));
-                transferParamsResult = await tronWeb.ztron.createTransferParamsWithoutAsk(params);
+                transferParamsResult = await tronWeb.ztron.createTransferParamsWithoutAsk(params,visibleOptions);
                 console.log("transferParamsResult: "+util.inspect(transferParamsResult,true,null,true));
                 assert.ok(transferParamsResult);
                 assert.ok(transferParamsResult.binding_signature);
@@ -990,7 +1003,7 @@ describe('TronWeb ztron', function() {
                     position: shieldedSpends[0].pos,
                     shielded_TRC20_contract_address: shieldedTRC20ContractAddress
                 }
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params,visibleOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.is_spent);
@@ -1020,7 +1033,7 @@ describe('TronWeb ztron', function() {
                     "ak": shieldedInfo1.ak,
                     "nk": shieldedInfo1.nk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, options);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
                 console.log("scanByIvk-noteTxs-after: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.noteTxs);
@@ -1034,7 +1047,7 @@ describe('TronWeb ztron', function() {
                     "ak": shieldedInfo2.ak,
                     "nk": shieldedInfo2.nk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, options);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
                 console.log("scanByIvk-noteTxs-after: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.noteTxs);
@@ -1042,7 +1055,7 @@ describe('TronWeb ztron', function() {
             })
         })
 
-        describe("#createTransferParamsWithoutAsk 2V2", function (){
+        describe.only("#createTransferParamsWithoutAsk 2V2", function (){
             const visibleOptions = {
                 visible: true
             }
@@ -1068,21 +1081,21 @@ describe('TronWeb ztron', function() {
                                 rcm: rcmInfo.value
                             }
                         },
-                        shielded_TRC20_contract_address: shieldedTRC20ContractAddress,
+                        shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                         ovk: "4364c875deeb663781a2f1530f9e4f87ea81cc3c757ca2a30fa4768940de2f98"
                     }
-                    const result = await tronWeb.ztron.createMintParams(params);
+                    const result = await tronWeb.ztron.createMintParams(params,visibleFalseOptions);
                     assert.ok(result);
                     assert.ok(result.trigger_contract_input);
                     const address = tronWeb.defaultAddress.base58;
                     //approve
-                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', {},
-                        [{type: 'address', value: shieldedTRC20ContractAddress},{type: 'uint256', value: narrowValue * scalingFactor}], address)
+                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', visibleFalseOptions,
+                        [{type: 'address', value: await tronWeb.address.toHex(shieldedTRC20ContractAddress)},{type: 'uint256', value: narrowValue * scalingFactor}], address)
 
                     const options = {
                         shieldedParameter: result.trigger_contract_input
                     }
-                    const createTx = await shieldedUtils.makeAndSendTransaction(tronWeb, shieldedTRC20ContractAddress, 'mint(uint256,bytes32[9],bytes32[2],bytes32[21])', options, [], address);
+                    const createTx = await shieldedUtils.makeAndSendTransaction(tronWeb, await tronWeb.address.toHex(shieldedTRC20ContractAddress), 'mint(uint256,bytes32[9],bytes32[2],bytes32[21])', options, [], address);
                     createTxId = createTx.transaction.txID;
                     assert.equal(createTxId.length, 64);
                     let createInfo;
@@ -1103,13 +1116,13 @@ describe('TronWeb ztron', function() {
                 const params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo.ivk,
                     "ak": shieldedInfo.ak,
                     "nk": shieldedInfo.nk,
                     "visible": true
                 }
-                let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
+                let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
                 console.log("scanByIvk: "+util.inspect(result,true,null,true))
                 assert.ok(result && result.noteTxs && result.noteTxs.length == 2);
                 noteTxs = result.noteTxs;
@@ -1162,10 +1175,10 @@ describe('TronWeb ztron', function() {
                 let params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ovk": shieldedInfo.ovk,
                 };
-                let result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleOptions);
+                let result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleFalseOptions);
                 console.log("scanByOvk-noteTxs-before: "+util.inspect(result));
                 assert.isEmpty(result);
 
@@ -1173,26 +1186,26 @@ describe('TronWeb ztron', function() {
                 params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo1.ivk,
                     "ak": shieldedInfo1.ak,
                     "nk": shieldedInfo1.nk,
                     "visible": true
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
                 console.log("scanByIvk-noteTxs-before: "+util.inspect(result));
                 assert.isEmpty(result);
 
                 params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo2.ivk,
                     "ak": shieldedInfo2.ak,
                     "nk": shieldedInfo2.nk,
                     "visible": true
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
                 console.log("scanByIvk-noteTxs-before: "+util.inspect(result));
                 assert.isEmpty(result);
 
@@ -1203,10 +1216,10 @@ describe('TronWeb ztron', function() {
                     ak: shieldedInfo.ak,
                     nk: shieldedInfo.nk,
                     position: shieldedSpends[0].pos,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress)
                 };
                 console.log("params: "+util.inspect(params));
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params,visibleFalseOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result));
                 assert.isEmpty(result);
 
@@ -1215,10 +1228,10 @@ describe('TronWeb ztron', function() {
                     ak: shieldedInfo.ak,
                     nk: shieldedInfo.nk,
                     position: shieldedSpends[1].pos,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress)
                 };
                 console.log("params: "+util.inspect(params));
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params,visibleFalseOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result));
                 assert.isEmpty(result);
 
@@ -1226,13 +1239,13 @@ describe('TronWeb ztron', function() {
                 params = {
                     shielded_spends: shieldedSpends,
                     shielded_receives: shieldedReceives,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress,
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     ovk: shieldedInfo.ovk,
                     ak: shieldedInfo.ak,
                     nsk: shieldedInfo.nsk
                 };
                 console.log("transferParamsResult-params: "+util.inspect(params,true,null,true));
-                transferParamsResult = await tronWeb.ztron.createTransferParamsWithoutAsk(params);
+                transferParamsResult = await tronWeb.ztron.createTransferParamsWithoutAsk(params,visibleFalseOptions);
                 console.log("transferParamsResult: "+util.inspect(transferParamsResult,true,null,true));
                 assert.ok(transferParamsResult);
                 assert.ok(transferParamsResult.binding_signature);
@@ -1259,7 +1272,7 @@ describe('TronWeb ztron', function() {
                     shieldedParameter: transferTriggerContractInput.value,
                     feeLimit:FEE_LIMIT
                 };
-                const transactionResult = await shieldedUtils.makeAndSendTransaction(tronWeb, shieldedTRC20ContractAddress,
+                const transactionResult = await shieldedUtils.makeAndSendTransaction(tronWeb, await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     'transfer(bytes32[10][],bytes32[2][],bytes32[9][],bytes32[2],bytes32[21][])', options, [], tronWeb.defaultAddress.base58);
                 console.log("transactionResult: "+util.inspect(transactionResult));
                 assert.ok(transactionResult);
@@ -1272,9 +1285,9 @@ describe('TronWeb ztron', function() {
                     ak: shieldedInfo.ak,
                     nk: shieldedInfo.nk,
                     position: shieldedSpends[0].pos,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress)
                 }
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params,visibleFalseOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.is_spent);
@@ -1284,9 +1297,9 @@ describe('TronWeb ztron', function() {
                     ak: shieldedInfo.ak,
                     nk: shieldedInfo.nk,
                     position: shieldedSpends[1].pos,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress)
                 }
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params,visibleFalseOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.is_spent);
@@ -1298,10 +1311,10 @@ describe('TronWeb ztron', function() {
                 params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ovk": shieldedInfo.ovk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleOptions);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleFalseOptions);
                 console.log("scanByOvk-noteTxs-after: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.noteTxs);
@@ -1311,12 +1324,12 @@ describe('TronWeb ztron', function() {
                 params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo1.ivk,
                     "ak": shieldedInfo1.ak,
                     "nk": shieldedInfo1.nk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, options);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
                 console.log("scanByIvk-noteTxs-after: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.noteTxs);
@@ -1325,12 +1338,12 @@ describe('TronWeb ztron', function() {
                 params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo2.ivk,
                     "ak": shieldedInfo2.ak,
                     "nk": shieldedInfo2.nk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, options);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
                 console.log("scanByIvk-noteTxs-after: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.noteTxs);
@@ -1338,7 +1351,7 @@ describe('TronWeb ztron', function() {
             })
         })
 
-        describe("#createTransferParamsWithoutAsk 2V1", function (){
+        describe.only("#createTransferParamsWithoutAsk 2V1", function (){
             const visibleOptions = {
                 visible: true
             }
@@ -1599,7 +1612,7 @@ describe('TronWeb ztron', function() {
             })
         })
 
-        describe("#createBurnParams 1V1T", function (){
+        describe.only("#createBurnParams 1V1T", function (){
             const visibleOptions = {
                 visible: true
             }
@@ -1624,21 +1637,21 @@ describe('TronWeb ztron', function() {
                                 rcm: rcmInfo.value
                             }
                         },
-                        shielded_TRC20_contract_address: shieldedTRC20ContractAddress,
+                        shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                         ovk: "4364c875deeb663781a2f1530f9e4f87ea81cc3c757ca2a30fa4768940de2f98"
                     }
-                    const result = await tronWeb.ztron.createMintParams(params);
+                    const result = await tronWeb.ztron.createMintParams(params,visibleFalseOptions);
                     assert.ok(result);
                     assert.ok(result.trigger_contract_input);
                     const address = tronWeb.defaultAddress.base58;
                     //approve
-                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', {},
-                        [{type: 'address', value: shieldedTRC20ContractAddress},{type: 'uint256', value: narrowValue * scalingFactor}], address)
+                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', visibleFalseOptions,
+                        [{type: 'address', value: await tronWeb.address.toHex(shieldedTRC20ContractAddress)},{type: 'uint256', value: narrowValue * scalingFactor}], address)
 
                     const options = {
                         shieldedParameter: result.trigger_contract_input
                     }
-                    const createTx = await shieldedUtils.makeAndSendTransaction(tronWeb, shieldedTRC20ContractAddress, 'mint(uint256,bytes32[9],bytes32[2],bytes32[21])', options, [], address);
+                    const createTx = await shieldedUtils.makeAndSendTransaction(tronWeb, await tronWeb.address.toHex(shieldedTRC20ContractAddress), 'mint(uint256,bytes32[9],bytes32[2],bytes32[21])', options, [], address);
                     createTxId = createTx.transaction.txID;
                     assert.equal(createTxId.length, 64);
                     let createInfo;
@@ -1659,13 +1672,13 @@ describe('TronWeb ztron', function() {
                 const params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo.ivk,
                     "ak": shieldedInfo.ak,
                     "nk": shieldedInfo.nk,
                     "visible": true
                 }
-                let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
+                let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
                 assert.ok(result && result.noteTxs && result.noteTxs.length == 2);
                 noteTxs = result.noteTxs;
                 console.log("noteTxs: "+util.inspect(noteTxs))
@@ -1690,22 +1703,22 @@ describe('TronWeb ztron', function() {
                 let params = {
                     shielded_spends: burnShieldedSpends,
                     shielded_receives: burnShieldedReceives,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress,
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     ovk: shieldedInfo.ovk,
                     ask: shieldedInfo.ask,
                     nsk: shieldedInfo.nsk,
                     to_amount: toAmount,
-                    transparent_to_address: transParentToAddress
+                    transparent_to_address: await tronWeb.address.toHex(transParentToAddress)
                 }
 
-                let result = await tronWeb.ztron.createBurnParams(params);
+                let result = await tronWeb.ztron.createBurnParams(params,visibleFalseOptions);
                 assert.ok(result && result.trigger_contract_input);
 
                 const options = {
                     shieldedParameter: result.trigger_contract_input,
                     feeLimit:FEE_LIMIT
                 }
-                const transactionResult = await shieldedUtils.makeAndSendTransaction(tronWeb, shieldedTRC20ContractAddress,
+                const transactionResult = await shieldedUtils.makeAndSendTransaction(tronWeb, await tronWeb.address.toHex(shieldedTRC20ContractAddress),
                     'burn(bytes32[10],bytes32[2],uint256,bytes32[2],address,bytes32[3],bytes32[9][],bytes32[21][])', options, [], tronWeb.defaultAddress.base58);
                 console.log("transactionResult: "+util.inspect(transactionResult,true,null,true))
                 assert.ok(transactionResult && transactionResult.result);
@@ -1724,9 +1737,9 @@ describe('TronWeb ztron', function() {
                     ak: shieldedInfo.ak,
                     nk: shieldedInfo.nk,
                     position: burnShieldedSpends[0].pos,
-                    shielded_TRC20_contract_address: shieldedTRC20ContractAddress
+                    shielded_TRC20_contract_address: await tronWeb.address.toHex(shieldedTRC20ContractAddress)
                 }
-                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params, visibleFalseOptions);
                 console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result))
                 assert.ok(result);
                 assert.ok(result.is_spent);
@@ -1741,18 +1754,18 @@ describe('TronWeb ztron', function() {
                     "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
                     "ovk": shieldedInfo.ovk,
                 }
-                result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleOptions);
+                result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleFalseOptions);
                 console.log("scanByOvk-noteTxs-after: "+util.inspect(result))
                 let scanByOvkNote = result.noteTxs;
                 assert.ok(scanByOvkNote.length == 1);
                 assert.ok(scanByOvkNote[0].txid == transactionResult.txid);
                 assert.ok(scanByOvkNote[0].to_amount == 20);
-                assert.equal(scanByOvkNote[0].transparent_to_address, transParentToAddress);
+                assert.equal(await tronWeb.address.fromHex(scanByOvkNote[0].transparent_to_address), transParentToAddress);
             })
 
         })
 
-        describe("#createBurnParamsWithoutAsk 1V1T", function (){
+        describe.only("#createBurnParamsWithoutAsk 1V1T", function (){
             let burnParamsResult;
             let spendAuthoritySignature;
             let burnTriggerContractInput;
@@ -1781,21 +1794,21 @@ describe('TronWeb ztron', function() {
                                 rcm: rcmInfo.value
                             }
                         },
-                        shielded_TRC20_contract_address: shieldedTRC20ContractAddress,
+                        shielded_TRC20_contract_address: await tronWeb.address.fromHex(shieldedTRC20ContractAddress),
                         ovk: "4364c875deeb663781a2f1530f9e4f87ea81cc3c757ca2a30fa4768940de2f98"
                     }
-                    const result = await tronWeb.ztron.createMintParams(params);
+                    const result = await tronWeb.ztron.createMintParams(params,visibleFalseOptions);
                     assert.ok(result);
                     assert.ok(result.trigger_contract_input);
                     const address = tronWeb.defaultAddress.base58;
                     //approve
-                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', {},
-                        [{type: 'address', value: shieldedTRC20ContractAddress},{type: 'uint256', value: narrowValue * scalingFactor}], address)
+                    await shieldedUtils.makeAndSendTransaction(tronWeb, trc20ContractAddress, 'approve(address,uint256)', visibleFalseOptions,
+                        [{type: 'address', value: await tronWeb.address.fromHex(shieldedTRC20ContractAddress)},{type: 'uint256', value: narrowValue * scalingFactor}], address)
 
                     const options = {
                         shieldedParameter: result.trigger_contract_input
                     }
-                    const createTx = await shieldedUtils.makeAndSendTransaction(tronWeb, shieldedTRC20ContractAddress, 'mint(uint256,bytes32[9],bytes32[2],bytes32[21])', options, [], address);
+                    const createTx = await shieldedUtils.makeAndSendTransaction(tronWeb, await tronWeb.address.fromHex(shieldedTRC20ContractAddress), 'mint(uint256,bytes32[9],bytes32[2],bytes32[21])', options, [], address);
                     createTxId = createTx.transaction.txID;
                     assert.equal(createTxId.length, 64);
                     let createInfo;
@@ -1816,13 +1829,13 @@ describe('TronWeb ztron', function() {
                 const params = {
                     "start_block_index": startBlockIndex,
                     "end_block_index": endBlockIndex,
-                    "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                    "shielded_TRC20_contract_address": await tronWeb.address.fromHex(shieldedTRC20ContractAddress),
                     "ivk": shieldedInfo.ivk,
                     "ak": shieldedInfo.ak,
                     "nk": shieldedInfo.nk,
                     "visible": true
                 }
-                let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleOptions);
+                let result = await tronWeb.ztron.scanShieldedTRC20NotesByIvk(params, visibleFalseOptions);
                 assert.ok(result && result.noteTxs && result.noteTxs.length == 2);
                 noteTxs = result.noteTxs;
                 console.log("noteTxs: "+util.inspect(noteTxs))
@@ -1848,14 +1861,14 @@ describe('TronWeb ztron', function() {
                     let params = {
                         shielded_spends: burnShieldedSpends,
                         shielded_receives: burnShieldedReceives,
-                        shielded_TRC20_contract_address: shieldedTRC20ContractAddress,
+                        shielded_TRC20_contract_address: await tronWeb.address.fromHex(shieldedTRC20ContractAddress),
                         ovk: shieldedInfo.ovk,
                         ak: shieldedInfo.ak,
                         nsk: shieldedInfo.nsk,
                         to_amount: toAmount,
-                        transparent_to_address: transParentToAddress
+                        transparent_to_address: await tronWeb.address.fromHex(transParentToAddress)
                     }
-                    let result = await tronWeb.ztron.createBurnParamsWithoutAsk(params);
+                    let result = await tronWeb.ztron.createBurnParamsWithoutAsk(params,visibleFalseOptions);
                     console.log("result: "+util.inspect(result,true,null,true))
                     assert.ok(result);
                     assert.ok(result.binding_signature);
@@ -1876,8 +1889,8 @@ describe('TronWeb ztron', function() {
                     }];
                     let options = {
                         amount: toAmount,
-                        transparent_to_address: transParentToAddress,
-                        visible: true
+                        transparent_to_address: await tronWeb.address.fromHex(transParentToAddress),
+                        visible: false
                     }
                     result = await tronWeb.ztron.getTriggerInputForShieldedTRC20Contract(shieldedTRC20Parameters, spendAuthoritySignatureArray, options);
                     assert.ok(result && result.value)
@@ -1889,7 +1902,7 @@ describe('TronWeb ztron', function() {
                         shieldedParameter: burnTriggerContractInput,
                         feeLimit:FEE_LIMIT
                     }
-                    const transactionResult = await shieldedUtils.makeAndSendTransaction(tronWeb, shieldedTRC20ContractAddress,
+                    const transactionResult = await shieldedUtils.makeAndSendTransaction(tronWeb, await tronWeb.address.fromHex(shieldedTRC20ContractAddress),
                         'burn(bytes32[10],bytes32[2],uint256,bytes32[2],address,bytes32[3],bytes32[9][],bytes32[21][])', options, [], tronWeb.defaultAddress.base58);
                     console.log("transactionResult: "+util.inspect(transactionResult,true,null,true))
                     assert.ok(transactionResult && transactionResult.result);
@@ -1908,9 +1921,9 @@ describe('TronWeb ztron', function() {
                         ak: shieldedInfo.ak,
                         nk: shieldedInfo.nk,
                         position: burnShieldedSpends[0].pos,
-                        shielded_TRC20_contract_address: shieldedTRC20ContractAddress
+                        shielded_TRC20_contract_address: await tronWeb.address.fromHex(shieldedTRC20ContractAddress)
                     }
-                    result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params);
+                    result = await tronWeb.ztron.isShieldedTRC20ContractNoteSpent(params,visibleFalseOptions);
                     console.log("isShieldedTRC20ContractNoteSpent: "+util.inspect(result))
                     assert.ok(result);
                     assert.ok(result.is_spent);
@@ -1922,16 +1935,16 @@ describe('TronWeb ztron', function() {
                     params = {
                         "start_block_index": startBlockIndex,
                         "end_block_index": endBlockIndex,
-                        "shielded_TRC20_contract_address": shieldedTRC20ContractAddress,
+                        "shielded_TRC20_contract_address": await tronWeb.address.fromHex(shieldedTRC20ContractAddress),
                         "ovk": shieldedInfo.ovk,
                     }
-                    result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleOptions);
+                    result = await tronWeb.ztron.scanShieldedTRC20NotesByOvk(params, visibleFalseOptions);
                     console.log("scanByOvk-noteTxs-after: "+util.inspect(result))
                     let scanByOvkNote = result.noteTxs;
                     assert.ok(scanByOvkNote.length == 1);
                     assert.ok(scanByOvkNote[0].txid == transactionResult.txid);
                     assert.ok(scanByOvkNote[0].to_amount == 20);
-                    assert.equal(scanByOvkNote[0].transparent_to_address, transParentToAddress);
+                    assert.equal(await tronWeb.address.fromHex(scanByOvkNote[0].transparent_to_address), transParentToAddress);
                 })
             })
         })

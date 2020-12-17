@@ -149,6 +149,21 @@ describe('TronWeb.utils', function () {
 
         });
 
+        it('test toHex', async function () {
+            assert.equal(tronWeb.toHex(''),"0x 2");
+            assert.equal(tronWeb.toHex('  '),"0x2020");
+            assert.equal(tronWeb.toHex('we '),"0x776520");
+            assert.equal(tronWeb.toHex('we we'),"0x7765207765");
+            assert.equal(tronWeb.toHex('we we    we'),"0x7765207765202020207765");
+            assert.equal(tronWeb.toHex(true),"0x1");
+            assert.equal(tronWeb.toHex(1234),"0x4d2");
+            assert.equal(tronWeb.toHex(" 1234 "),"0x4d2");
+            assert.equal(tronWeb.toHex("12x"),"0x313278");
+            assert.equal(tronWeb.toHex("x34"),"0x783334");
+            assert.equal(tronWeb.toHex("12 34"),"0x3132203334");
+            assert.equal(tronWeb.toHex(),"0x0");
+        });
+
     });
 
     describe("#isInteger()", function () {

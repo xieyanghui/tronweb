@@ -9,27 +9,9 @@ const options = {
     eventServer: 'http://39.107.81.225:9190',
     privateKey : '',
 };
-const tronWeb = new TronWeb(options);
-/**
- * test toHex('')
- */
-console.log(tronWeb.toHex(''),2);
-console.log(tronWeb.toHex('  '),3);
-console.log(tronWeb.toHex('we '),4);
-console.log(tronWeb.toHex('we we'),5);
-console.log(tronWeb.toHex('we we    we'),6);
-console.log(tronWeb.toHex(true),7);
-console.log(tronWeb.toHex(1234),8);
-console.log(tronWeb.toHex(" 1234 "),9);
-console.log(tronWeb.toHex("12x"),10);
-console.log(tronWeb.toHex("x34"),11);
-console.log(tronWeb.toHex("12 34"),12);
-console.log(tronWeb.toHex(),14);
-// tronWeb.trx.getAccount('TDQsxPhq9bgmnw9CeDSrXsYjqt2rb1b3pg').then(function(data) {
-//     console.log(data);
-// });
 
 describe("#multiSignTransaction", async function () {
+    const tronWeb = new TronWeb(options);
 
     var priKey = "4a2f422b1451b667b7879dbb941f70e651e7f307d310cd51fbb317d0f7ed449c";
     var transac1 ={
