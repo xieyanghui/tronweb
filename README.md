@@ -168,6 +168,9 @@ In order to contribute you can
 
 ## Recent History
 
+__3.2.1__
+- Support triggerSmartContract function with empty character functionSelector and empty array parameters
+
 __3.2.0__
 - Support shielded transactions
 
