@@ -811,60 +811,58 @@ export default class TransactionBuilder {
                 value: tokenId,
                 gte: 0,
                 optional: true
+            },
+            {
+                name: 'function selector',
+                type: 'not-empty-string',
+                value: functionSelector
             }
         ], callback))
             return;
 
-        const args = {
-            contract_address: toHex(contractAddress),
-            owner_address: toHex(issuerAddress)
-        };
+        functionSelector = functionSelector.replace('/\s*/g', '');
 
-        if (functionSelector && utils.isString(functionSelector)) {
-            functionSelector = functionSelector.replace('/\s*/g', '');
-            if (parameters.length) {
-                const abiCoder = new AbiCoder();
-                let types = [];
-                const values = [];
+        if (parameters.length) {
+            const abiCoder = new AbiCoder();
+            let types = [];
+            const values = [];
 
-                for (let i = 0; i < parameters.length; i++) {
-                    let {type, value} = parameters[i];
+            for (let i = 0; i < parameters.length; i++) {
+                let {type, value} = parameters[i];
 
-                    if (!type || !utils.isString(type) || !type.length)
-                        return callback('Invalid parameter type provided: ' + type);
+                if (!type || !utils.isString(type) || !type.length)
+                    return callback('Invalid parameter type provided: ' + type);
 
-                    if (type == 'address')
-                        value = toHex(value).replace(ADDRESS_PREFIX_REGEX, '0x');
-                    else if (type == 'address[]')
-                        value = value.map(v => toHex(v).replace(ADDRESS_PREFIX_REGEX, '0x'));
+                if (type == 'address')
+                    value = toHex(value).replace(ADDRESS_PREFIX_REGEX, '0x');
+                else if (type == 'address[]')
+                    value = value.map(v => toHex(v).replace(ADDRESS_PREFIX_REGEX, '0x'));
 
-                    types.push(type);
-                    values.push(value);
-                }
-
-                try {
-                    // workaround for unsupported trcToken type
-                    types = types.map(type => {
-                        if (/trcToken/.test(type)) {
-                            type = type.replace(/trcToken/, 'uint256')
-                        }
-                        return type
-                    })
-
-                    parameters = abiCoder.encode(types, values).replace(/^(0x)/, '');
-                } catch (ex) {
-                    return callback(ex);
-                }
-            } else parameters = '';
-
-            if(options.shieldedParameter){
-                parameters = options.shieldedParameter.replace(/^(0x)/, '');
+                types.push(type);
+                values.push(value);
             }
 
-            args.function_selector = functionSelector;
-            args.parameter = parameters;
-        }
+            try {
+                // workaround for unsupported trcToken type
+                types = types.map(type => {
+                    if (/trcToken/.test(type)) {
+                        type = type.replace(/trcToken/, 'uint256')
+                    }
+                    return type
+                })
 
+                parameters = abiCoder.encode(types, values).replace(/^(0x)/, '');
+            } catch (ex) {
+                return callback(ex);
+            }
+        } else parameters = '';
+
+        const args = {
+            contract_address: toHex(contractAddress),
+            owner_address: toHex(issuerAddress),
+            function_selector: functionSelector,
+            parameter: parameters
+        };
 
         if (!options._isConstant) {
             args.call_value = parseInt(callValue)

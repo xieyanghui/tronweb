@@ -168,11 +168,9 @@ In order to contribute you can
 
 ## Recent History
 
-__3.2.1__
-- Support triggerSmartContract function with empty character functionSelector and empty array parameters
-
-__3.2.0__
-- Support shielded transactions
+__3.2.2__
+- Set feeLimit default value as 40 TRX
+- The `createToken` method supports 0 in its precision
 
 __3.1.0__
 - Update `elliptic` to the latest version 6.5.3
