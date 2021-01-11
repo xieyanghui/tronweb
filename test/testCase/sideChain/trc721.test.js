@@ -68,7 +68,107 @@ describe('TronWeb Instance', function() {
             assert.equal(mTrc721BalanceAfter,SIDE_CHAIN.sideOptions.mainGatewayAddress_hex)
             assert.equal(sTrc721OwnerAfter,ADDRESS_HEX)
         });
+
+        it('depositTrc721 with the defined private key', async function () {
+            let mintMap = await publicMethod.mintTrc721(contractAddress,1003);
+            trc721Id = mintMap.get("trc721Id");
+            let approveTrc721Map = await publicMethod.approveTrc721(trc721Id, contractAddress);
+            const options = {};
+            const txID = await tronWeb.sidechain.depositTrc721(trc721Id, DEPOSIT_FEE, FEE_LIMIT, contractAddress, options, PRIVATE_KEY);
+            assert.equal(txID.length, 64);
+            console.log("txID: "+txID)
+            await wait(20)
+        });
+
+        it('depositTrc721 with permissionId in options object', async function () {
+            let mintMap = await publicMethod.mintTrc721(contractAddress,1004);
+            trc721Id = mintMap.get("trc721Id");
+            let approveTrc721Map = await publicMethod.approveTrc721(trc721Id, contractAddress);
+            const options = { permissionId: 0 };
+            const txID = await tronWeb.sidechain.depositTrc721(trc721Id, DEPOSIT_FEE, FEE_LIMIT, contractAddress, options);
+            assert.equal(txID.length, 64);
+            console.log("txID: "+txID)
+            await wait(20)
+        });
+
+        it('depositTrc721 with permissionId in options object and the defined private key', async function () {
+            let mintMap = await publicMethod.mintTrc721(contractAddress,1005);
+            trc721Id = mintMap.get("trc721Id");
+            let approveTrc721Map = await publicMethod.approveTrc721(trc721Id, contractAddress);
+            const options = { permissionId: 0 };
+            const txID = await tronWeb.sidechain.depositTrc721(trc721Id, DEPOSIT_FEE, FEE_LIMIT, contractAddress, options, PRIVATE_KEY);
+            assert.equal(txID.length, 64);
+            console.log("txID: "+txID)
+            await wait(20)
+        });
+
+        it('should throw if an invalid num is passed', async function () {
+            await assertThrow(
+                tronWeb.sidechain.depositTrc721(100.01, DEPOSIT_FEE, FEE_LIMIT, contractAddress),
+                'Invalid num provided'
+            );
+        });
+
+        it('should throw if an invalid fee limit is passed', async function () {
+            const feeLimit = 100000000000;
+            await assertThrow(
+                tronWeb.sidechain.depositTrc721(trc721Id, DEPOSIT_FEE, feeLimit, contractAddress),
+                'Invalid feeLimit provided'
+            );
+        });
+
+        it('should throw if an invalid contract address is passed', async function () {
+            await assertThrow(
+                tronWeb.sidechain.depositTrc721(trc721Id, DEPOSIT_FEE, FEE_LIMIT, 'aaaaaaaaaa'),
+                'Invalid contractAddress address provided'
+            );
+        });
     });
+
+    describe('#mappingTrc721', function () {
+        it('mappingTrc721 with the defined private key', async function () {
+            let deployMap = await publicMethod.deployTrc721Contract();
+            createTxId = deployMap.get("createTxId");
+            const options = {};
+            const txID = await tronWeb.sidechain.mappingTrc721(createTxId, MAPPING_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+            assert.equal(txID.length, 64);
+            console.log("txID: "+txID)
+            await wait(20)
+        });
+
+        it('mappingTrc721 with permissionId in options object', async function () {
+            const options = { permissionId: 0 };
+            const txID = await tronWeb.sidechain.mappingTrc721(createTxId, MAPPING_FEE, FEE_LIMIT, options);
+            assert.equal(txID.length, 64);
+            console.log("txID: "+txID)
+            await wait(20)
+        });
+
+        it('mappingTrc721 with permissionId in options object and the defined private key', async function () {
+            const options = { permissionId: 0 };
+            const txID = await tronWeb.sidechain.mappingTrc721(createTxId, MAPPING_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+            assert.equal(txID.length, 64);
+            console.log("txID: "+txID)
+            await wait(20)
+        });
+
+        it('should throw if an invalid trxHash', async function () {
+            const trxHash = '';
+            await assertThrow(
+                tronWeb.sidechain.mappingTrc721(trxHash, MAPPING_FEE, FEE_LIMIT),
+                'Invalid trxHash provided'
+            );
+        });
+
+        it('should throw if an invalid fee limit is passed', async function () {
+            const feeLimit = 100000000000;
+            await assertThrow(
+                tronWeb.sidechain.mappingTrc721(createTxId, MAPPING_FEE, feeLimit),
+                'Invalid feeLimit provided'
+            );
+        });
+    });
+
     describe('#withdrawTrc721', async function () {
         const tronWeb = tronWebBuilder.createInstanceSide();
         it('withdraw trc721 from side chain to main chain', async function () {

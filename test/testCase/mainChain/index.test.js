@@ -6,11 +6,11 @@ const assert = chai.assert;
 
 describe('TronWeb.utils', function () {
 
+    const tronWeb = tronWebBuilder.createInstance();
     describe("#isValidURL()", function () {
 
         it('should verify good urls', function () {
 
-            const tronWeb = tronWebBuilder.createInstance();
 
             assert.isTrue(tronWeb.utils.isValidURL('https://some.example.com:9090/casa?qe=3'))
             assert.isTrue(tronWeb.utils.isValidURL('www.example.com/welcome'))
@@ -150,7 +150,7 @@ describe('TronWeb.utils', function () {
         });
 
         it('test toHex', async function () {
-            assert.equal(tronWeb.toHex(''),"0x 2");
+            assert.equal(tronWeb.toHex(''),"0x");
             assert.equal(tronWeb.toHex('  '),"0x2020");
             assert.equal(tronWeb.toHex('we '),"0x776520");
             assert.equal(tronWeb.toHex('we we'),"0x7765207765");

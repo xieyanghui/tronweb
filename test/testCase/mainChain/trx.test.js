@@ -551,7 +551,7 @@ describe('TronWeb.trx', function () {
 
             });
 
-            it('should verify weight after multi-sign by active permission', async function () {
+            it.only('should verify weight after multi-sign by active permission', async function () {
 
                 // create transaction and do multi-sign
                 const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
@@ -1558,7 +1558,7 @@ describe('TronWeb.trx', function () {
         });
 
 
-        describe("#getExchangeByID", async function () {
+        describe.only("#getExchangeByID", async function () {
 
             const idxS = 39;
             const idxE = 41;

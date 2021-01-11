@@ -1,6 +1,8 @@
 const chalk = require('chalk')
 const TronWeb = require('../../setup/TronWeb');
 const jlog = require('../../helpers/jlog')
+const util = require('util');
+
 
 const {FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SUN_NETWORK, SIDE_CHAIN} = require('./config')
 
@@ -61,6 +63,7 @@ const getTestAccounts = async (block) => {
     }
     const tronWeb = createInstance();
     const accountsJson = await tronWeb.fullNode.request('/admin/accounts-json');
+    console.log("accountsJson:"+util.inspect(accountsJson,true,null,true))
     const index = typeof block === 'number'
         ? (block > -1 && block < accountsJson.more.length ? block : accountsJson.more.length - 1)
         : undefined

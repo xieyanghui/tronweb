@@ -79,10 +79,37 @@ describe('TronWeb Instance', function() {
             assert.equal(parseInt(sTrc20BalanceBefore)+parseInt(depositNum),sTrc20BalanceAfter);
         });
 
+        it('deposit trc20 from main chain to side chain', async function () {
+            const num = 100;
+            const txID = await tronWeb.sidechain.depositTrc20(num, DEPOSIT_FEE, FEE_LIMIT, contractAddress);
+            assert.equal(txID.length, 64);
+        });
+
+        it('depositTrc20 with the defined private key', async function () {
+            const num = 100;
+            const options = {};
+            const txID = await tronWeb.sidechain.depositTrc20(num, DEPOSIT_FEE, FEE_LIMIT, contractAddress, options, PRIVATE_KEY);
+            assert.equal(txID.length, 64);
+        });
+
+        it('depositTrc20 with permissionId in options object', async function () {
+            const num = 100;
+            const options = { permissionId: 0 };
+            const txID = await tronWeb.sidechain.depositTrc20(num, DEPOSIT_FEE, FEE_LIMIT, contractAddress, options);
+            assert.equal(txID.length, 64);
+        });
+
+        it('depositTrc20 with permissionId in options object and the defined private key', async function () {
+            const num = 100;
+            const options = { permissionId: 0 };
+            const txID = await tronWeb.sidechain.depositTrc20(num, DEPOSIT_FEE, FEE_LIMIT, contractAddress, options, PRIVATE_KEY);
+            assert.equal(txID.length, 64);
+        });
+
         it('should throw if an invalid num is passed', async function () {
             const num = 100.01;
             await assertThrow(
-                tronWeb.sidechain.depositTrc20(num,10, FEE_LIMIT, contractAddress),
+                tronWeb.sidechain.depositTrc20(num, DEPOSIT_FEE, FEE_LIMIT, contractAddress),
                 'Invalid num provided'
             );
         });
@@ -91,18 +118,64 @@ describe('TronWeb Instance', function() {
             const num = 100;
             const feeLimit = 100000000000;
             await assertThrow(
-                tronWeb.sidechain.depositTrc20(num, 0,feeLimit, contractAddress),
+                tronWeb.sidechain.depositTrc20(num, DEPOSIT_FEE, feeLimit, contractAddress),
                 'Invalid feeLimit provided'
             );
         });
 
         it('should throw if an invalid contract address is passed', async function () {
             await assertThrow(
-                tronWeb.sidechain.depositTrc20(100, 0,FEE_LIMIT, 'contractAddress'),
+                tronWeb.sidechain.depositTrc20(100, DEPOSIT_FEE, FEE_LIMIT, 'aaaaaaaaaa'),
                 'Invalid contractAddress address provided'
             );
         });
     });
+
+    describe('#mappingTrc20', function () {
+        const tronWeb = tronWebBuilder.createInstanceSide();
+        it('mappingTrc20 with the defined private key', async function () {
+            let deployMap = await publicMethod.deployTrc20Contract();
+            createTxId = deployMap.get("createTxId");
+            const options = {};
+            const txID = await tronWeb.sidechain.mappingTrc20(createTxId, MAPPING_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+            assert.equal(txID.length, 64);
+            console.log("txID: "+txID)
+            await wait(20)
+        });
+
+        it('mappingTrc20 with permissionId in options object', async function () {
+            const options = { permissionId: 0 };
+            const txID = await tronWeb.sidechain.mappingTrc20(createTxId, MAPPING_FEE, FEE_LIMIT, options);
+            assert.equal(txID.length, 64);
+            console.log("txID: "+txID)
+            await wait(20)
+        });
+
+        it('mappingTrc20 with permissionId in options object and the defined private key', async function () {
+            const options = { permissionId: 0 };
+            const txID = await tronWeb.sidechain.mappingTrc20(createTxId, MAPPING_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+            assert.equal(txID.length, 64);
+            console.log("txID: "+txID)
+            await wait(20)
+        });
+
+        it('should throw if an invalid trxHash', async function () {
+            const trxHash = '';
+            await assertThrow(
+                tronWeb.sidechain.mappingTrc20(trxHash, MAPPING_FEE, FEE_LIMIT),
+                'Invalid trxHash provided'
+            );
+        });
+
+        it('should throw if an invalid fee limit is passed', async function () {
+            const feeLimit = 100000000000;
+            await assertThrow(
+                tronWeb.sidechain.mappingTrc20(createTxId, MAPPING_FEE, feeLimit),
+                'Invalid feeLimit provided'
+            );
+        });
+    });
+
     describe('#withdrawTrc20', function () {
         describe('#withdrawTrc20', function () {
             const tronWeb = tronWebBuilder.createInstanceSide();
@@ -154,7 +227,7 @@ describe('TronWeb Instance', function() {
                     [{type: 'address', value: ADDRESS_BASE58}]);
                 const sTrc20BalanceAfter = sTrc20balanceResultAfter && sTrc20balanceResultAfter.result ? new tronWeb.BigNumber(sTrc20balanceResultAfter.constant_result[0], 16).valueOf() : 0;
                 console.log("sTrc20BalanceAfter:"+sTrc20BalanceAfter);
-                assert.equal(mTrc20BalanceBefore+depositNum,mTrc20BalanceAfter);
+                assert.equal(parseInt(mTrc20BalanceBefore)+parseInt(depositNum),mTrc20BalanceAfter);
                 assert.equal(sTrc20BalanceBefore-depositNum,sTrc20BalanceAfter);
             });
 

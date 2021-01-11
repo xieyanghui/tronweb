@@ -23,7 +23,7 @@ describe('TronWeb feelimit test', function() {
             }
         })
         describe('#use default feelimit', function () {
-            it.only('createSmartContract use default feelimit in mainChain', async function () {
+            it('createSmartContract use default feelimit in mainChain', async function () {
                 // before create
                 const accountBalanceBefore = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceBefore: ' + accountBalanceBefore);

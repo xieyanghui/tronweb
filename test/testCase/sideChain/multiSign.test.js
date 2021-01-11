@@ -79,7 +79,7 @@ describe('TronWeb Instance', function() {
                 assert.equal(updateTx.transaction.txID.length, 64);
                 await wait(30);
 
-                let updateInfo;
+                /*let updateInfo;
                 while (true) {
                     updateInfo = await tronWeb.sidechain.sidechain.trx.getTransactionInfo(updateTx.transaction.txID);
                     if (Object.keys(updateInfo).length === 0) {
@@ -89,7 +89,7 @@ describe('TronWeb Instance', function() {
                         console.log("updateInfo:"+util.inspect(updateInfo))
                         break;
                     }
-                }
+                }*/
             });
 
             it('should multi-sign a transaction by owner permission', async function () {

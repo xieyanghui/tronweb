@@ -75,7 +75,7 @@ describe('#contract.method', function () {
 
     });
 
-    describe.only('#empty abi()', function () {
+    describe('#empty abi()', function () {
 
         let testRevert
         let testSetVal

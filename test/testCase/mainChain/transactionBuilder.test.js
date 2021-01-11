@@ -1007,7 +1007,7 @@ describe('TronWeb.transactionBuilder', function () {
 
         let parameters = [{"key": 0, "value": 100000}, {"key": 1, "value": 2}]
 
-        it('should allow the SR account to create a new proposal as a single object', async function () {
+        it.only('should allow the SR account to create a new proposal as a single object', async function () {
 
             const inputs = [
                 [parameters[0], ADDRESS_BASE58, {permissionId: 2}],
@@ -1026,7 +1026,7 @@ describe('TronWeb.transactionBuilder', function () {
 
         })
 
-        it('should allow the SR account to create a new proposal as an array of objects', async function () {
+        it.only('should allow the SR account to create a new proposal as an array of objects', async function () {
 
             const inputs = [
                 [parameters, ADDRESS_BASE58, {permissionId: 2}],
@@ -1071,7 +1071,7 @@ describe('TronWeb.transactionBuilder', function () {
     });
 
 
-    describe("#deleteProposal", async function () {
+    describe.only("#deleteProposal", async function () {
 
 
         let proposals;

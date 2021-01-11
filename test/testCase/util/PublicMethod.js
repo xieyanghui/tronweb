@@ -383,7 +383,7 @@ const deployTrc721ContractAndMappingAndMint = async () =>{
     contractAddress = deployMap.get("contractAddress");
     let mappingMap = await mappingTrc721Contract(contractAddress, createTxId);
     sideChainContractAddress = mappingMap.get("sideChainContractAddress");
-    let mintMap = await mintTrc721(contractAddress);
+    let mintMap = await mintTrc721(contractAddress,1001);
     trc721Id = mintMap.get("trc721Id");
 
     map.set("trc721Id", trc721Id);
@@ -467,13 +467,11 @@ const mappingTrc721Contract = async (contractAddress, createTxId) =>{
     return map;
 }
 
-const mintTrc721 = async (contractAddress) =>{
+const mintTrc721 = async (contractAddress,trc721Id) =>{
     const tronWeb = tronWebBuilder.createInstanceSide();
     let map = new HashMap();
-    let trc721Id;
     // mint(address,uint256)
     const functionSelector = 'mint(address,uint256)';
-    trc721Id = 1001;
     const mintTransaction = await tronWeb.sidechain.mainchain.transactionBuilder.triggerSmartContract(
         contractAddress,
         functionSelector,

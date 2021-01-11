@@ -800,7 +800,7 @@ describe('TronWeb ztron', function() {
             })
         })
 
-        describe.only("#createTransferParamsWithoutAsk 1V2", function (){
+        describe("#createTransferParamsWithoutAsk 1V2", function (){
             const visibleOptions = {
                 visible: true
             }
@@ -1055,7 +1055,7 @@ describe('TronWeb ztron', function() {
             })
         })
 
-        describe.only("#createTransferParamsWithoutAsk 2V2", function (){
+        describe("#createTransferParamsWithoutAsk 2V2", function (){
             const visibleOptions = {
                 visible: true
             }
@@ -1351,7 +1351,7 @@ describe('TronWeb ztron', function() {
             })
         })
 
-        describe.only("#createTransferParamsWithoutAsk 2V1", function (){
+        describe("#createTransferParamsWithoutAsk 2V1", function (){
             const visibleOptions = {
                 visible: true
             }
@@ -1612,7 +1612,7 @@ describe('TronWeb ztron', function() {
             })
         })
 
-        describe.only("#createBurnParams 1V1T", function (){
+        describe("#createBurnParams 1V1T", function (){
             const visibleOptions = {
                 visible: true
             }
@@ -1765,7 +1765,7 @@ describe('TronWeb ztron', function() {
 
         })
 
-        describe.only("#createBurnParamsWithoutAsk 1V1T", function (){
+        describe("#createBurnParamsWithoutAsk 1V1T", function (){
             let burnParamsResult;
             let spendAuthoritySignature;
             let burnTriggerContractInput;

@@ -9,8 +9,8 @@ module.exports = {
     SOLIDITY_NODE_API: fullHost,
     EVENT_API: fullHost,
     NETWORK_ID: "*",
-    /*ADDRESS_HEX: '41928c9af0651632157ef27a2cf17ca72c575a4d21',
-    ADDRESS_BASE58: 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY',*/
+    // ADDRESS_HEX: '41928c9af0651632157ef27a2cf17ca72c575a4d21',
+    // ADDRESS_BASE58: 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY',
     ADDRESS_HEX: '415624c12e308b03a1a6b21d9b86e3942fac1ab92b',
     ADDRESS_BASE58: 'THph9K2M2nLvkianrMGswRhz5hjSA9fuH7',
     /*ADDRESS_HEX: '415ab90009b529c5406b4f8a6fc4dab8a2bc778c75',
@@ -55,15 +55,15 @@ module.exports = {
     },
     SUN_NETWORK: process.env.SUN_NETWORK,
     SIDE_CHAIN: {
-        fullNode: 'http://39.107.81.225:9193',
-        solidityNode: 'http://39.107.81.225:9197',
-        eventServer: 'http://39.107.81.225:9190',
+        // fullNode: 'http://39.107.81.225:9193',
+        // solidityNode: 'http://39.107.81.225:9197',
+        // eventServer: 'http://39.107.81.225:9190',
         /*fullNode: 'https://testhttpapi.tronex.io',
         solidityNode: 'https://testhttpapi.tronex.io',
         eventServer: 'https://testhttpapi.tronex.io',*/
-        /*fullNode: 'https://api.nileex.io/',
+        fullNode: 'https://api.nileex.io/',
         solidityNode: 'https://api.nileex.io/',
-        eventServer: 'https://event.nileex.io/',*/
+        eventServer: 'https://event.nileex.io/',
         /*fullNode: 'http://3.225.171.164:8090',
         solidityNode: 'http://3.225.171.164:8090',
         eventServer: 'http://3.225.171.164:8090',*/

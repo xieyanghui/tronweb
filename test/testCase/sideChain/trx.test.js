@@ -1,4 +1,4 @@
-const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT} = require('../util/config');
+const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, PRIVATE_KEY} = require('../util/config');
 const tronWebBuilder = require('../util/tronWebBuilder');
 const assertThrow = require('../../helpers/assertThrow');
 const publicMethod = require('../util/PublicMethod');
@@ -19,7 +19,7 @@ describe('TronWeb Instance', function() {
                 console.log('sDepositBalanceBefore: ' + sDepositBalanceBefore);
 
                 // depositTrx
-                const depositNum = 10e6;
+                const depositNum = 10e7;
                 let depositTrxMap = await publicMethod.depositTrx(depositNum);
                 let depositTxFee = depositTrxMap.get("depositTxFee");
 
@@ -31,6 +31,47 @@ describe('TronWeb Instance', function() {
                 console.log('sDepositBalanceAfter: ' +  sDepositBalanceAfter)
                 assert.equal(mDepositBalanceAfter, mDepositBalanceBefore - depositNum - depositTxFee - DEPOSIT_FEE);
                 assert.equal(sDepositBalanceAfter, sDepositBalanceBefore + depositNum);
+            });
+
+            it('depositTrx with the defined private key', async function () {
+                const callValue = 10000000;
+                const options = {};
+                const txID = await tronWeb.sidechain.depositTrx(callValue, DEPOSIT_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+                assert.equal(txID.length, 64);
+                console.log("txID: "+txID)
+                await wait(20)
+            });
+
+            it('depositTrx with permissionId in options object', async function () {
+                const callValue = 10000000;
+                const options = { permissionId: 0 };
+                const txID = await tronWeb.sidechain.depositTrx(callValue, DEPOSIT_FEE, FEE_LIMIT, options);
+                assert.equal(txID.length, 64);
+                console.log("txID: "+txID)
+                await wait(20)
+            });
+
+            it('depositTrx with permissionId in options object and the defined private key', async function () {
+                const callValue = 10000000;
+                const options = { permissionId: 0 };
+                const txID = await tronWeb.sidechain.depositTrx(callValue, DEPOSIT_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+                assert.equal(txID.length, 64);
+                console.log("txID: "+txID)
+                await wait(20)
+            });
+
+            it('should throw if an invalid trx number is passed', async function () {
+                await assertThrow(
+                    tronWeb.sidechain.depositTrx(1000.01, DEPOSIT_FEE, FEE_LIMIT),
+                    'Invalid callValue provided'
+                );
+            });
+
+            it('should throw if an invalid fee limit is passed', async function () {
+                await assertThrow(
+                    tronWeb.sidechain.depositTrx(10000, DEPOSIT_FEE, 0),
+                    'Invalid feeLimit provided'
+                );
             });
         });
 
@@ -59,6 +100,45 @@ describe('TronWeb Instance', function() {
                 assert.equal(sWithdrawBalanceAfter, sWithdrawBalanceBefore - withdrawNum - WITHDRAW_FEE - withdrawTxFee);
             });
 
+            it('withdraw trx from side chain to main chain', async function () {
+                const txID = await tronWeb.sidechain.withdrawTrx(10e6, WITHDRAW_FEE, 10000000);
+                assert.equal(txID.length, 64);
+            });
+
+            it('withdrawTrx with the defined private key', async function () {
+                const callValue = 10e6;
+                const options = {};
+                const txID = await tronWeb.sidechain.withdrawTrx(callValue, WITHDRAW_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+                assert.equal(txID.length, 64);
+            });
+
+            it('withdrawTrx with permissionId in options object', async function () {
+                const callValue = 10e6;
+                const options = { permissionId: 0 };
+                const txID = await tronWeb.sidechain.withdrawTrx(callValue, WITHDRAW_FEE, FEE_LIMIT, options);
+                assert.equal(txID.length, 64);
+            });
+
+            it('withdrawTrx with permissionId in options object and the defined private key', async function () {
+                const callValue = 10e6;
+                const options = { permissionId: 0 };
+                const txID = await tronWeb.sidechain.withdrawTrx(callValue, WITHDRAW_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+                assert.equal(txID.length, 64);
+            });
+
+            it('should throw if an invalid trx number is passed', async function () {
+                await assertThrow(
+                    tronWeb.sidechain.withdrawTrx(1000.01, WITHDRAW_FEE, FEE_LIMIT),
+                    'Invalid callValue provided'
+                );
+            });
+
+            it('should throw if an invalid fee limit is passed', async function () {
+                await assertThrow(
+                    tronWeb.sidechain.withdrawTrx(10000, WITHDRAW_FEE, 0),
+                    'Invalid feeLimit provided'
+                );
+            });
         });
     });
 });
