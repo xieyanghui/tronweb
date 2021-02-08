@@ -9,6 +9,7 @@ const TronWeb = tronWebBuilder.TronWeb;
 const chai = require('chai');
 const assert = chai.assert;
 const _ = require('lodash');
+const util = require('util');
 const {
     ADDRESS_BASE58,
     PRIVATE_KEY,
@@ -551,7 +552,7 @@ describe('TronWeb.trx', function () {
 
             });
 
-            it.only('should verify weight after multi-sign by active permission', async function () {
+            it('should verify weight after multi-sign by active permission', async function () {
 
                 // create transaction and do multi-sign
                 const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
@@ -1558,7 +1559,7 @@ describe('TronWeb.trx', function () {
         });
 
 
-        describe.only("#getExchangeByID", async function () {
+        describe("#getExchangeByID", async function () {
 
             const idxS = 39;
             const idxE = 41;
@@ -1739,6 +1740,7 @@ describe('TronWeb.trx', function () {
             const srs = await tronWeb.trx.listSuperRepresentatives();
             assert.isArray(srs);
             for (let sr of srs) {
+                console.log("sr: "+util.inspect(sr,true,null,true))
                 assert.isDefined(sr.address);
                 assert.isDefined(sr.voteCount);
                 assert.isDefined(sr.latestBlockNum);

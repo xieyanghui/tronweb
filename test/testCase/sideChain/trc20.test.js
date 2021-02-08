@@ -31,7 +31,7 @@ describe('TronWeb Instance', function() {
             console.log('sTrxBalanceBefore: ' + sTrxBalanceBefore);
 
             // approve
-            let approveNum = 100;
+            let approveNum = 1000;
             let approveTrc20Map = await publicMethod.approveTrc20(approveNum, contractAddress);
             let approveTxFee = approveTrc20Map.get("approveTxFee");
 
@@ -50,7 +50,7 @@ describe('TronWeb Instance', function() {
             console.log("sTrc20BalanceBefore:"+sTrc20BalanceBefore);
 
             // depositTrc20
-            const depositNum = 100;
+            const depositNum = 1000;
             let depositTrc20Map = await publicMethod.depositTrc20(depositNum, contractAddress);
             let depositTxFee = depositTrc20Map.get("depositTxFee");
 
@@ -183,7 +183,6 @@ describe('TronWeb Instance', function() {
                 // before token balance
                 let mTrc20Contract = await tronWeb.sidechain.mainchain.contract().at(contractAddress);
                 let mTrc20BalanceBefore = await mTrc20Contract.balanceOf(ADDRESS_BASE58).call();
-                mTrc20BalanceBefore = parseInt(mTrc20BalanceBefore, 16);
                 console.log("mTrc20BalanceBefore："+mTrc20BalanceBefore);
                 let sTrc20balanceResultBefore=await tronWeb.sidechain.sidechain.transactionBuilder.triggerSmartContract(
                     sideChainContractAddress,
@@ -218,7 +217,6 @@ describe('TronWeb Instance', function() {
 
                 // after token balance
                 let mTrc20BalanceAfter = await mTrc20Contract.balanceOf(ADDRESS_BASE58).call();
-                mTrc20BalanceAfter = parseInt(mTrc20BalanceAfter, 16);
                 console.log("mTrc20BalanceAfter："+mTrc20BalanceAfter);
                 let sTrc20balanceResultAfter=await tronWeb.sidechain.sidechain.transactionBuilder.triggerSmartContract(
                     sideChainContractAddress,

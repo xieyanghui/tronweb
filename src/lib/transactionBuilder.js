@@ -4,6 +4,8 @@ import {AbiCoder} from 'utils/ethersUtils';
 import Validator from 'paramValidator';
 import {ADDRESS_PREFIX_REGEX} from 'utils/address';
 import injectpromise from 'injectpromise';
+const util = require('util');
+
 
 let self;
 
@@ -1928,6 +1930,7 @@ export default class TransactionBuilder {
             data.actives = activesPermissions.length === 1 ? activesPermissions[0] : activesPermissions
         }
 
+        console.log("data:"+util.inspect(data,true,null,true));
         this.tronWeb.fullNode.request('wallet/accountpermissionupdate', data, 'post').then(transaction => resultManager(transaction, callback)).catch(err => callback(err));
     }
 

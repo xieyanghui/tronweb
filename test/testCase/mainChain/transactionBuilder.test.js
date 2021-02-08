@@ -225,13 +225,13 @@ describe('TronWeb.transactionBuilder', function () {
             }
         });
 
-        it.only(`should allow create a TestToken with precision is 0 or 6`, async function () {
+        it(`should allow create a TestToken with precision is 0 or 6`, async function () {
             if (isAllowSameTokenNameApproved) {
 
                 const options = getTokenOptions();
 
                 options.precision = 0;
-                let transaction = await tronWeb.transactionBuilder.createToken(options, accounts.b58[9]);
+                let transaction = await tronWeb.transactionBuilder.createToken(options, accounts.b58[11]);
                 let parameter = txPars(transaction);
                 console.log("parameter: "+util.inspect(parameter,true,null,true));
                 const precision = typeof (parameter.value.precision) === 'number' ? (parameter.value.precision) : 0;
@@ -240,17 +240,17 @@ describe('TronWeb.transactionBuilder', function () {
                 assert.equal(precision, options.precision);
                 assert.equal(parameter.value.total_supply, options.totalSupply);
                 await assertEqualHex(parameter.value.abbr, options.abbreviation);
-                assert.equal(parameter.value.owner_address, accounts.hex[9]);
+                assert.equal(parameter.value.owner_address, accounts.hex[11]);
                 assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AssetIssueContract');
-                await broadcaster.broadcaster(null, accounts.pks[9], transaction)
-                let tokenList = await tronWeb.trx.getTokensIssuedByAddress(accounts.b58[9])
+                await broadcaster.broadcaster(null, accounts.pks[11], transaction)
+                let tokenList = await tronWeb.trx.getTokensIssuedByAddress(accounts.b58[11])
                 let tokenID = tokenList[options.name].id
                 let token = await tronWeb.trx.getTokenByID(tokenID)
                 const tokenPrecision = typeof (token.precision) === 'number' ? (token.precision) : 0;
                 assert.equal(tokenPrecision, options.precision);
 
                 options.precision = 6;
-                transaction = await tronWeb.transactionBuilder.createToken(options, accounts.b58[10]);
+                transaction = await tronWeb.transactionBuilder.createToken(options, accounts.b58[12]);
                 parameter = txPars(transaction);
                 console.log("parameter: "+util.inspect(parameter,true,null,true));
                 assert.equal(transaction.txID.length, 64);
@@ -258,10 +258,10 @@ describe('TronWeb.transactionBuilder', function () {
                 assert.equal(parameter.value.precision, options.precision);
                 assert.equal(parameter.value.total_supply, options.totalSupply);
                 await assertEqualHex(parameter.value.abbr, options.abbreviation);
-                assert.equal(parameter.value.owner_address, accounts.hex[10]);
+                assert.equal(parameter.value.owner_address, accounts.hex[12]);
                 assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AssetIssueContract');
-                await broadcaster.broadcaster(null, accounts.pks[10], transaction)
-                tokenList = await tronWeb.trx.getTokensIssuedByAddress(accounts.b58[10])
+                await broadcaster.broadcaster(null, accounts.pks[12], transaction)
+                tokenList = await tronWeb.trx.getTokensIssuedByAddress(accounts.b58[12])
                 tokenID = tokenList[options.name].id
                 token = await tronWeb.trx.getTokenByID(tokenID)
                 assert.equal(token.precision, options.precision);
@@ -1007,7 +1007,7 @@ describe('TronWeb.transactionBuilder', function () {
 
         let parameters = [{"key": 0, "value": 100000}, {"key": 1, "value": 2}]
 
-        it.only('should allow the SR account to create a new proposal as a single object', async function () {
+        it('should allow the SR account to create a new proposal as a single object', async function () {
 
             const inputs = [
                 [parameters[0], ADDRESS_BASE58, {permissionId: 2}],
@@ -1026,7 +1026,7 @@ describe('TronWeb.transactionBuilder', function () {
 
         })
 
-        it.only('should allow the SR account to create a new proposal as an array of objects', async function () {
+        it('should allow the SR account to create a new proposal as an array of objects', async function () {
 
             const inputs = [
                 [parameters, ADDRESS_BASE58, {permissionId: 2}],
@@ -1071,7 +1071,7 @@ describe('TronWeb.transactionBuilder', function () {
     });
 
 
-    describe.only("#deleteProposal", async function () {
+    describe("#deleteProposal", async function () {
 
 
         let proposals;
@@ -1282,7 +1282,6 @@ describe('TronWeb.transactionBuilder', function () {
 
         let transaction;
         before(async function () {
-            this.timeout(20000);
 
             transaction = await tronWeb.transactionBuilder.createSmartContract({
                 abi: testConstant.abi,
