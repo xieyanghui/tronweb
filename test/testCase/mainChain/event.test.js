@@ -19,7 +19,7 @@ describe('TronWeb.lib.event', async function () {
 
     before(async function () {
         tronWeb = tronWebBuilder.createInstance();
-        // accounts = await tronWebBuilder.getTestAccounts(-1);
+        accounts = await tronWebBuilder.getTestAccounts(-1);
 
         const result = await broadcaster.broadcaster(tronWeb.transactionBuilder.createSmartContract({
             abi: [
@@ -109,7 +109,7 @@ describe('TronWeb.lib.event', async function () {
 
         })
 
-        it.only('should emit an event, wait for confirmation and get it', async function () {
+        it('should emit an event, wait for confirmation and get it', async function () {
 
             console.log("tronWeb:"+util.inspect(tronWeb,true,null,true))
             // this.timeout(60000)

@@ -207,7 +207,7 @@ describe('TronWeb ztron', function() {
             let burnTriggerContractInput;
 
             describe('#createBurnParamsWithoutAsk', function (){
-                it.only('should get burnParams without ask, ak is an object', async function (){
+                it('should get burnParams without ask, ak is an object', async function (){
                     // makeAndSendTransaction
                     options = {
                         feeLimit:FEE_LIMIT,

@@ -10,6 +10,7 @@ const util = require('util');
 
 describe('TronWeb Instance', function() {
     describe('#other', function() {
+        let tronWeb;
         describe("#multiSignTransaction", async function () {
             const accounts = {
                 b58: [],
@@ -20,12 +21,11 @@ describe('TronWeb Instance', function() {
             const idxS = 0;
             const idxE = 2;
             const threshold = 2;
-            let tronWeb;
 
             before(async function() {
                 tronWeb = tronWebBuilder.createInstance();
-                const sendTrxTx = await tronWeb.trx.sendTrx("TRxh1GnspMRadaU37UzrRRpkME2EkwCHg4", 100000000000);
-                const sendTrxTx2 = await tronWeb.trx.sendTrx("TELLNvWTiYbMEyGu1DQSr8UDQA8aJzpx6x", 10000000000);
+                const sendTrxTx = await tronWeb.trx.sendTrx("TRxh1GnspMRadaU37UzrRRpkME2EkwCHg4", 1000000000);
+                const sendTrxTx2 = await tronWeb.trx.sendTrx("TELLNvWTiYbMEyGu1DQSr8UDQA8aJzpx6x", 100000000);
                 console.log("sendTrxTx1:"+JSON.stringify(sendTrxTx))
                 console.log("sendTrxTx2:"+JSON.stringify(sendTrxTx2))
                 assert.isTrue(sendTrxTx.result);
@@ -33,7 +33,7 @@ describe('TronWeb Instance', function() {
                 await wait(15);
 
                 // this.timeout(20000);
-                let pk0 = "4521c13f65cc9f5c1daa56923b8598d4015801ad28379675c64106f5f6afec30";
+                let pk0 = "a723782179b1973a5607bec7e8f8b55917965e953f844b61afacdb789b378295";
                 let addr = tronWeb.address.fromPrivateKey(pk0);
                 accounts.pks.push(pk0);
                 accounts.b58.push(addr);
@@ -43,9 +43,8 @@ describe('TronWeb Instance', function() {
                 accounts.pks.push(pk1);
                 accounts.b58.push(addr1);
                 accounts.hex.push(tronWeb.address.toHex(addr1));
-                let ownerAddress = accounts.hex[ownerIdx];
-                let ownerPk = accounts.pks[ownerIdx];
-                console.log("ownerPk: "+ownerPk)
+                let ownerPk = "a723782179b1973a5607bec7e8f8b55917965e953f844b61afacdb789b378295";
+                let ownerAddress = tronWeb.address.toHex(tronWeb.address.fromPrivateKey(ownerPk));
                 console.log("ownerAddress: "+ownerAddress)
 
                 // update account permission
@@ -54,7 +53,7 @@ describe('TronWeb Instance', function() {
                 ownerPermission.keys  = [];
                 let activePermission = { type: 2, permission_name: 'active0' };
                 activePermission.threshold = threshold;
-                activePermission.operations = '3f3d1ec0036001000000000000000000000000000000000000000000000000c0';
+                activePermission.operations = '7fff1fc0037e0000000000000000000000000000000000000000000000000000';
                 activePermission.keys = [];
 
 
@@ -75,7 +74,7 @@ describe('TronWeb Instance', function() {
                 console.log("ownerPk:"+ownerPk)
                 console.log("updateTransaction:"+util.inspect(updateTransaction))
                 await wait(30);
-                const updateTx = await broadcaster.broadcasterInSideChain(null, ownerPk, updateTransaction);
+                const updateTx = await broadcaster.broadcaster(null, ownerPk, updateTransaction);
                 console.log("updateTx:"+util.inspect(updateTx))
                 console.log("updateTx.txID:"+updateTx.transaction.txID)
                 assert.equal(updateTx.transaction.txID.length, 64);
@@ -99,7 +98,7 @@ describe('TronWeb Instance', function() {
                 console.log("transaction:"+util.inspect(transaction))
                 let signedTransaction = transaction;
                 for (let i = idxS; i < idxE; i++) {
-                    signedTransaction = await tronWeb.multiSign(signedTransaction, accounts.pks[i], 0);
+                    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accounts.pks[i], 0);
                     console.log("signedTransaction:"+util.inspect(signedTransaction))
                 }
                 assert.equal(signedTransaction.signature.length, 2);

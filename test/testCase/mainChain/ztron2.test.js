@@ -220,7 +220,7 @@ describe('TronWeb ztron', function() {
             })
         })
 
-        describe.only("#createBurnParams 1V1T", function (){
+        describe("#createBurnParams 1V1T", function (){
             it('should get burnParams with ask is object', async function (){
 
                 const options = {

@@ -55,15 +55,15 @@ module.exports = {
     },
     SUN_NETWORK: process.env.SUN_NETWORK,
     SIDE_CHAIN: {
-        // fullNode: 'http://39.107.81.225:9193',
-        // solidityNode: 'http://39.107.81.225:9197',
-        // eventServer: 'http://39.107.81.225:9190',
+        fullNode: 'http://39.107.81.225:9193',
+        solidityNode: 'http://39.107.81.225:9197',
+        eventServer: 'http://39.107.81.225:9190',
         /*fullNode: 'https://testhttpapi.tronex.io',
         solidityNode: 'https://testhttpapi.tronex.io',
         eventServer: 'https://testhttpapi.tronex.io',*/
-        fullNode: 'https://api.nileex.io/',
-        solidityNode: 'https://api.nileex.io/',
-        eventServer: 'https://event.nileex.io/',
+        // fullNode: 'https://api.nileex.io/',
+        // solidityNode: 'https://api.nileex.io/',
+        // eventServer: 'https://event.nileex.io/',
         /*fullNode: 'http://3.225.171.164:8090',
         solidityNode: 'http://3.225.171.164:8090',
         eventServer: 'http://3.225.171.164:8090',*/
