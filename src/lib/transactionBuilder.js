@@ -591,7 +591,7 @@ export default class TransactionBuilder {
                 type: 'integer',
                 value: feeLimit,
                 gt: 0,
-                lte: 1_000_000_000
+                lte: 5_000_000_000
             },
             {
                 name: 'callValue',
@@ -776,7 +776,7 @@ export default class TransactionBuilder {
                 type: 'integer',
                 value: feeLimit,
                 gt: 0,
-                lte: 1_000_000_000
+                lte: 5_000_000_000
             },
             {
                 name: 'callValue',
