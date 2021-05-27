@@ -9,10 +9,10 @@ module.exports = {
     SOLIDITY_NODE_API: fullHost,
     EVENT_API: fullHost,
     NETWORK_ID: "*",
-    // ADDRESS_HEX: '41928c9af0651632157ef27a2cf17ca72c575a4d21',
-    // ADDRESS_BASE58: 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY',
-    ADDRESS_HEX: '415624c12e308b03a1a6b21d9b86e3942fac1ab92b',
-    ADDRESS_BASE58: 'THph9K2M2nLvkianrMGswRhz5hjSA9fuH7',
+    ADDRESS_HEX: '41928c9af0651632157ef27a2cf17ca72c575a4d21',
+    ADDRESS_BASE58: 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY',
+    // ADDRESS_HEX: '415624c12e308b03a1a6b21d9b86e3942fac1ab92b',
+    // ADDRESS_BASE58: 'THph9K2M2nLvkianrMGswRhz5hjSA9fuH7',
     /*ADDRESS_HEX: '415ab90009b529c5406b4f8a6fc4dab8a2bc778c75',
     ADDRESS_BASE58: 'TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s',*/
     /*ADDRESS_HEX: '41d1e7a6bc354106cb410e65ff8b181c600ff14292',
@@ -25,6 +25,39 @@ module.exports = {
         freeBandwidth: 10,
         freeBandwidthLimit: 100
     },
+    TEST_TRON_GRID_API: 'http://47.252.84.138:29086',
+    TEST_TRON_HEADER_API_KEY: '826c74b6-8f97-465f-99c1-e7ea5db0b9fd',
+    TEST_TRON_HEADER_API_KEY2: '5788c434-8f78-459b-95dd-4d977ee080ba',
+    TEST_TRON_HEADER_API_JWT_KEY: '4dc82750-57a1-4176-9ffe-8de7a2b5018a',
+    TEST_TRON_HEADER_JWT_ID: '008f572b88cd44adb17d4bc3536d2d9c',
+    TEST_TRON_HEADER_JWT_PRIVATE_KEY: `-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA9AjO5R+uCIcP58OddqZ3MNyrltDMw8wotdzJBFEUrsyL/ug/
+EG2ciQ4PAfcml+yL17XzJr4P5DJJZ1TsYa27aSLB+7xWcgPACanYZegAPtpSF4e+
+ZpNmKknBVt1KFMD4hTHWWcFcv6eqMlMAW2qAXqiT5XnQdW+oQBDwyZt6DzjicBrP
+hAOA5NwjJJF5RvITCI5OR/ZjhZYjruPSpQGUlmNrxBoKvfSENAfBfp8W2ojOVgyF
+64h/yHfXc0GcSVtC5zifrvRGki1c7ZXHSOplQ8uFzfOxk5QiZblNdM2YI3AEWvph
+TEjyvhrZne6CT2gcjND4xWsmedq7hlrHYsVA7QIDAQABAoIBACMyEgThqMv6DsUy
+ZUdzgsU9TlIWEzI6A7UW/rbsqrr7LUW6YT4RUP5DVM7Hwn0u1Ixr5YG0773NsuCA
+UwdTczAanzebVixjdhLuuBMafs6R1j0misNohteag5PvnnuXyUAMjAmt5Z6Oo/FW
+HzsQBSuhzJLQGsyVKgLzboblMZl4Jrciech9uBno0ZzGddBCmsjknHEmxhWUb0qJ
+EgKCj4FJCr2bNg0Q1rtI24VjDoSboxjY3e1zP6zcp2ZYdQDvqL7glGcF9Anba6nm
+RrW6FZ/HCe+2t/Vs2nhQFgHLtFPg4YaPt20bngH/p7/dRgh59zIvDMfHr543UPWo
+HxOA3oECgYEA+2ML0Fp59pqgJjkXExEzUFr4KZz0ODhsLtbIiEsgqrMRmiejtosJ
+vvwfIiPOQPzyFP49jc/IVJJufqE49tCVuYmzxkMIs8WpHIAILxCmXT56K1yDTp43
+uAja5bUMH21wK1w0Q1utQnc26NiMKGqeJhcqJY3+geqy+3nMxe4CaJkCgYEA+IM4
+yjao1WCimI6F69LuPOVJusZwXlGJmCK9rDDNrvT2tPBDGEf26Nud5wNRbxAfq3Z4
+AgM8E1+8vuafJNaSyhUBdMmRWq9/OhvQh8Cj7VHJIKABkRsmCIDEcy6JupdOrciu
+HuSAFi2aVRqeGgkwrMlV0TCWJvH8w0XV6+g/63UCgYAD29tckWb54BnBPHMcOdFd
+1Gemy9/71PHkLivZ271eoW0NvroGnU/C/L/FmGMcIEXfCKANQzlCAxVrIDJtp3oE
+5RY7XuANUmVsKJL3lfvXxpO9gqgJVuhoDMq/Z+4NtXJZWAr9VbTtJkNTg69zF1/i
+Gczt0qYrfFzO+2mnSCYFUQKBgQCfi8d682qjSx44aVALXek7yUzzj5D2zMxUkwFI
+ujBjAbwd4B6DSTh4uP6AIL44Wpaqgy16xU7ddVp9CRzlDqlA+glsTDh4izFYQiE3
+9nKH2zkQLAm1ekOJs/nrpNYhqCCIK8214admFbL+rk8QkhPg6oWg/tt3d2Z6i6xS
+f1ICPQKBgQDE/F482n9DemzFiqleHAW1AhfSUKKUYs7kHuYVStlJ1iEcPS9aezLU
+rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
+6EcJbGmCAhqQNMDDF1dw8bvP2XGPVLD3hWjl+NqJCV0KXZdkZLqTbA==
+-----END RSA PRIVATE KEY-----`,
+
     getTokenOptions: () => {
         const rnd = Math.random().toString(36).substr(2);
         return {
@@ -55,9 +88,9 @@ module.exports = {
     },
     SUN_NETWORK: process.env.SUN_NETWORK,
     SIDE_CHAIN: {
-        fullNode: 'http://39.107.81.225:9193',
-        solidityNode: 'http://39.107.81.225:9197',
-        eventServer: 'http://39.107.81.225:9190',
+        // fullNode: 'http://39.107.81.225:9193',
+        // solidityNode: 'http://39.107.81.225:9197',
+        // eventServer: 'http://39.107.81.225:9190',
         /*fullNode: 'https://testhttpapi.tronex.io',
         solidityNode: 'https://testhttpapi.tronex.io',
         eventServer: 'https://testhttpapi.tronex.io',*/
@@ -67,9 +100,9 @@ module.exports = {
         /*fullNode: 'http://3.225.171.164:8090',
         solidityNode: 'http://3.225.171.164:8090',
         eventServer: 'http://3.225.171.164:8090',*/
-        /*fullNode: 'http://39.107.123.182:8590',
-        solidityNode: 'http://39.107.123.182:8590',
-        eventServer: 'http://39.107.123.182:8590',*/
+        fullNode: 'http://39.107.123.182:8590',
+        solidityNode: 'http://39.107.123.182:8591',
+        eventServer: 'http://39.107.123.182:8590',
         sideOptions: {
             /*fullNode: 'https://suntest.tronex.io',
             solidityNode: 'https://suntest.tronex.io',

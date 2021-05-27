@@ -24,8 +24,8 @@ describe('TronWeb Instance', function() {
 
             before(async function() {
                 tronWeb = tronWebBuilder.createInstance();
-                const sendTrxTx = await tronWeb.trx.sendTrx("TRxh1GnspMRadaU37UzrRRpkME2EkwCHg4", 1000000000);
-                const sendTrxTx2 = await tronWeb.trx.sendTrx("TELLNvWTiYbMEyGu1DQSr8UDQA8aJzpx6x", 100000000);
+                const sendTrxTx = await tronWeb.trx.sendTrx("TRxh1GnspMRadaU37UzrRRpkME2EkwCHg4", 5000000000);
+                const sendTrxTx2 = await tronWeb.trx.sendTrx("TELLNvWTiYbMEyGu1DQSr8UDQA8aJzpx6x", 500000000);
                 console.log("sendTrxTx1:"+JSON.stringify(sendTrxTx))
                 console.log("sendTrxTx2:"+JSON.stringify(sendTrxTx2))
                 assert.isTrue(sendTrxTx.result);
@@ -33,7 +33,7 @@ describe('TronWeb Instance', function() {
                 await wait(15);
 
                 // this.timeout(20000);
-                let pk0 = "a723782179b1973a5607bec7e8f8b55917965e953f844b61afacdb789b378295";
+                let pk0 = "4521c13f65cc9f5c1daa56923b8598d4015801ad28379675c64106f5f6afec30";
                 let addr = tronWeb.address.fromPrivateKey(pk0);
                 accounts.pks.push(pk0);
                 accounts.b58.push(addr);
@@ -43,7 +43,7 @@ describe('TronWeb Instance', function() {
                 accounts.pks.push(pk1);
                 accounts.b58.push(addr1);
                 accounts.hex.push(tronWeb.address.toHex(addr1));
-                let ownerPk = "a723782179b1973a5607bec7e8f8b55917965e953f844b61afacdb789b378295";
+                let ownerPk = "4521c13f65cc9f5c1daa56923b8598d4015801ad28379675c64106f5f6afec30";
                 let ownerAddress = tronWeb.address.toHex(tronWeb.address.fromPrivateKey(ownerPk));
                 console.log("ownerAddress: "+ownerAddress)
 
@@ -114,7 +114,7 @@ describe('TronWeb Instance', function() {
 
                 let signedTransaction = transaction;
                 for (let i = idxS; i < idxE; i++) {
-                    signedTransaction = await tronWeb.multiSign(signedTransaction, accounts.pks[i]);
+                    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accounts.pks[i]);
                 }
 
                 assert.equal(signedTransaction.signature.length, 2);
@@ -134,7 +134,7 @@ describe('TronWeb Instance', function() {
                 let signedTransaction = transaction;
                 let signWeight;
                 for (let i = idxS; i < idxE; i++) {
-                    signedTransaction = await tronWeb.multiSign(signedTransaction, accounts.pks[i], 0);
+                    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accounts.pks[i], 0);
                     signWeight = await tronWeb.trx.getSignWeight(signedTransaction);
                     if (i < idxE - 1) {
                         assert.equal(signWeight.result.code, 'NOT_ENOUGH_PERMISSION');
@@ -161,7 +161,7 @@ describe('TronWeb Instance', function() {
                 let signedTransaction = transaction;
                 let signWeight;
                 for (let i = idxS; i < idxE; i++) {
-                    signedTransaction = await tronWeb.multiSign(signedTransaction, accounts.pks[i]);
+                    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accounts.pks[i]);
                     signWeight = await tronWeb.trx.getSignWeight(signedTransaction);
                     if (i < idxE - 1) {
                         assert.equal(signWeight.result.code, 'NOT_ENOUGH_PERMISSION');
@@ -183,7 +183,7 @@ describe('TronWeb Instance', function() {
 
                 const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
                 try {
-                    await tronWeb.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 0);
+                    await tronWeb.trx.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 0);
                 } catch (e) {
                     assert.isTrue(e.indexOf('has no permission to sign') != -1);
                 }
@@ -194,8 +194,8 @@ describe('TronWeb Instance', function() {
 
                 const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
                 try {
-                    let signedTransaction = await tronWeb.multiSign(transaction, accounts.pks[ownerIdx], 0);
-                    await tronWeb.multiSign(signedTransaction, accounts.pks[ownerIdx], 0);
+                    let signedTransaction = await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 0);
+                    await tronWeb.trx.multiSign(signedTransaction, accounts.pks[ownerIdx], 0);
                 } catch (e) {
                     assert.isTrue(e.indexOf('already sign transaction') != -1);
                 }
@@ -207,7 +207,7 @@ describe('TronWeb Instance', function() {
                 const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
                 let signedTransaction = transaction;
                 for (let i = idxS; i < idxE; i++) {
-                    signedTransaction = await tronWeb.multiSign(signedTransaction, accounts.pks[i], 2);
+                    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accounts.pks[i], 2);
                 }
 
                 assert.equal(signedTransaction.signature.length, 2);
@@ -225,7 +225,7 @@ describe('TronWeb Instance', function() {
 
                 let signedTransaction = transaction;
                 for (let i = idxS; i < idxE; i++) {
-                    signedTransaction = await tronWeb.multiSign(signedTransaction, accounts.pks[i]);
+                    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accounts.pks[i]);
                     console.log("signedTransaction:"+util.inspect(signedTransaction.raw_data.contract))
 
                 }
@@ -248,7 +248,7 @@ describe('TronWeb Instance', function() {
                 let signedTransaction = transaction;
                 let signWeight;
                 for (let i = idxS; i < idxE; i++) {
-                    signedTransaction = await tronWeb.multiSign(signedTransaction, accounts.pks[i], 2);
+                    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accounts.pks[i], 2);
                     signWeight = await tronWeb.trx.getSignWeight(signedTransaction, 2);
                     if (i < idxE - 1) {
                         assert.equal(signWeight.result.code, 'NOT_ENOUGH_PERMISSION');
@@ -275,7 +275,7 @@ describe('TronWeb Instance', function() {
                 let signedTransaction = transaction;
                 let signWeight;
                 for (let i = idxS; i < idxE; i++) {
-                    signedTransaction = await tronWeb.multiSign(signedTransaction, accounts.pks[i]);
+                    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accounts.pks[i]);
                     signWeight = await tronWeb.trx.getSignWeight(signedTransaction);
                     if (i < idxE - 1) {
                         assert.equal(signWeight.result.code, 'NOT_ENOUGH_PERMISSION');
@@ -297,7 +297,7 @@ describe('TronWeb Instance', function() {
 
                 const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
                 try {
-                    await tronWeb.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 2);
+                    await tronWeb.trx.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 2);
                 } catch (e) {
                     assert.isTrue(e.indexOf('has no permission to sign') != -1);
                 }
@@ -308,8 +308,8 @@ describe('TronWeb Instance', function() {
 
                 const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
                 try {
-                    let signedTransaction = await tronWeb.multiSign(transaction, accounts.pks[ownerIdx], 2);
-                    await tronWeb.multiSign(signedTransaction, accounts.pks[ownerIdx], 2);
+                    let signedTransaction = await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 2);
+                    await tronWeb.trx.multiSign(signedTransaction, accounts.pks[ownerIdx], 2);
                 } catch (e) {
                     assert.isTrue(e.indexOf('already sign transaction') != -1);
                 }
@@ -320,8 +320,8 @@ describe('TronWeb Instance', function() {
 
                 try {
                     const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
-                    let signedTransaction = await tronWeb.multiSign(transaction, accounts.pks[ownerIdx], 0);
-                    await tronWeb.multiSign(signedTransaction, accounts.pks[ownerIdx], 2);
+                    let signedTransaction = await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 0);
+                    await tronWeb.trx.multiSign(signedTransaction, accounts.pks[ownerIdx], 2);
                 } catch (e) {
                     assert.isTrue(e.indexOf('not contained of permission') != -1);
                 }
@@ -332,7 +332,7 @@ describe('TronWeb Instance', function() {
 
                 try {
                     const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
-                    await tronWeb.multiSign(transaction, accounts.pks[ownerIdx], 1);
+                    await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 1);
                 } catch (e) {
                     assert.isTrue(e.indexOf('Permission for this, does not exist!') != -1);
                 }

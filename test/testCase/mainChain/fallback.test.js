@@ -24,10 +24,14 @@ describe('Fallback test', function() {
                 };
                 let createTransaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
                 let createTx = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction);
+                console.log("1111")
                 assert.equal(createTx.transaction.txID.length, 64);
+                console.log("txID:"+createTx.transaction.txID)
+                console.log("2222")
                 let createInfo;
                 while (true) {
                     createInfo = await tronWeb.trx.getTransactionInfo(createTx.transaction.txID);
+                    console.log("33333")
                     if (Object.keys(createInfo).length === 0) {
                         await wait(3);
                         continue;
@@ -35,6 +39,7 @@ describe('Fallback test', function() {
                         break;
                     }
                 }
+                console.log("44444")
                 const contractAddressTest0 = createInfo.contract_address;
                 options = {
                     abi: fallbackOldversionCall.abi,
@@ -84,7 +89,7 @@ describe('Fallback test', function() {
                 // after trigger
                 const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-value-triggerTxFee, accountBalanceAfter);
+                assert.equal(parseInt(accountBalanceBefore)-value-triggerTxFee, accountBalanceAfter);
 
                 triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
                     contractAddressCall, functionSelector, {feeLimit:FEE_LIMIT}, [{type: 'address', value: contractAddressTest0}], ADDRESS_BASE58);
@@ -116,14 +121,14 @@ describe('Fallback test', function() {
                     abi: Test0.abi,
                     bytecode: Test0.bytecode,
                 };
-                createTransaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+                let createTransaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
                 let createTx0 = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction);
                 assert.equal(createTx0.transaction.txID.length, 64);
                 options = {
                     abi: Test1.abi,
                     bytecode: Test1.bytecode,
                 };
-                let createTransaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+                createTransaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
                 let createTx = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction);
                 assert.equal(createTx.transaction.txID.length, 64);
                 options = {
@@ -262,7 +267,7 @@ describe('Fallback test', function() {
                 assert.equal(triggerInfo.receipt.result, "SUCCESS");
                 assert.equal("fallback",tronWeb.toUtf8(triggerInfo.log[0].data.substr(128,16)));
             });
-            it('no calldata and has callvalue', async function () {
+            it.only('no calldata and has callvalue', async function () {
                 // before trigger
                 const accountBalanceBefore = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceBefore: ' + accountBalanceBefore);
@@ -296,7 +301,7 @@ describe('Fallback test', function() {
                 assert.equal("receive",tronWeb.toUtf8(triggerInfo.log[0].data.substr(128,14)));
                 const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-value-triggerTxFee, accountBalanceAfter);
+                assert.equal(parseInt(accountBalanceBefore)-value-triggerTxFee, accountBalanceAfter);
 
                 triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
                     contractAddressTest2, "", triggerOptions, [], ADDRESS_BASE58);
@@ -319,7 +324,7 @@ describe('Fallback test', function() {
                 assert.equal("fallback",tronWeb.toUtf8(triggerInfo.log[0].data.substr(128,16)));
                 const accountBalanceAfter2 = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter2: ' + accountBalanceAfter2);
-                assert.equal(parseInt(accountBalanceAfter)-value-triggerTxFee2, accountBalanceAfter2);
+                assert.equal(parseInt(parseInt(accountBalanceAfter)-value-triggerTxFee2), accountBalanceAfter2);
 
                 triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
                     contractAddressTest1, "", triggerOptions, [], ADDRESS_BASE58);

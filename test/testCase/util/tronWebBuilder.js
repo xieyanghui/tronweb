@@ -4,7 +4,7 @@ const jlog = require('../../helpers/jlog')
 const util = require('util');
 
 
-const {FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SUN_NETWORK, SIDE_CHAIN} = require('./config')
+const {FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SUN_NETWORK, SIDE_CHAIN, TEST_TRON_GRID_API} = require('./config')
 
 
 const createInstanceSide = (extraOptions = {}, sideExtraOptions = {}) => {
@@ -29,12 +29,13 @@ const createInstanceSide = (extraOptions = {}, sideExtraOptions = {}) => {
 
 const createInstance = (extraOptions = {}) => {
     let options = Object.assign({
-        fullNode: SIDE_CHAIN.fullNode,
-        solidityNode: SIDE_CHAIN.solidityNode,
-        eventServer: SIDE_CHAIN.eventServer,
+        // fullNode: SIDE_CHAIN.fullNode,
+        // solidityNode: SIDE_CHAIN.solidityNode,
+        // eventServer: SIDE_CHAIN.eventServer,
         // fullHost: FULL_NODE_API,
         // solidityNode: SOLIDITY_NODE_API,
         // eventServer: EVENT_API,
+        fullHost: TEST_TRON_GRID_API,
         privateKey: PRIVATE_KEY,
     }, extraOptions)
     return new TronWeb(options);
@@ -66,7 +67,6 @@ const getTestAccounts = async (block) => {
     }
     const tronWeb = createInstance();
     const accountsJson = await tronWeb.fullNode.request('/admin/accounts-json');
-    console.log("accountsJson:"+util.inspect(accountsJson,true,null,true))
     const index = typeof block === 'number'
         ? (block > -1 && block < accountsJson.more.length ? block : accountsJson.more.length - 1)
         : undefined

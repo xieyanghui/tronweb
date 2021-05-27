@@ -69,6 +69,7 @@ describe('TronWeb.lib.event', async function () {
 
         console.log("result:"+util.inspect(result,true,null,true))
         contractAddress = result.receipt.transaction.contract_address
+        console.log("contractAddress:"+util.inspect(contractAddress,true,null,true))
         // this.timeout(10000)
         contract = await tronWeb.contract().at(contractAddress)
 
@@ -89,7 +90,10 @@ describe('TronWeb.lib.event', async function () {
         it('should emit an unconfirmed event and get it', async function () {
 
             this.timeout(60000)
+            console.log("accounts.pks[1]:"+util.inspect(accounts.pks[1],true,null,true))
             tronWeb.setPrivateKey(accounts.pks[1])
+            let account = await tronWeb.trx.getAccount();
+            console.log("account:"+util.inspect(account,true,null,true))
             let txId = await contract.emitNow(accounts.hex[2], 2000).send({
                 from: accounts.hex[1]
             })
@@ -110,9 +114,7 @@ describe('TronWeb.lib.event', async function () {
         })
 
         it('should emit an event, wait for confirmation and get it', async function () {
-
-            console.log("tronWeb:"+util.inspect(tronWeb,true,null,true))
-            // this.timeout(60000)
+            tronWeb.setPrivateKey(PRIVATE_KEY)
             const emptyAccount1 = await TronWeb.createAccount();
             await tronWeb.trx.sendTrx(emptyAccount1.address.hex,100000000,{privateKey: PRIVATE_KEY})
             let output = await contract.emitNow(emptyAccount1.address.hex, 20).send({

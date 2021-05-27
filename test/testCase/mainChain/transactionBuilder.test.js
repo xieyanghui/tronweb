@@ -1209,7 +1209,7 @@ describe('TronWeb.transactionBuilder', function () {
     });
 
 
-    describe("#createSmartContract", async function () {
+    describe.only("#createSmartContract", async function () {
 
         it('should create a smart contract with default parameters', async function () {
 
@@ -1222,7 +1222,7 @@ describe('TronWeb.transactionBuilder', function () {
                 const tx = await tronWeb.transactionBuilder.createSmartContract(options)
                 assert.equal(tx.raw_data.contract[0].parameter.value.new_contract.consume_user_resource_percent, 100);
                 assert.equal(tx.raw_data.contract[0].parameter.value.new_contract.origin_energy_limit, 1e7);
-                assert.equal(tx.raw_data.fee_limit, 4e7);
+                assert.equal(tx.raw_data.fee_limit, 15e7);
                 assert.equal(tx.raw_data.contract[0].Permission_id || 0, options.permissionId || 0);
             }
         });

@@ -55,10 +55,10 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(createInfo.result, "FAILED");
                 assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-                assert.equal(createTxFee, 1e8);
+                assert.equal(createTxFee, 15e7);
                 const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-1e8, accountBalanceAfter);
+                assert.equal(accountBalanceBefore-15e7, accountBalanceAfter);
             });
             it('triggerSmartContract use default feelimit in mainChain', async function () {
                 // createSmartContract
@@ -114,10 +114,10 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(triggerInfo.result, "FAILED");
                 assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-                assert.equal(triggerTxFee, 1e8);
+                assert.equal(triggerTxFee, 15e7);
                 const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-1e8, accountBalanceAfter);
+                assert.equal(accountBalanceBefore-15e7, accountBalanceAfter);
             });
         });
 
@@ -275,10 +275,10 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(createInfo.result, "FAILED");
                 assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-                assert.equal(createTxFee, 1e8);
+                assert.equal(createTxFee, 15e7);
                 const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-1e8, accountBalanceAfter);
+                assert.equal(accountBalanceBefore-15e7, accountBalanceAfter);
             });
             it('triggerSmartContract use default feelimit in sideChain', async function () {
                 // createSmartContract
@@ -334,10 +334,10 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(triggerInfo.result, "FAILED");
                 assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-                assert.equal(triggerTxFee, 1e8);
+                assert.equal(triggerTxFee, 15e7);
                 const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-1e8, accountBalanceAfter);
+                assert.equal(accountBalanceBefore-15e7, accountBalanceAfter);
             });
         });
 
