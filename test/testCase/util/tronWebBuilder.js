@@ -32,10 +32,10 @@ const createInstance = (extraOptions = {}) => {
         // fullNode: SIDE_CHAIN.fullNode,
         // solidityNode: SIDE_CHAIN.solidityNode,
         // eventServer: SIDE_CHAIN.eventServer,
-        // fullHost: FULL_NODE_API,
+        fullHost: FULL_NODE_API,
         // solidityNode: SOLIDITY_NODE_API,
         // eventServer: EVENT_API,
-        fullHost: TEST_TRON_GRID_API,
+        // fullHost: TEST_TRON_GRID_API,
         privateKey: PRIVATE_KEY,
     }, extraOptions)
     return new TronWeb(options);

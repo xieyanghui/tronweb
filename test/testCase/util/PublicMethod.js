@@ -533,6 +533,16 @@ const deployContract = async (contract, parametersArray = []) =>{
     return contractAddress;
 }
 
+const to64String = async (str) =>{
+    const l = str.length;
+    let sres = "";
+    for (var i =0 ; i < 64 -l;i++ ){
+        sres +="0";
+    }
+    sres += str;
+    return sres;;
+}
+
 module.exports = {
     reduce,
     sumBigNumber,
@@ -554,5 +564,6 @@ module.exports = {
     deployTrc721Contract,
     mappingTrc721Contract,
     mintTrc721,
-    deployContract
+    deployContract,
+    to64String
 }

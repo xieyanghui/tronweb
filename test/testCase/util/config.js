@@ -9,10 +9,10 @@ module.exports = {
     SOLIDITY_NODE_API: fullHost,
     EVENT_API: fullHost,
     NETWORK_ID: "*",
-    ADDRESS_HEX: '41928c9af0651632157ef27a2cf17ca72c575a4d21',
-    ADDRESS_BASE58: 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY',
-    // ADDRESS_HEX: '415624c12e308b03a1a6b21d9b86e3942fac1ab92b',
-    // ADDRESS_BASE58: 'THph9K2M2nLvkianrMGswRhz5hjSA9fuH7',
+    // ADDRESS_HEX: '41928c9af0651632157ef27a2cf17ca72c575a4d21',
+    // ADDRESS_BASE58: 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY',
+    ADDRESS_HEX: '415624c12e308b03a1a6b21d9b86e3942fac1ab92b',
+    ADDRESS_BASE58: 'THph9K2M2nLvkianrMGswRhz5hjSA9fuH7',
     /*ADDRESS_HEX: '415ab90009b529c5406b4f8a6fc4dab8a2bc778c75',
     ADDRESS_BASE58: 'TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s',*/
     /*ADDRESS_HEX: '41d1e7a6bc354106cb410e65ff8b181c600ff14292',
@@ -88,9 +88,9 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
     },
     SUN_NETWORK: process.env.SUN_NETWORK,
     SIDE_CHAIN: {
-        // fullNode: 'http://39.107.81.225:9193',
-        // solidityNode: 'http://39.107.81.225:9197',
-        // eventServer: 'http://39.107.81.225:9190',
+        fullNode: 'http://39.107.81.225:8190',
+        solidityNode: 'http://39.107.81.225:8197',
+        eventServer: 'http://39.107.81.225:8193',
         /*fullNode: 'https://testhttpapi.tronex.io',
         solidityNode: 'https://testhttpapi.tronex.io',
         eventServer: 'https://testhttpapi.tronex.io',*/
@@ -100,9 +100,9 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
         /*fullNode: 'http://3.225.171.164:8090',
         solidityNode: 'http://3.225.171.164:8090',
         eventServer: 'http://3.225.171.164:8090',*/
-        fullNode: 'http://39.107.123.182:8590',
+        /*fullNode: 'http://39.107.123.182:8590',
         solidityNode: 'http://39.107.123.182:8591',
-        eventServer: 'http://39.107.123.182:8590',
+        eventServer: 'http://39.107.123.182:8590',*/
         sideOptions: {
             /*fullNode: 'https://suntest.tronex.io',
             solidityNode: 'https://suntest.tronex.io',
@@ -112,13 +112,13 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
             sideGatewayAddress: 'TRDepx5KoQ8oNbFVZ5sogwUxtdYmATDRgX',
             sideGatewayAddress_hex: '41a74544b896f6a50f8ef1c2d64803c462cbdb019d',
             sideChainId: '413AF23F37DA0D48234FDD43D89931E98E1144481B'*/
-            fullNode: 'http://39.107.81.225:8190',
-            solidityNode: 'http://39.107.81.225:8197',
-            eventServer: 'http://39.107.81.225:8190',
-            mainGatewayAddress: 'TT3g3giGizJL9yUNMjoBkW7v5Z7HKn5kxu',
-            mainGatewayAddress_hex: '41bb5260e14ec6f67ceb21c6e94d233562c2fd9f27',
-            sideGatewayAddress: 'TJQ21bkuhCtVt1s7XdCno9MwfhuACorSRv',
-            sideGatewayAddress_hex: '415c723b1366156639a9019e1c7a0096c2fa25ac91',
+            fullNode: 'http://39.107.81.225:9190',
+            solidityNode: 'http://39.107.81.225:9197',
+            eventServer: 'http://39.107.81.225:9193',
+            mainGatewayAddress: 'TFKXxvc8HEFFx5cMxLe6FkAriiGtLMQMDF',
+            mainGatewayAddress_hex: '413AB0C720BE14F0E789BDE18A861E495AF3A6E4FB',
+            sideGatewayAddress: 'TQeX3Y8H9F21kDTeUY6r8bgpp9xZxHH6FU',
+            sideGatewayAddress_hex: '41A1010B77D06C054C45C34013555C1CB1FAD133BB',
             sideChainId: '41F7AFFF7316CDA1E1BC9B21B7CC98BB84A4EA5510'
         }
     },
