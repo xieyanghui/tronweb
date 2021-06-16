@@ -21,7 +21,7 @@ const log = require('./helpers/log')
 const BigNumber = require('bignumber.js');
 const broadcaster = require('./helpers/broadcaster');
 const wait = require('./helpers/wait')
-
+const util = require('util');
 
 const assert = chai.assert;
 const HttpProvider = TronWeb.providers.HttpProvider;
@@ -961,7 +961,8 @@ describe('TronWeb Instance', function () {
 
         before(async function () {
             tronWeb = tronWebBuilder.createInstance();
-            accounts = await tronWebBuilder.getTestAccounts(-1);
+            await tronWebBuilder.newTestAccountsInMain(3);
+            accounts = await tronWebBuilder.getTestAccountsInMain(3);
 
             const result = await broadcaster(tronWeb.transactionBuilder.createSmartContract({
                 abi: [
@@ -1039,7 +1040,7 @@ describe('TronWeb Instance', function () {
 
     });
 
-    describe("#getEventResult", async function () {
+    describe.only("#getEventResult", async function () {
 
         let accounts
         let tronWeb
@@ -1049,7 +1050,8 @@ describe('TronWeb Instance', function () {
 
         before(async function () {
             tronWeb = tronWebBuilder.createInstance();
-            accounts = await tronWebBuilder.getTestAccounts(-1);
+            await tronWebBuilder.newTestAccountsInMain(5);
+            accounts = await tronWebBuilder.getTestAccountsInMain(5);
 
             const result = await broadcaster(tronWeb.transactionBuilder.createSmartContract({
                 abi: [
@@ -1101,6 +1103,71 @@ describe('TronWeb Instance', function () {
             contract = await tronWeb.contract().at(contractAddress)
 
         });
+
+        it('onlyConfirmed is true', async function () {
+
+            this.timeout(60000)
+            tronWeb.setPrivateKey(accounts.pks[3])
+            await contract.emitNow(accounts.hex[4], 4000).send({
+                from: accounts.hex[3]
+            })
+            eventLength++
+            let events
+            while (true) {
+                events = await tronWeb.getEventResult(contractAddress, {
+                    eventName: 'SomeEvent',
+                    sort: 'block_timestamp',
+                    onlyConfirmed: true
+                })
+                if (events.length === eventLength) {
+                    break
+                }
+                await wait(0.5)
+            }
+
+            console.log("events:"+util.inspect(events,true,null,true))
+            for(var i = 0; i < events.length; i++) {
+                assert.isFalse(events[i].result._unconfirmed);
+            }
+            const event = events[events.length - 1]
+
+            assert.equal(event.result._receiver.substring(2), accounts.hex[4].substring(2))
+            assert.equal(event.result._sender.substring(2), accounts.hex[3].substring(2))
+            assert.equal(event.resourceNode, 'fullNode')
+        })
+
+        it('onlyConfirmed is false', async function () {
+
+            this.timeout(60000)
+            tronWeb.setPrivateKey(accounts.pks[3])
+            await contract.emitNow(accounts.hex[4], 4000).send({
+                from: accounts.hex[3]
+            })
+            eventLength++
+            let events
+            while (true) {
+                events = await tronWeb.getEventResult(contractAddress, {
+                    eventName: 'SomeEvent',
+                    sort: 'block_timestamp',
+                    onlyConfirmed: false
+                })
+                if (events.length === eventLength) {
+                    break
+                }
+                await wait(0.5)
+            }
+
+            console.log("events:"+util.inspect(events,true,null,true))
+            for(var i = 0; i < events.length; i++) {
+                assert.isTrue(events[i].result._unconfirmed);
+            }
+            const event = events[events.length - 1]
+
+            assert.equal(event.result._receiver.substring(2), accounts.hex[4].substring(2))
+            assert.equal(event.result._sender.substring(2), accounts.hex[3].substring(2))
+            assert.equal(event.resourceNode, 'fullNode')
+
+        })
 
         it('should emit an event and wait for it', async function () {
 

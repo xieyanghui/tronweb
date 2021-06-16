@@ -7,6 +7,7 @@ const broadcaster = async (func, pk, transaction) => {
     if( !transaction) {
         transaction = await func;
     }
+    console.log("transaction:"+util.inspect(transaction))
     const signedTransaction = await tronWeb.trx.sign(transaction, pk);
     console.log("signedTransaction:"+util.inspect(signedTransaction))
     let result = {

@@ -999,7 +999,7 @@ describe('TronWeb Instance', function () {
 
     describe("#toDecimal", function () {
 
-        it("should convert a hex string to a number", function () {
+        it.only("should convert a hex string to a number", function () {
 
             let input = '0x73616c61';
             let expected = 1935764577;
@@ -1139,7 +1139,8 @@ describe('TronWeb Instance', function () {
 
         before(async function () {
             tronWeb = tronWebBuilder.createInstance();
-            accounts = await tronWebBuilder.getTestAccounts(-1);
+            await tronWebBuilder.newTestAccountsInMain(3);
+            accounts = await tronWebBuilder.getTestAccountsInMain(3);
 
             const result = await broadcaster.broadcaster(tronWeb.transactionBuilder.createSmartContract({
                 abi: [
@@ -1219,7 +1220,7 @@ describe('TronWeb Instance', function () {
 
     });
 
-    describe("#getEventResult", async function () {
+    describe.only("#getEventResult", async function () {
 
         let accounts
         let tronWeb
@@ -1229,7 +1230,8 @@ describe('TronWeb Instance', function () {
 
         before(async function () {
             tronWeb = tronWebBuilder.createInstance();
-            accounts = await tronWebBuilder.getTestAccounts(-1);
+            await tronWebBuilder.newTestAccountsInMain(5);
+            accounts = await tronWebBuilder.getTestAccountsInMain(5);
 
             const result = await broadcaster.broadcaster(tronWeb.transactionBuilder.createSmartContract({
                 abi: [
@@ -1282,32 +1284,200 @@ describe('TronWeb Instance', function () {
 
         });
 
-        it('should emit an event and wait for it', async function () {
-
-            this.timeout(60000)
+        it('onlyConfirmed', async function () {
             tronWeb.setPrivateKey(accounts.pks[3])
-            await contract.emitNow(accounts.hex[4], 4000).send({
-                from: accounts.hex[3]
-            })
-            eventLength++
-            let events
-            while (true) {
-                events = await tronWeb.getEventResult(contractAddress, {
-                    eventName: 'SomeEvent',
-                    sort: 'block_timestamp'
+            for(var i = 0; i < 10; i++) {
+                await contract.emitNow(accounts.hex[4], 4000).send({
+                    from: accounts.hex[3]
                 })
-                if (events.length === eventLength) {
-                    break
+                eventLength++
+            }
+            await wait(60)
+
+            let events
+            // onlyConfirmed: false
+            events = await tronWeb.getEventResult(contractAddress, {
+                eventName: 'SomeEvent',
+                sort: 'block_timestamp',
+                onlyConfirmed: false
+            })
+            console.log("events2:"+util.inspect(events,true,null,true))
+            assert.equal(events.length, 10)
+            for(var i = 0; i < events.length; i++) {
+                if (Object.keys(events[i]).length == 7) {
+                    assert.equal(events[i].unconfirmed, undefined);
+                } else if (Object.keys(events[i]).length == 8) {
+                    assert.isTrue(events[i].unconfirmed);
+                    assert.equal(events[i].resourceNode, 'fullNode')
+                } else {
+                    assert.isTrue(false);
                 }
-                await wait(0.5)
+            }
+
+            await wait(60)
+            // onlyConfirmed: true
+            events = await tronWeb.getEventResult(contractAddress, {
+                eventName: 'SomeEvent',
+                sort: 'block_timestamp',
+                onlyConfirmed: true
+            })
+
+            console.log("events1:"+util.inspect(events,true,null,true))
+            for(var i = 0; i < events.length; i++) {
+                assert.equal(Object.keys(events[i]).length, 7);
+                assert.equal(events[i].unconfirmed, undefined);
+                assert.equal(events[i].resourceNode, 'solidityNode')
             }
 
             const event = events[events.length - 1]
 
+            console.log("event!!!:"+util.inspect(event,true,null,true))
             assert.equal(event.result._receiver.substring(2), accounts.hex[4].substring(2))
             assert.equal(event.result._sender.substring(2), accounts.hex[3].substring(2))
-            assert.equal(event.resourceNode, 'fullNode')
+        })
 
+        it('onlyUnconfirmed', async function () {
+            tronWeb.setPrivateKey(accounts.pks[3])
+            for(var i = 0; i < 10; i++) {
+                await contract.emitNow(accounts.hex[4], 4000).send({
+                    from: accounts.hex[3]
+                })
+                eventLength++
+            }
+            await wait(50)
+
+            let events
+            // onlyUnconfirmed: true
+            events = await tronWeb.getEventResult(contractAddress, {
+                eventName: 'SomeEvent',
+                sort: 'block_timestamp',
+                onlyUnconfirmed: true
+            })
+            console.log("events1:"+util.inspect(events,true,null,true))
+            for(var i = 0; i < events.length; i++) {
+                assert.equal(Object.keys(events[i]).length, 8);
+                assert.isTrue(events[i].unconfirmed);
+                assert.equal(events[i].resourceNode, 'fullNode')
+            }
+
+            // onlyUnconfirmed: false
+            let fingerprint = "";
+            do{
+                if (fingerprint == "") {
+                    events = await tronWeb.getEventResult(contractAddress, {
+                        eventName: 'SomeEvent',
+                        sort: 'block_timestamp',
+                        onlyUnconfirmed: false,
+                    })
+                    assert.equal(events.length, 20)
+                } else {
+                    events = await tronWeb.getEventResult(contractAddress, {
+                        eventName: 'SomeEvent',
+                        sort: 'block_timestamp',
+                        onlyUnconfirmed: false,
+                        fingerprint: fingerprint,
+                    })
+                }
+                console.log("events2-"+fingerprint+":"+util.inspect(events,true,null,true))
+
+                fingerprint = false;
+                for(var i = 0; i < events.length; i++) {
+                    if (Object.keys(events[i]).length == 7) {
+                        assert.equal(events[i].unconfirmed, undefined);
+                        assert.equal(events[i].resourceNode, 'solidityNode')
+                    } else if (Object.keys(events[i]).length == 8) {
+                        if (events[i].resourceNode == 'fullNode') {
+                            assert.isTrue(events[i].unconfirmed);
+                        } else {
+                            assert.equal(events[i].unconfirmed, undefined);
+                        }
+                    } else {
+                        if (events[i].fingerprint == undefined) {
+                            assert.isTrue(false);
+                        }
+                    }
+                    // has next page
+                    fingerprint = events[i].fingerprint == undefined ? "" : events[i].fingerprint;
+                }
+
+                if (events.length > 0) {
+                    const event = events[events.length - 1]
+                    assert.equal(event.result._receiver.substring(2), accounts.hex[4].substring(2))
+                    assert.equal(event.result._sender.substring(2), accounts.hex[3].substring(2))
+                }
+            } while (fingerprint.length > 7);
+        })
+
+        it('onlyConfirmed and onlyUnconfirmed', async function () {
+            tronWeb.setPrivateKey(accounts.pks[3])
+            for(var i = 0; i < 10; i++) {
+                await contract.emitNow(accounts.hex[4], 4000).send({
+                    from: accounts.hex[3]
+                })
+                eventLength++
+            }
+            await wait(50)
+
+            let events
+            // onlyConfirmed: false,onlyUnconfirmed: true
+            events = await tronWeb.getEventResult(contractAddress, {
+                eventName: 'SomeEvent',
+                sort: 'block_timestamp',
+                onlyConfirmed: false,
+                onlyUnconfirmed: true
+            })
+            console.log("events5:"+util.inspect(events,true,null,true))
+            for(var i = 0; i < events.length; i++) {
+                assert.equal(Object.keys(events[i]).length, 8);
+                assert.isTrue(events[i].unconfirmed);
+                assert.equal(events[i].resourceNode, 'fullNode')
+            }
+
+            // onlyConfirmed: true,onlyUnconfirmed: false
+            events = await tronWeb.getEventResult(contractAddress, {
+                eventName: 'SomeEvent',
+                sort: 'block_timestamp',
+                onlyConfirmed: true,
+                onlyUnconfirmed: false,
+                size:40,
+            })
+            console.log("events6:"+util.inspect(events,true,null,true))
+            for(var i = 0; i < events.length; i++) {
+                assert.equal(Object.keys(events[i]).length, 7);
+                assert.equal(events[i].unconfirmed, undefined);
+                assert.equal(events[i].resourceNode, 'solidityNode')
+            }
+
+            // onlyConfirmed: false,onlyUnconfirmed: false
+            events = await tronWeb.getEventResult(contractAddress, {
+                eventName: 'SomeEvent',
+                sort: 'block_timestamp',
+                onlyConfirmed: false,
+                onlyUnconfirmed: false,
+                size:40
+            })
+            assert.equal(events.length, 30)
+            console.log("events7:"+util.inspect(events,true,null,true))
+            for(var i = 0; i < events.length; i++) {
+                if (Object.keys(events[i]).length == 7) {
+                    assert.equal(events[i].unconfirmed, undefined);
+                    assert.equal(events[i].resourceNode, 'solidityNode')
+                } else if (Object.keys(events[i]).length == 8) {
+                    if (events[i].resourceNode == 'fullNode') {
+                        assert.isTrue(events[i].unconfirmed);
+                    } else {
+                        assert.equal(events[i].unconfirmed, undefined);
+                    }
+                } else {
+                    if (events[i].fingerprint == undefined) {
+                        assert.isTrue(false);
+                    }
+                }
+            }
+
+            const event = events[events.length - 1]
+            assert.equal(event.result._receiver.substring(2), accounts.hex[4].substring(2))
+            assert.equal(event.result._sender.substring(2), accounts.hex[3].substring(2))
         })
     });
 });
@@ -1831,7 +2001,7 @@ describe("#testTronGrid", function () {
     });
 
     describe("#testTronGridJwtKey", function () {
-        it.only("should add the parameter Authorization=Key to the header of the request", async function () {
+        it("should add the parameter Authorization=Key to the header of the request", async function () {
             let token = jwt.sign(
                 { aud: "trongrid.io" },
                 TEST_TRON_HEADER_JWT_PRIVATE_KEY,

@@ -534,6 +534,7 @@ const deployContract = async (contract, parametersArray = []) =>{
 }
 
 const to64String = async (str) =>{
+    str = str.replace('0x', '')
     const l = str.length;
     let sres = "";
     for (var i =0 ; i < 64 -l;i++ ){
