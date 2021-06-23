@@ -39,7 +39,7 @@ describe('TronWeb Instance', function() {
                 const sTrxBalanceAfter = sAccountAfter.balance;
                 console.log('mTrxBalanceAfter: ' + mTrxBalanceAfter);
                 console.log('sTrxBalanceAfter: ' + sTrxBalanceAfter);
-                assert.equal(mTrxBalanceBefore-depositTxFee-DEPOSIT_FEE,mTrxBalanceAfter);
+                assert.equal(parseInt(mTrxBalanceBefore)-depositTxFee-DEPOSIT_FEE,mTrxBalanceAfter);
                 assert.equal(sTrxBalanceBefore,sTrxBalanceAfter);
 
                 // after token balance

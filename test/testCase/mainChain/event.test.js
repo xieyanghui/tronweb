@@ -19,7 +19,8 @@ describe('TronWeb.lib.event', async function () {
 
     before(async function () {
         tronWeb = tronWebBuilder.createInstance();
-        accounts = await tronWebBuilder.getTestAccounts(-1);
+        await tronWebBuilder.newTestAccountsInMain(5);
+        accounts = await tronWebBuilder.getTestAccountsInMain(5);
 
         const result = await broadcaster.broadcaster(tronWeb.transactionBuilder.createSmartContract({
             abi: [
@@ -88,10 +89,7 @@ describe('TronWeb.lib.event', async function () {
 
 
         it('should emit an unconfirmed event and get it', async function () {
-
-            this.timeout(60000)
-            console.log("accounts.pks[1]:"+util.inspect(accounts.pks[1],true,null,true))
-            tronWeb.setPrivateKey(accounts.pks[1])
+            tronWeb.setPrivateKey(PRIVATE_KEY)
             let account = await tronWeb.trx.getAccount();
             console.log("account:"+util.inspect(account,true,null,true))
             let txId = await contract.emitNow(accounts.hex[2], 2000).send({
@@ -107,10 +105,12 @@ describe('TronWeb.lib.event', async function () {
                 await wait(0.5)
             }
 
-            assert.equal(events[0].result._receiver.substring(2), accounts.hex[2].substring(2))
-            assert.equal(events[0].result._sender.substring(2), accounts.hex[1].substring(2))
+            console.log("events:"+util.inspect(events,true,null,true))
             assert.equal(events[0].resourceNode, 'fullNode')
-
+            if (events[0].result != '{}') {
+                assert.equal(events[0].result._receiver.substring(2), accounts.hex[2].substring(2))
+                assert.equal(events[0].result._sender.substring(2), ADDRESS_HEX.substring(2).toLowerCase())
+            }
         })
 
         it('should emit an event, wait for confirmation and get it', async function () {
@@ -124,6 +124,7 @@ describe('TronWeb.lib.event', async function () {
             })
             eventLength++
 
+            await wait(60)
             let txId = output.id
             console.log("txId:"+txId)
             let events

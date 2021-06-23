@@ -1,7 +1,6 @@
-const pollAccountFor = require('../../helpers/pollAccountFor');
 const tronWebBuilder = require('../util/tronWebBuilder');
 const assertEqualHex = require('../../helpers/assertEqualHex');
-const waitChainData = require('../../helpers/waitChainData');
+const waitChainData = require('../util/waitChainData');
 const assertThrow = require('../../helpers/assertThrow');
 const broadcaster = require('../util/broadcaster');
 const wait = require('../../helpers/wait');
@@ -14,6 +13,8 @@ const {
     ADDRESS_BASE58,
     PRIVATE_KEY,
     getTokenOptions,
+    WITNESS_ACCOUNT,
+    WITNESS_KEY,
 } = require('../util/config');
 const testRevertContract = require('../../fixtures/contracts').testRevert;
 
@@ -25,8 +26,8 @@ describe('TronWeb.trx', function () {
 
     before(async function () {
         tronWeb = tronWebBuilder.createInstance();
-        // ALERT this works only with Tron Quickstart:
-        accounts = await tronWebBuilder.getTestAccounts(-1);
+        await tronWebBuilder.newTestAccountsInMain(43);
+        accounts = await tronWebBuilder.getTestAccountsInMain(43);
         emptyAccount = await TronWeb.createAccount();
     });
 
@@ -49,12 +50,10 @@ describe('TronWeb.trx', function () {
             const idx = 10;
 
             it('should get account by hex or base58 address', async function () {
-                const addressType = ['hex', 'b58'];
-                let account;
-                for (let type of addressType) {
-                    account = await tronWeb.trx.getAccount(accounts[type][idx]);
-                    assert.equal(account.address, accounts.hex[idx]);
-                }
+                let account = await tronWeb.trx.getAccount(accounts.hex[idx]);
+                assert.equal(account.address, accounts.hex[idx]);
+                account = await tronWeb.trx.getAccount(accounts.b58[idx]);
+                assert.equal(account.address, accounts.hex[idx]);
             });
 
             it('should throw address is not valid error', async function () {
@@ -207,8 +206,8 @@ describe('TronWeb.trx', function () {
             });
 
             it('should get unconfirmed account by id', async function () {
-
                 const account = await tronWeb.trx.getUnconfirmedAccountById(accountId);
+                console.log("account2:"+util.inspect(account,true,null,true));
                 assert.equal(account.account_id, accountId.slice(2));
             });
 
@@ -647,7 +646,7 @@ describe('TronWeb.trx', function () {
                     await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 1);
                 } catch (e) {
                     console.log("e:"+e);
-                    assert.isTrue(e.indexOf('permission isn\'t exit') != -1);
+                    assert.isTrue(e.indexOf('Permission for this, does not exist') != -1);
                 }
 
             });
@@ -663,7 +662,7 @@ describe('TronWeb.trx', function () {
         describe("#getBlock", async function () {
 
             it('should get earliest or latest block', async function () {
-                let earliestParentHash = '957dc2d350daecc7bb6a38f3938ebde0a0c1cedafe15f0edae4256a2907449f6';
+                let earliestParentHash = '0000000000000000000000000000000000000000000000000000000000000000';
                 const blockType = ['earliest', 'latest'];
                 let block;
                 for (let type of blockType) {
@@ -1632,8 +1631,8 @@ describe('TronWeb.trx', function () {
                 let parameters = [{"key": 0, "value": 100000}, {"key": 1, "value": 2}]
                 await broadcaster.broadcaster(
                     null,
-                    PRIVATE_KEY,
-                    await tronWeb.transactionBuilder.createProposal(parameters[0], ADDRESS_BASE58)
+                    WITNESS_KEY,
+                    await tronWeb.transactionBuilder.createProposal(parameters[0], WITNESS_ACCOUNT)
                 );
 
                 proposals = await tronWeb.trx.listProposals();
@@ -1664,8 +1663,8 @@ describe('TronWeb.trx', function () {
                     let parameters = [{"key": i + 1, "value": 100000}, {"key": i + 2, "value": 2}]
                     await broadcaster.broadcaster(
                         null,
-                        PRIVATE_KEY,
-                        await tronWeb.transactionBuilder.createProposal(parameters[0], ADDRESS_BASE58)
+                        WITNESS_KEY,
+                        await tronWeb.transactionBuilder.createProposal(parameters[0], WITNESS_ACCOUNT)
                     );
                 }
             });

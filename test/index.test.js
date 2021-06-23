@@ -1040,7 +1040,7 @@ describe('TronWeb Instance', function () {
 
     });
 
-    describe.only("#getEventResult", async function () {
+    describe("#getEventResult", async function () {
 
         let accounts
         let tronWeb

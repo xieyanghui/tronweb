@@ -20,8 +20,8 @@ describe('#contract.method', function () {
 
     before(async function () {
         tronWeb = tronWebBuilder.createInstance();
-        // ALERT this works only with Tron Quickstart:
-        accounts = await tronWebBuilder.getTestAccounts(-1);
+        await tronWebBuilder.newTestAccountsInMain(3);
+        accounts = await tronWebBuilder.getTestAccountsInMain(3);
         emptyAccount = await TronWeb.createAccount();
     });
 

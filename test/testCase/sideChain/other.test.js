@@ -17,6 +17,7 @@ const {
 const chai = require('chai');
 const assert = chai.assert;
 const util = require('util');
+var http = require('http');
 
 describe('TronWeb Instance', function() {
     describe('#other', function() {
@@ -174,7 +175,7 @@ describe("#testTronGrid", function () {
     describe("#testTronGridApiKey", function () {
         it("headers TEST_TRON_HEADER_API_KEY normal", async function () {
             // headers:TEST_TRON_HEADER_API_KEY
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 headers: { "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_KEY },
             });
             assert.equal(
@@ -186,16 +187,16 @@ describe("#testTronGrid", function () {
                 TEST_TRON_HEADER_API_KEY
             );
 
-            let account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            let account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
-            let tx = await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+            let tx = await tronWeb.event.getEventsByContractAddress(
                 tronWeb.defaultAddress.base58
             );
             assert.equal(typeof tx, "object");
         });
 
         it("headers and eventHeaders TEST_TRON_HEADER_API_KEY normal", async function () {
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
                 headers: { "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_KEY },
                 eventHeaders: { "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_KEY2 },
@@ -210,17 +211,17 @@ describe("#testTronGrid", function () {
                 TEST_TRON_HEADER_API_KEY2
             );
 
-            const account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            const account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
 
-            const tx = await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+            const tx = await tronWeb.event.getEventsByContractAddress(
                 tronWeb.defaultAddress.base58
             );
             assert.equal(typeof tx, "object");
         });
 
         it("setHeader TEST_TRON_HEADER_API_KEY normal", async function () {
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
             });
             assert.equal(
@@ -232,13 +233,13 @@ describe("#testTronGrid", function () {
                 undefined
             );
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
                 assert.exists(error.response.data, "ApiKey not exists");
             }
             try {
-                await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+                await tronWeb.event.getEventsByContractAddress(
                     tronWeb.defaultAddress.base58
                 );
             } catch (error) {
@@ -256,16 +257,16 @@ describe("#testTronGrid", function () {
                 tronWeb.eventServer.headers["TRON-PRO-API-KEY"],
                 TEST_TRON_HEADER_API_KEY
             );
-            const account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            const account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
-            const tx = await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+            const tx = await tronWeb.event.getEventsByContractAddress(
                 tronWeb.defaultAddress.base58
             );
             assert.equal(typeof tx, "object");
         });
 
         it("setFullNodeHeader TEST_TRON_HEADER_API_KEY normal", async function () {
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
             });
             tronWeb.setFullNodeHeader({
@@ -281,11 +282,11 @@ describe("#testTronGrid", function () {
                 undefined
             );
 
-            const account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            const account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
 
             try {
-                await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+                await tronWeb.event.getEventsByContractAddress(
                     tronWeb.defaultAddress.base58
                 );
             } catch (error) {
@@ -295,7 +296,7 @@ describe("#testTronGrid", function () {
         });
 
         it("setEventHeader TEST_TRON_HEADER_API_KEY normal", async function () {
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
             });
             tronWeb.setEventHeader({
@@ -312,13 +313,13 @@ describe("#testTronGrid", function () {
             );
 
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
                 assert.exists(error.response.data, "ApiKey not exists");
             }
 
-            const tx = await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+            const tx = await tronWeb.event.getEventsByContractAddress(
                 tronWeb.defaultAddress.base58
             );
             assert.equal(typeof tx, "object");
@@ -327,7 +328,7 @@ describe("#testTronGrid", function () {
         it("headers FAKE_KEY-valid-key", async function () {
             // headers:FAKE_KEY
             const FAKE_KEY = "ABCEDF";
-            let tronWeb = tronWebBuilder.createInstanceSide({
+            let tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
                 headers: { "TRON-PRO-API-KEY": FAKE_KEY },
             });
@@ -340,13 +341,13 @@ describe("#testTronGrid", function () {
                 FAKE_KEY
             );
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
                 assert.exists(error.response.data, "ApiKey not exists");
             }
             try {
-                await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+                await tronWeb.event.getEventsByContractAddress(
                     tronWeb.defaultAddress.base58
                 );
             } catch (error) {
@@ -356,7 +357,7 @@ describe("#testTronGrid", function () {
 
             // headers:EMPTY_KEY
             const EMPTY_KEY = "";
-            tronWeb = tronWebBuilder.createInstanceSide({
+            tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
                 headers: { "TRON-PRO-API-KEY": EMPTY_KEY },
             });
@@ -369,13 +370,13 @@ describe("#testTronGrid", function () {
                 EMPTY_KEY
             );
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
                 assert.exists(error.response.data, "ApiKey not exists");
             }
             try {
-                await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+                await tronWeb.event.getEventsByContractAddress(
                     tronWeb.defaultAddress.base58
                 );
             } catch (error) {
@@ -387,7 +388,7 @@ describe("#testTronGrid", function () {
         it("headers FAKE_KEY-valid-key eventHeaders TEST_TRON_HEADER_API_KEY", async function () {
             // headers:FAKE_KEY,eventHeaders:TEST_TRON_HEADER_API_KEY
             const FAKE_KEY = "ABCEDF";
-            let tronWeb = tronWebBuilder.createInstanceSide({
+            let tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
                 headers: { "TRON-PRO-API-KEY": FAKE_KEY },
                 eventHeaders: { "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_KEY },
@@ -401,19 +402,19 @@ describe("#testTronGrid", function () {
                 TEST_TRON_HEADER_API_KEY
             );
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
                 assert.exists(error.response.data, "ApiKey not exists");
             }
-            const tx = await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+            const tx = await tronWeb.event.getEventsByContractAddress(
                 tronWeb.defaultAddress.base58
             );
             assert.equal(typeof tx, "object");
 
             // headers:TEST_TRON_HEADER_API_KEY,eventHeaders:EMPTY_KEY
             const EMPTY_KEY = "";
-            tronWeb = tronWebBuilder.createInstanceSide({
+            tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
                 headers: { "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_KEY },
                 eventHeaders: { "TRON-PRO-API-KEY": EMPTY_KEY }
@@ -426,10 +427,10 @@ describe("#testTronGrid", function () {
                 tronWeb.eventServer.headers["TRON-PRO-API-KEY"],
                 EMPTY_KEY
             );
-            let account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            let account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
             try {
-                await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+                await tronWeb.event.getEventsByContractAddress(
                     tronWeb.defaultAddress.base58
                 );
             } catch (error) {
@@ -440,7 +441,7 @@ describe("#testTronGrid", function () {
 
         it("headers TEST_TRON_HEADER_API_KEY eventHeaders FAKE_KEY-valid-key", async function () {
             const FAKE_KEY = "ABCEDF";
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
                 headers: { "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_KEY },
                 eventHeaders: { "TRON-PRO-API-KEY": FAKE_KEY },
@@ -455,11 +456,11 @@ describe("#testTronGrid", function () {
                 FAKE_KEY
             );
 
-            const account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            const account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
 
             try {
-                await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+                await tronWeb.event.getEventsByContractAddress(
                     tronWeb.defaultAddress.base58
                 );
             } catch (error) {
@@ -471,7 +472,7 @@ describe("#testTronGrid", function () {
 
         it("setHeader FAKE_KEY-valid-key", async function () {
             // headers:TEST_TRON_HEADER_API_KEY
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 headers: { "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_KEY },
             });
             assert.equal(
@@ -482,9 +483,9 @@ describe("#testTronGrid", function () {
                 tronWeb.eventServer.headers["TRON-PRO-API-KEY"],
                 TEST_TRON_HEADER_API_KEY
             );
-            let account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            let account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
-            let tx = await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+            let tx = await tronWeb.event.getEventsByContractAddress(
                 tronWeb.defaultAddress.base58
             );
             assert.equal(typeof tx, "object");
@@ -501,13 +502,13 @@ describe("#testTronGrid", function () {
                 FAKE_KEY
             );
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
                 assert.exists(error.response.data, "ApiKey not exists");
             }
             try {
-                await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+                await tronWeb.event.getEventsByContractAddress(
                     tronWeb.defaultAddress.base58
                 );
             } catch (error) {
@@ -527,13 +528,13 @@ describe("#testTronGrid", function () {
                 EMPTY_KEY
             );
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
                 assert.exists(error.response.data, "ApiKey not exists");
             }
             try {
-                await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+                await tronWeb.event.getEventsByContractAddress(
                     tronWeb.defaultAddress.base58
                 );
             } catch (error) {
@@ -544,7 +545,7 @@ describe("#testTronGrid", function () {
 
         it("setFullNodeHeader FAKE_KEY-valid-key", async function () {
             // headers:TEST_TRON_HEADER_API_KEY
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 headers: { "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_KEY },
             });
             assert.equal(
@@ -555,9 +556,9 @@ describe("#testTronGrid", function () {
                 tronWeb.eventServer.headers["TRON-PRO-API-KEY"],
                 TEST_TRON_HEADER_API_KEY
             );
-            let account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            let account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
-            let tx = await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+            let tx = await tronWeb.event.getEventsByContractAddress(
                 tronWeb.defaultAddress.base58
             );
             assert.equal(typeof tx, "object");
@@ -576,12 +577,12 @@ describe("#testTronGrid", function () {
                 TEST_TRON_HEADER_API_KEY
             );
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
                 assert.exists(error.response.data, "ApiKey not exists");
             }
-            tx = await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+            tx = await tronWeb.event.getEventsByContractAddress(
                 tronWeb.defaultAddress.base58
             );
             assert.equal(typeof tx, "object");
@@ -600,12 +601,12 @@ describe("#testTronGrid", function () {
                 TEST_TRON_HEADER_API_KEY
             );
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
                 assert.exists(error.response.data, "ApiKey not exists");
             }
-            tx = await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+            tx = await tronWeb.event.getEventsByContractAddress(
                 tronWeb.defaultAddress.base58
             );
             assert.equal(typeof tx, "object");
@@ -613,7 +614,7 @@ describe("#testTronGrid", function () {
 
         it("setEventHeader FAKE_KEY-valid-key", async function () {
             // headers:TEST_TRON_HEADER_API_KEY
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 headers: { "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_KEY },
             });
             assert.equal(
@@ -624,9 +625,9 @@ describe("#testTronGrid", function () {
                 tronWeb.eventServer.headers["TRON-PRO-API-KEY"],
                 TEST_TRON_HEADER_API_KEY
             );
-            let account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            let account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
-            let tx = await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+            let tx = await tronWeb.event.getEventsByContractAddress(
                 tronWeb.defaultAddress.base58
             );
             assert.equal(typeof tx, "object");
@@ -644,10 +645,10 @@ describe("#testTronGrid", function () {
                 tronWeb.eventServer.headers["TRON-PRO-API-KEY"],
                 FAKE_KEY
             );
-            account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
             try {
-                await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+                await tronWeb.event.getEventsByContractAddress(
                     tronWeb.defaultAddress.base58
                 );
             } catch (error) {
@@ -668,10 +669,10 @@ describe("#testTronGrid", function () {
                 tronWeb.eventServer.headers["TRON-PRO-API-KEY"],
                 EMPTY_KEY
             );
-            account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
             try {
-                await tronWeb.sidechain.mainchain.event.getEventsByContractAddress(
+                await tronWeb.event.getEventsByContractAddress(
                     tronWeb.defaultAddress.base58
                 );
             } catch (error) {
@@ -694,14 +695,14 @@ describe("#testTronGrid", function () {
                     },
                 }
             );
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
                 headers: {
                     "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_JWT_KEY,
                     Authorization: `Bearer ${token}`,
                 },
             });
-            const account = await tronWeb.sidechain.mainchain.trx.getAccount();
+            const account = await tronWeb.trx.getAccount();
             assert.equal(typeof account, "object");
 
             // setHeader:aud: "trongrid.iohgj"
@@ -721,7 +722,7 @@ describe("#testTronGrid", function () {
                 Authorization: `Bearer ${token}`,
             });
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
                 assert.exists(error.response.data, "invalid request due to settings");
@@ -744,7 +745,7 @@ describe("#testTronGrid", function () {
                 }
             );
 
-            const tronWeb = tronWebBuilder.createInstanceSide({
+            const tronWeb = tronWebBuilder.createInstance({
                 fullHost: TEST_TRON_GRID_API,
                 headers: {
                     "TRON-PRO-API-KEY": TEST_TRON_HEADER_API_JWT_KEY,
@@ -753,7 +754,7 @@ describe("#testTronGrid", function () {
             });
 
             try {
-                await tronWeb.sidechain.mainchain.trx.getAccount();
+                await tronWeb.trx.getAccount();
             } catch (error) {
                 assert.equal(error.response.status, 401);
             }

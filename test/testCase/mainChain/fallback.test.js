@@ -267,7 +267,7 @@ describe('Fallback test', function() {
                 assert.equal(triggerInfo.receipt.result, "SUCCESS");
                 assert.equal("fallback",tronWeb.toUtf8(triggerInfo.log[0].data.substr(128,16)));
             });
-            it.only('no calldata and has callvalue', async function () {
+            it('no calldata and has callvalue', async function () {
                 // before trigger
                 const accountBalanceBefore = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceBefore: ' + accountBalanceBefore);

@@ -1,4 +1,5 @@
-const fullHost = "http://127.0.0.1:" + (process.env.HOST_PORT || 9090)
+// const fullHost = "http://127.0.0.1:" + (process.env.HOST_PORT || 9090)
+const fullHost = "http://39.107.81.225:8190"
 
 module.exports = {
 
@@ -19,6 +20,8 @@ module.exports = {
     ADDRESS_BASE58: 'TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU',*/
     /*ADDRESS_HEX: '4125c34b27ca968abbcd343cc4214c01d970b9440e',
     ADDRESS_BASE58: 'TDQsxPhq9bgmnw9CeDSrXsYjqt2rb1b3pg',*/
+    WITNESS_ACCOUNT: 'TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes',
+    WITNESS_KEY: '369F095838EB6EED45D4F6312AF962D5B9DE52927DA9F04174EE49F9AF54BC77',
     UPDATED_TEST_TOKEN_OPTIONS: {
         description: 'Very useless utility token',
         url: 'https://none.example.com',
@@ -88,15 +91,15 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
     },
     SUN_NETWORK: process.env.SUN_NETWORK,
     SIDE_CHAIN: {
-        fullNode: 'http://39.107.81.225:8190',
-        solidityNode: 'http://39.107.81.225:8197',
-        eventServer: 'http://39.107.81.225:8193',
+        // fullNode: 'http://39.107.81.225:8190',
+        // solidityNode: 'http://39.107.81.225:8197',
+        // eventServer: 'http://39.107.81.225:8193',
         /*fullNode: 'https://testhttpapi.tronex.io',
         solidityNode: 'https://testhttpapi.tronex.io',
         eventServer: 'https://testhttpapi.tronex.io',*/
-        // fullNode: 'https://api.nileex.io/',
-        // solidityNode: 'https://api.nileex.io/',
-        // eventServer: 'https://nile.trongrid.io/',
+        fullNode: 'https://api.nileex.io/',
+        solidityNode: 'https://api.nileex.io/',
+        eventServer: 'https://nile.trongrid.io/',
         /*fullNode: 'http://3.225.171.164:8090',
         solidityNode: 'http://3.225.171.164:8090',
         eventServer: 'http://3.225.171.164:8090',*/
@@ -115,10 +118,10 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
             fullNode: 'http://39.107.81.225:9190',
             solidityNode: 'http://39.107.81.225:9197',
             eventServer: 'http://39.107.81.225:9193',
-            mainGatewayAddress: 'TATfRvdet6HGbEqn2ATfcWkVzRYCduFFzk',
-            mainGatewayAddress_hex: '410561B561E9A7F15AD3E72C138F9F9F81E8BE6B24',
-            sideGatewayAddress: 'TRjzJfJ9whbGdP1RJuJrLaVFYXkvZoPhmt',
-            sideGatewayAddress_hex: '41AD0201AB44DB85D75B5FEB0B20E2E2FE443D90E4',
+            mainGatewayAddress: 'TSUXvJatTNVrLVFb11cRy2NFQ1fkQcUTMm',
+            mainGatewayAddress_hex: '41b50dde0dc79d67bcbfc7ff16fbdc31fbfcc17aac',
+            sideGatewayAddress: 'TB5HA7RabHWH5cerGYrW2f45sw4mSsRMJz',
+            sideGatewayAddress_hex: '410c1e17438b88901c14c27c686db88f3c3ca4ac1a',
             sideChainId: '41F7AFFF7316CDA1E1BC9B21B7CC98BB84A4EA5510'
         }
     },

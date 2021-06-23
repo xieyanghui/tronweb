@@ -1,6 +1,5 @@
 const tronWebBuilder = require('../util/tronWebBuilder');
 const BigNumber = require('bignumber.js');
-const TronWeb = tronWebBuilder.TronWeb;
 const chai = require('chai');
 const assert = chai.assert;
 
