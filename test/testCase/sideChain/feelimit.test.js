@@ -3,7 +3,7 @@ const testDeployRevert = require('../util/contracts').testDeployRevert;
 const testTriggerError = require('../util/contracts').testTriggerError;
 const tronWebBuilder = require('../util/tronWebBuilder');
 const broadcaster = require('../util/broadcaster');
-const wait = require('../../helpers/wait');
+const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
 const util = require('util');
@@ -55,10 +55,14 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(createInfo.result, "FAILED");
                 assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-                assert.equal(createTxFee, 15e7);
+                if (createTxFee == 0) {
+                    assert.equal(createInfo.receipt.energy_usage_total, 15e5);
+                } else {
+                    assert.equal(createTxFee, 15e7);
+                }
                 const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-15e7, accountBalanceAfter);
+                assert.equal(accountBalanceBefore-createTxFee, accountBalanceAfter);
             });
             it('triggerSmartContract use default feelimit in mainChain', async function () {
                 // createSmartContract
@@ -114,10 +118,14 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(triggerInfo.result, "FAILED");
                 assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-                assert.equal(triggerTxFee, 15e7);
+                if (triggerTxFee == 0) {
+                    assert.equal(triggerInfo.receipt.energy_usage_total, 15e5);
+                } else {
+                    assert.equal(triggerTxFee, 15e7);
+                }
                 const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-15e7, accountBalanceAfter);
+                assert.equal(accountBalanceBefore-triggerTxFee, accountBalanceAfter);
             });
         });
 
@@ -155,10 +163,15 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(createInfo.result, "FAILED");
                 assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-                assert.equal(createTxFee, FEE_LIMIT);
                 const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-FEE_LIMIT, accountBalanceAfter);
+                if (createTxFee == 0) {
+                    assert.equal(createInfo.receipt.energy_usage_total, 1e7);
+                    assert.equal(accountBalanceBefore, accountBalanceAfter);
+                } else {
+                    assert.equal(createTxFee, FEE_LIMIT);
+                    assert.equal(accountBalanceBefore-FEE_LIMIT, accountBalanceAfter);
+                }
             });
             it('triggerSmartContract use customized feelimit in mainChain', async function () {
                 // createSmartContract
@@ -217,10 +230,15 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(triggerInfo.result, "FAILED");
                 assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-                assert.equal(triggerTxFee, FEE_LIMIT);
                 const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-FEE_LIMIT, accountBalanceAfter);
+                if (triggerTxFee == 0) {
+                    assert.equal(triggerInfo.receipt.energy_usage_total, 1e7);
+                    assert.equal(accountBalanceBefore, accountBalanceAfter);
+                } else {
+                    assert.equal(triggerTxFee, FEE_LIMIT);
+                    assert.equal(accountBalanceBefore-FEE_LIMIT, accountBalanceAfter);
+                }
             });
 
         });
@@ -275,10 +293,14 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(createInfo.result, "FAILED");
                 assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-                assert.equal(createTxFee, 15e7);
+                if (createTxFee == 0) {
+                    assert.equal(createInfo.receipt.energy_usage_total, 15e5);
+                } else {
+                    assert.equal(createTxFee, 15e7);
+                }
                 const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-15e7, accountBalanceAfter);
+                assert.equal(parseInt(accountBalanceBefore)-createTxFee, accountBalanceAfter);
             });
             it('triggerSmartContract use default feelimit in sideChain', async function () {
                 // createSmartContract
@@ -334,10 +356,14 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(triggerInfo.result, "FAILED");
                 assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-                assert.equal(triggerTxFee, 15e7);
+                if (triggerTxFee == 0) {
+                    assert.equal(triggerInfo.receipt.energy_usage_total, 15e5);
+                } else {
+                    assert.equal(triggerTxFee, 15e7);
+                }
                 const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-15e7, accountBalanceAfter);
+                assert.equal(parseInt(accountBalanceBefore)-triggerTxFee, accountBalanceAfter);
             });
         });
 
@@ -375,10 +401,15 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(createInfo.result, "FAILED");
                 assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-                assert.equal(createTxFee, FEE_LIMIT);
                 const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-FEE_LIMIT, accountBalanceAfter);
+                if (createTxFee == 0) {
+                    assert.equal(createInfo.receipt.energy_usage_total, 1e7);
+                    assert.equal(parseInt(accountBalanceBefore), accountBalanceAfter);
+                } else {
+                    assert.equal(createTxFee, FEE_LIMIT);
+                    assert.equal(parseInt(accountBalanceBefore)-FEE_LIMIT, accountBalanceAfter);
+                }
             });
             it('triggerSmartContract use customized feelimit in sideChain', async function () {
                 // createSmartContract
@@ -437,10 +468,16 @@ describe('TronWeb feelimit test', function() {
                 // after create
                 assert.equal(triggerInfo.result, "FAILED");
                 assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-                assert.equal(triggerTxFee, FEE_LIMIT);
                 const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
                 console.log('accountBalanceAfter: ' + accountBalanceAfter);
-                assert.equal(accountBalanceBefore-FEE_LIMIT, accountBalanceAfter);
+                assert.equal(parseInt(accountBalanceBefore)-FEE_LIMIT, accountBalanceAfter);
+                if (triggerTxFee == 0) {
+                    assert.equal(triggerInfo.receipt.energy_usage_total, 1e7);
+                    assert.equal(parseInt(accountBalanceBefore), accountBalanceAfter);
+                } else {
+                    assert.equal(triggerTxFee, FEE_LIMIT);
+                    assert.equal(parseInt(accountBalanceBefore)-FEE_LIMIT, accountBalanceAfter);
+                }
             });
         });
     });

@@ -1,9 +1,9 @@
 const tronWebBuilder = require('../util/tronWebBuilder');
 const {FULL_NODE_API, ADDRESS_HEX, PRIVATE_KEY} = require('../util/config');
-const assertThrow = require('../../helpers/assertThrow');
+const assertThrow = require('../util/assertThrow');
 const broadcaster = require('../util/broadcaster');
-const jlog = require('../../helpers/jlog')
-const wait = require('../../helpers/wait')
+const jlog = require('../util/jlog')
+const wait = require('../util/wait')
 const TronWeb = tronWebBuilder.TronWeb;
 const util = require('util');
 const chai = require('chai');

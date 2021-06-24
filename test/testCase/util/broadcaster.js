@@ -1,5 +1,5 @@
 const tronWebBuilder = require('./tronWebBuilder');
-const wait = require('../../helpers/wait');
+const wait = require('./wait');
 const util = require('util');
 
 const broadcaster = async (func, pk, transaction) => {

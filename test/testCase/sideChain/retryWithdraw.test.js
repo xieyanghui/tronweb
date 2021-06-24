@@ -1,10 +1,10 @@
 const {PRIVATE_KEY,ORACLE_PRIVATE_KEY, RETRY_DEPOSIT_FEE, DEPOSIT_FEE, WITHDRAW_FEE, TOKEN_ID, FEE_LIMIT, ADDRESS_BASE58, ADDRESS_HEX, SIDE_CHAIN} = require('../util/config');
 const trc721Contract = require('../util/contracts').trc721Contract;
 const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../../helpers/assertThrow');
+const assertThrow = require('../util/assertThrow');
 const publicMethod = require('../util/PublicMethod');
 const broadcaster = require('../util/broadcaster');
-const wait = require('../../helpers/wait');
+const wait = require('../util/wait');
 const chai = require('chai');
 const util = require('util');
 const assert = chai.assert;

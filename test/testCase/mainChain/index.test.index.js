@@ -13,8 +13,8 @@ const {
     TEST_TRON_HEADER_JWT_PRIVATE_KEY
 } = require('../util/config');
 const BigNumber = require('bignumber.js');
-const wait = require('../../helpers/wait')
-const log = require('../../helpers/log')
+const wait = require('../util/wait')
+const log = require('../util/log')
 const util = require('util');
 const chai = require('chai');
 const assert = chai.assert;

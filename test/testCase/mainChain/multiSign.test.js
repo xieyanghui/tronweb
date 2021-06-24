@@ -1,9 +1,9 @@
 const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN} = require('../util/config');
 const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../../helpers/assertThrow');
+const assertThrow = require('../util/assertThrow');
 const publicMethod = require('../util/PublicMethod');
 const broadcaster = require('../util/broadcaster');
-const wait = require('../../helpers/wait');
+const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
 const util = require('util');

@@ -1,8 +1,8 @@
 const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, TOKEN_ID, PRIVATE_KEY} = require('../util/config');
 const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../../helpers/assertThrow');
+const assertThrow = require('../util/assertThrow');
 const publicMethod = require('../util/PublicMethod');
-const wait = require('../../helpers/wait');
+const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
 

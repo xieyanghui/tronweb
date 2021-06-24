@@ -1,7 +1,7 @@
 const {tronToken} = require('../util/contracts');
 const tronWebBuilder = require('../util/tronWebBuilder');
 const TronWeb = tronWebBuilder.TronWeb;
-const wait = require('../../helpers/wait');
+const wait = require('../util/wait');
 var request = require('request');
 const util = require('util');
 const {

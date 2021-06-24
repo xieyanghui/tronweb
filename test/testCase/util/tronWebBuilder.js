@@ -1,6 +1,6 @@
 const chalk = require('chalk')
 const TronWeb = require('../../setup/TronWeb');
-const jlog = require('../../helpers/jlog')
+const jlog = require('./jlog')
 const util = require('util');
 var fs = require('fs')
 

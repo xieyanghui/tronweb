@@ -1,10 +1,10 @@
 const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN, PRIVATE_KEY} = require('../util/config');
 const trc20Contract = require('../util/contracts').trc20Contract;
 const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../../helpers/assertThrow');
+const assertThrow = require('../util/assertThrow');
 const publicMethod = require('../util/PublicMethod');
 const broadcaster = require('../util/broadcaster');
-const wait = require('../../helpers/wait');
+const wait = require('../util/wait');
 const jwt = require('jsonwebtoken');
 const {
     TEST_TRON_GRID_API,

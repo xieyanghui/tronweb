@@ -1,5 +1,5 @@
 const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../../helpers/assertThrow');
+const assertThrow = require('../util/assertThrow');
 const {FULL_NODE_API} = require('../util/config');
 const TronWeb = tronWebBuilder.TronWeb;
 const chai = require('chai');

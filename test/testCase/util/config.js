@@ -10,8 +10,14 @@ module.exports = {
     SOLIDITY_NODE_API: fullHost,
     EVENT_API: fullHost,
     NETWORK_ID: "*",
+    /**
+     * docker fund account
+     */
     // ADDRESS_HEX: '41928c9af0651632157ef27a2cf17ca72c575a4d21',
     // ADDRESS_BASE58: 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY',
+    /**
+     * testGroup002&003/nileex fund account
+     */
     ADDRESS_HEX: '415624c12e308b03a1a6b21d9b86e3942fac1ab92b',
     ADDRESS_BASE58: 'THph9K2M2nLvkianrMGswRhz5hjSA9fuH7',
     /*ADDRESS_HEX: '415ab90009b529c5406b4f8a6fc4dab8a2bc778c75',
@@ -20,6 +26,9 @@ module.exports = {
     ADDRESS_BASE58: 'TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU',*/
     /*ADDRESS_HEX: '4125c34b27ca968abbcd343cc4214c01d970b9440e',
     ADDRESS_BASE58: 'TDQsxPhq9bgmnw9CeDSrXsYjqt2rb1b3pg',*/
+    /**
+     * testGroup002&003/nileex witness account
+     */
     WITNESS_ACCOUNT: 'TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes',
     WITNESS_KEY: '369F095838EB6EED45D4F6312AF962D5B9DE52927DA9F04174EE49F9AF54BC77',
     UPDATED_TEST_TOKEN_OPTIONS: {
@@ -28,6 +37,9 @@ module.exports = {
         freeBandwidth: 10,
         freeBandwidthLimit: 100
     },
+    /**
+     * Shasta
+     */
     TEST_TRON_GRID_API: 'http://47.252.84.138:29086',
     TEST_TRON_HEADER_API_KEY: '826c74b6-8f97-465f-99c1-e7ea5db0b9fd',
     TEST_TRON_HEADER_API_KEY2: '5788c434-8f78-459b-95dd-4d977ee080ba',
@@ -91,12 +103,21 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
     },
     SUN_NETWORK: process.env.SUN_NETWORK,
     SIDE_CHAIN: {
+        /**
+         * testGroup002&003
+         */
         // fullNode: 'http://39.107.81.225:8190',
         // solidityNode: 'http://39.107.81.225:8197',
         // eventServer: 'http://39.107.81.225:8193',
+        /**
+         * tronex
+         */
         /*fullNode: 'https://testhttpapi.tronex.io',
         solidityNode: 'https://testhttpapi.tronex.io',
         eventServer: 'https://testhttpapi.tronex.io',*/
+        /**
+         * nileex
+         */
         fullNode: 'https://api.nileex.io/',
         solidityNode: 'https://api.nileex.io/',
         eventServer: 'https://nile.trongrid.io/',
@@ -107,6 +128,9 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
         solidityNode: 'http://39.107.123.182:8591',
         eventServer: 'http://39.107.123.182:8590',*/
         sideOptions: {
+            /**
+             * tronex
+             */
             /*fullNode: 'https://suntest.tronex.io',
             solidityNode: 'https://suntest.tronex.io',
             eventServer: 'https://suntest.tronex.io',
@@ -115,6 +139,9 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
             sideGatewayAddress: 'TRDepx5KoQ8oNbFVZ5sogwUxtdYmATDRgX',
             sideGatewayAddress_hex: '41a74544b896f6a50f8ef1c2d64803c462cbdb019d',
             sideChainId: '413AF23F37DA0D48234FDD43D89931E98E1144481B'*/
+            /**
+             * testGroup002&003
+             */
             fullNode: 'http://39.107.81.225:9190',
             solidityNode: 'http://39.107.81.225:9197',
             eventServer: 'http://39.107.81.225:9193',
