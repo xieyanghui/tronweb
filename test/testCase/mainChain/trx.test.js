@@ -1,5 +1,5 @@
 const tronWebBuilder = require('../util/tronWebBuilder');
-const assertEqualHex = require('../util/helpers/assertEqualHex');
+const assertEqualHex = require('../util/assertEqualHex');
 const waitChainData = require('../util/waitChainData');
 const assertThrow = require('../util/assertThrow');
 const broadcaster = require('../util/broadcaster');
@@ -16,7 +16,7 @@ const {
     WITNESS_ACCOUNT,
     WITNESS_KEY,
 } = require('../util/config');
-const testRevertContract = require('../../fixtures/contracts').testRevert;
+const testRevertContract = require('../util/contracts').testRevert;
 
 describe('TronWeb.trx', function () {
 
@@ -1740,9 +1740,11 @@ describe('TronWeb.trx', function () {
             assert.isArray(srs);
             for (let sr of srs) {
                 console.log("sr: "+util.inspect(sr,true,null,true))
-                assert.isDefined(sr.address);
-                assert.isDefined(sr.voteCount);
-                assert.isDefined(sr.latestBlockNum);
+                if (sr.length>2) {
+                    assert.isDefined(sr.address);
+                    assert.isDefined(sr.voteCount);
+                    assert.isDefined(sr.latestBlockNum);
+                }
             }
         });
 

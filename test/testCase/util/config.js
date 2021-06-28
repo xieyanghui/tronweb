@@ -117,6 +117,7 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
         eventServer: 'https://testhttpapi.tronex.io',*/
         /**
          * nileex
+         * mainChain:event.test.js;index.test.index.js
          */
         fullNode: 'https://api.nileex.io/',
         solidityNode: 'https://api.nileex.io/',

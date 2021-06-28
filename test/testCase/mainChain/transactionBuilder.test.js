@@ -1063,10 +1063,8 @@ describe('TronWeb.transactionBuilder', function () {
 
         after(async function () {
             proposals = await tronWeb.trx.listProposals();
-            for (let proposal of proposals) {
-                if (proposal.state !== 'CANCELED')
-                    await broadcaster.broadcaster(tronWeb.transactionBuilder.deleteProposal(proposal.proposal_id, witnessAccount), witnessKey)
-            }
+            if (proposals[0].state !== 'CANCELED')
+                await broadcaster.broadcaster(tronWeb.transactionBuilder.deleteProposal(proposals[0].proposal_id, witnessAccount), witnessKey)
         })
 
         it('should allow the SR to delete its own proposal', async function () {
