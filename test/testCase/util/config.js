@@ -106,9 +106,9 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
         /**
          * testGroup002&003
          */
-        // fullNode: 'http://39.107.81.225:8190',
-        // solidityNode: 'http://39.107.81.225:8197',
-        // eventServer: 'http://39.107.81.225:8193',
+        fullNode: 'http://39.107.81.225:8190',
+        solidityNode: 'http://39.107.81.225:8197',
+        eventServer: 'http://39.107.81.225:8193',
         /**
          * tronex
          */
@@ -119,9 +119,9 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
          * nileex
          * mainChain:event.test.js;index.test.index.js
          */
-        fullNode: 'https://api.nileex.io/',
+        /*fullNode: 'https://api.nileex.io/',
         solidityNode: 'https://api.nileex.io/',
-        eventServer: 'https://nile.trongrid.io/',
+        eventServer: 'https://nile.trongrid.io/',*/
         /*fullNode: 'http://3.225.171.164:8090',
         solidityNode: 'http://3.225.171.164:8090',
         eventServer: 'http://3.225.171.164:8090',*/
@@ -146,10 +146,10 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
             fullNode: 'http://39.107.81.225:9190',
             solidityNode: 'http://39.107.81.225:9197',
             eventServer: 'http://39.107.81.225:9193',
-            mainGatewayAddress: 'TSUXvJatTNVrLVFb11cRy2NFQ1fkQcUTMm',
-            mainGatewayAddress_hex: '41b50dde0dc79d67bcbfc7ff16fbdc31fbfcc17aac',
-            sideGatewayAddress: 'TB5HA7RabHWH5cerGYrW2f45sw4mSsRMJz',
-            sideGatewayAddress_hex: '410c1e17438b88901c14c27c686db88f3c3ca4ac1a',
+            mainGatewayAddress: 'TBBhWRMaDPx82wxCKZw6ECdufdiRxgNpB8',
+            mainGatewayAddress_hex: '410d54e9c319eaaf667081a6a4c71733b2f0425f47',
+            sideGatewayAddress: 'TKepJCkDYbbpqdzTZpkLT93LHfuu99Z7Lr',
+            sideGatewayAddress_hex: '416a36d15df5f9ddf711c7e96512c544036a3f3887',
             sideChainId: '41F7AFFF7316CDA1E1BC9B21B7CC98BB84A4EA5510'
         }
     },

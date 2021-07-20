@@ -1487,8 +1487,6 @@ describe('TronWeb Instance', function () {
     });
 });
 
-
-
 describe("#testTronGrid", function () {
     describe("#testTronGridApiKey", function () {
         it("headers TEST_TRON_HEADER_API_KEY normal", async function () {
@@ -2086,3 +2084,38 @@ describe("#testTronGrid", function () {
         });
     });
 });
+
+
+describe("#fromPrivateKey", function () {
+    it.only("fromPrivateKey", async function () {
+        const tronWeb = tronWebBuilder.createInstance();
+
+        let sy = "123";
+        let address = tronWeb.address.fromPrivateKey(sy);
+        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
+        sy = "12";
+        address = tronWeb.address.fromPrivateKey(sy);
+        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
+        sy = "124";
+        address = tronWeb.address.fromPrivateKey(sy);
+        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
+
+        console.log("---------")
+        sy = "123";
+        address = tronWeb.address.fromPrivateKey(sy,true);
+        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
+        sy = "0123";
+        address = tronWeb.address.fromPrivateKey(sy,true);
+        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
+        sy = "12";
+        address = tronWeb.address.fromPrivateKey(sy,true);
+        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
+        sy = "124";
+        address = tronWeb.address.fromPrivateKey(sy,true);
+        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
+        sy = "0124";
+        address = tronWeb.address.fromPrivateKey(sy,true);
+        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
+    });
+});
+

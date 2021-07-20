@@ -26,8 +26,8 @@ describe('TronWeb.trx', function () {
 
     before(async function () {
         tronWeb = tronWebBuilder.createInstance();
-        await tronWebBuilder.newTestAccountsInMain(43);
-        accounts = await tronWebBuilder.getTestAccountsInMain(43);
+        // await tronWebBuilder.newTestAccountsInMain(43);
+        // accounts = await tronWebBuilder.getTestAccountsInMain(43);
         emptyAccount = await TronWeb.createAccount();
     });
 
@@ -1796,6 +1796,34 @@ describe('TronWeb.trx', function () {
         });
     });
 
+    describe.only("#broadcastHex", async function () {
+        const transactionHex = "0a84010a02a4e82208369b215e09c28726409094e0e7ab2f5a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b12154180cd18e304b8ab68beedd4b47af93499225e6f5218e80770f0c1dce7ab2f12417539e59ec068a16d7d0576eca6fae463652576822b82cbe022b7ed649030ee9819986f0ea34e633789e9ea2771b69d3d1207218ff82f9603b5079aa22167d56a01"
+        it('should broadcast a hex transaction', async function () {
+            let result = await tronWeb.trx.broadcastHex(transactionHex);
+            console.log("result1: "+util.inspect(result,true,null,true))
+            assert.isTrue(result.result);
+        });
 
+        it('should throw DUP_TRANSACTION_ERROR error', async function () {
+            let result = await tronWeb.trx.broadcastHex(transactionHex);
+            console.log("result2: "+util.inspect(result,true,null,true))
+            assert.isFalse(result.result);
+            assert.equal(result.code,"DUP_TRANSACTION_ERROR");
+        });
+
+        it('should throw invalid hex transaction provided error', async function () {
+            await assertThrow(
+                tronWeb.trx.broadcastHex(false),
+                'Invalid hex transaction provided'
+            );
+        });
+
+        it('should throw invalid options provided error', async function () {
+            await assertThrow(
+                tronWeb.trx.broadcastHex(transactionHex, false),
+                'Invalid options provided'
+            );
+        });
+    });
 
 });
