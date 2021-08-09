@@ -1796,8 +1796,8 @@ describe('TronWeb.trx', function () {
         });
     });
 
-    describe.only("#broadcastHex", async function () {
-        const transactionHex = "0a84010a02a4e82208369b215e09c28726409094e0e7ab2f5a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b12154180cd18e304b8ab68beedd4b47af93499225e6f5218e80770f0c1dce7ab2f12417539e59ec068a16d7d0576eca6fae463652576822b82cbe022b7ed649030ee9819986f0ea34e633789e9ea2771b69d3d1207218ff82f9603b5079aa22167d56a01"
+    describe("#broadcastHex", async function () {
+        const transactionHex = "0a84010a021e632208f43ed1478c125b3640e0cea2d7b12f5a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b12154132be9f156cd9bc91d7eee8630310e2ca8d1910c718e80770b8829fd7b12f1241c5e3477cb8a03efeeffb2eac5797605a048037936b139df3d4c74339e6c43ffa0e9e2acaed55dc066fa68217489e69e2d7c9533d5c8f20d536d53959ba8ce2cc00"
         it('should broadcast a hex transaction', async function () {
             let result = await tronWeb.trx.broadcastHex(transactionHex);
             console.log("result1: "+util.inspect(result,true,null,true))
@@ -1825,5 +1825,22 @@ describe('TronWeb.trx', function () {
             );
         });
     });
+    describe.only("#signForHasVisible", async function () {
+        it('sign', async function () {
+            const sss = await tronWeb.transactionBuilder.sendTrx('419311b30b2b95d1a59222912c98ac55b09ab06eba', 10);
+            console.log("sss: "+util.inspect(sss,true,null,true))
 
+            let transactionStr = "{\"visible\":false,\"txID\":\"4f0e236ea8035b40f15bf00acf595a5477e86a57b5deb7a6de4c7e54f190852f\",\"raw_data\":{\"contract\":[{\"parameter\":{\"value\":{\"amount\":1000,\"owner_address\":\"415624c12e308b03a1a6b21d9b86e3942fac1ab92b\",\"to_address\":\"419a9005b1ad8cacbf25d2cedea2b10cfd4b73caec\"},\"type_url\":\"type.googleapis.com/protocol.TransferContract\"},\"type\":\"TransferContract\"}],\"ref_block_bytes\":\"1faa\",\"ref_block_hash\":\"dee6d4cb4ab43f4d\",\"expiration\":1628245065000,\"timestamp\":1628245005920},\"raw_data_hex\":\"0a021faa2208dee6d4cb4ab43f4d40a8fadfd7b12f5a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b1215419a9005b1ad8cacbf25d2cedea2b10cfd4b73caec18e80770e0acdcd7b12f\"}\n";
+            console.log("transactionStr: "+util.inspect(transactionStr,true,null,true))
+
+            // broadcast update transaction
+            const signedUpdateTransaction = await tronWeb.trx.sign(
+                transactionStr,PRIVATE_KEY, false,false,false);
+            console.log("signedUpdateTransaction: "+util.inspect(signedUpdateTransaction,true,null,true))
+
+            const result = await tronWeb.trx.broadcast(signedUpdateTransaction);
+            await wait(3);
+            console.log("result: "+util.inspect(result,true,null,true))
+        });
+    });
 });

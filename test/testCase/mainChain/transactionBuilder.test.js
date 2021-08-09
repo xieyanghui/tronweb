@@ -200,7 +200,7 @@ describe('TronWeb.transactionBuilder', function () {
             }
         });
 
-        it(`should create a TestToken without freezing anything in 3.6.0`, async function () {
+        it(`should create a TestToken without freezing anything`, async function () {
             const options = getTokenOptions();
             options.totalSupply = '100'
             options.frozenAmount = '0'
@@ -208,10 +208,11 @@ describe('TronWeb.transactionBuilder', function () {
             options.saleEnd = options.saleEnd.toString()
             for (let i = 0; i < 2; i++) {
                 if (i === 1) options.permissionId = 2;
-                const transaction = await tronWeb.transactionBuilder.createToken(options);
+                const transaction = await tronWeb.transactionBuilder.createToken(options, accounts.b58[1]);
                 const parameter = txPars(transaction);
                 await assertEqualHex(parameter.value.abbr, options.abbreviation);
                 assert.equal(transaction.raw_data.contract[0].Permission_id || 0, options.permissionId || 0);
+                console.log("asd")
             }
         });
 
@@ -613,6 +614,7 @@ describe('TronWeb.transactionBuilder', function () {
 
             let tokenList
             while (!tokenList) {
+                await wait(1)
                 tokenList = await tronWeb.trx.getTokensIssuedByAddress(accounts.b58[2])
             }
             tokenID = tokenList[tokenOptions.name].id
@@ -755,6 +757,7 @@ describe('TronWeb.transactionBuilder', function () {
 
             let tokenList
             while (!tokenList) {
+                await wait(1)
                 tokenList = await tronWeb.trx.getTokensIssuedByAddress(accounts.b58[5])
             }
             console.log("tokenList:"+util.inspect(tokenList,true,null,true))
@@ -779,8 +782,7 @@ describe('TronWeb.transactionBuilder', function () {
             ];
 
             for (let param of params) {
-                await wait(4)
-
+                await wait(5)
                 const transaction = await tronWeb.transactionBuilder.purchaseToken(...param);
                 const parameter = txPars(transaction);
                 assert.equal(transaction.txID.length, 64);
@@ -865,6 +867,7 @@ describe('TronWeb.transactionBuilder', function () {
 
             let tokenList
             while (!tokenList) {
+                await wait(1)
                 tokenList = await tronWeb.trx.getTokensIssuedByAddress(accounts.b58[6])
             }
             console.log("tokenList2:"+util.inspect(tokenList,true,null,true))

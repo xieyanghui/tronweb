@@ -2087,46 +2087,36 @@ describe("#testTronGrid", function () {
 
 
 describe("#fromPrivateKey", function () {
-    it.only("fromPrivateKey", async function () {
+    it("fromPrivateKey", async function () {
         const tronWeb = tronWebBuilder.createInstance();
         assert.equal(tronWeb.address.fromPrivateKey("12"),tronWeb.address.fromPrivateKey("123"));
         assert.equal(tronWeb.address.fromPrivateKey("12"),tronWeb.address.fromPrivateKey("124"));
+        assert.equal(tronWeb.address.fromPrivateKey("12"),tronWeb.address.fromPrivateKey("0012"));
+        assert.equal(tronWeb.address.fromPrivateKey("12"),'TM1XDVgwZUqPfQT1PTA7DszUE7Nw7DU7d1');
+        assert.equal(tronWeb.address.fromPrivateKey("012"),'TMVQGm1qAQYVdetCeGRRkTWYYrLXuHK2HC');
+        assert.equal(tronWeb.address.fromPrivateKey("0"),false);
+        assert.equal(tronWeb.address.fromPrivateKey("0x124"),false);
+        assert.equal(tronWeb.address.fromPrivateKey("0dbdfa83d48bc9dfa823479234ccf9db2b34c9f89724ad8979243e987e9de243"),'TPiNqcyhxY2xVMfMRUQ3d5qyaq8EdFuQkh');
         assert.equal(ADDRESS_BASE58,tronWeb.address.fromPrivateKey(PRIVATE_KEY));
-        console.log("sy: 0,address: "+util.inspect(tronWeb.address.fromPrivateKey("0"),true,null,true))
-        console.log("sy: 12,address: "+util.inspect(tronWeb.address.fromPrivateKey("12"),true,null,true))
-        console.log("sy: 012,address: "+util.inspect(tronWeb.address.fromPrivateKey("012"),true,null,true))
-        console.log("sy: 0012,address: "+util.inspect(tronWeb.address.fromPrivateKey("0012"),true,null,true))
-        console.log("sy: 0dbdfa83d48bc9dfa823479234ccf9db2b34c9f89724ad8979243e987e9de243,address: "+util.inspect(tronWeb.address.fromPrivateKey("0duofj83r48us9dfj823479234jkh9du2i34u9u89724hd8979243h987s9dk243"),true,null,true))
-        console.log("sy: 0000000000000000000000000000000000000000000000000000000000000000,address: "+util.inspect(tronWeb.address.fromPrivateKey("0duofj83r48us9dfj823479234jkh9du2i34u9u89724hd8979243h987s9dk243"),true,null,true))
+        assert.equal(tronWeb.address.fromPrivateKey(PRIVATE_KEY+"1"),tronWeb.address.fromPrivateKey(PRIVATE_KEY));
+        assert.equal(tronWeb.address.fromPrivateKey(PRIVATE_KEY+"10"),'TEMfXbLCs7Ag2fjAFrWkNJP8tPrDSV9Rrz');
+        assert.equal(tronWeb.address.fromPrivateKey("0"+PRIVATE_KEY+"1"),'TEipNR4EDbNJpsAa4DnHSFGHakXd38XhFp');
+
         console.log("----Turn on strict mode----")
-        console.log("sy: 0,address: "+util.inspect(tronWeb.address.fromPrivateKey("0",true),true,null,true))
-        console.log("sy: 12,address: "+util.inspect(tronWeb.address.fromPrivateKey("12",true),true,null,true))
-        console.log("sy: 012,address: "+util.inspect(tronWeb.address.fromPrivateKey("012",true),true,null,true))
-        console.log("sy: 0012,address: "+util.inspect(tronWeb.address.fromPrivateKey("0012",true),true,null,true))
         assert.equal('TGUrzpAScgJy9tyrrPJ6woywvf2eBSw5yv',tronWeb.address.fromPrivateKey("123",true));
         assert.equal(tronWeb.address.fromPrivateKey("0123",true),tronWeb.address.fromPrivateKey("123",true));
         assert.equal('TM1XDVgwZUqPfQT1PTA7DszUE7Nw7DU7d1',tronWeb.address.fromPrivateKey("12",true));
         assert.equal(tronWeb.address.fromPrivateKey("012",true),tronWeb.address.fromPrivateKey("12",true));
+        assert.equal(tronWeb.address.fromPrivateKey("012",true),tronWeb.address.fromPrivateKey("0000012",true));
         assert.equal('THzAGBe4vTuVjnobg2TCb3uUL34Y7yU945',tronWeb.address.fromPrivateKey("124",true));
         assert.equal(tronWeb.address.fromPrivateKey("0124",true),tronWeb.address.fromPrivateKey("124",true));
-        assert.equal(ADDRESS_BASE58,tronWeb.address.fromPrivateKey(PRIVATE_KEY));
-        let sy = "0";
-        let address = tronWeb.address.fromPrivateKey(sy);
-        sy = "0";
-        address = tronWeb.address.fromPrivateKey(sy,true);
-        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
-        sy = "0dbdfa83d48bc9dfa823479234ccf9db2b34c9f89724ad8979243e987e9de243";
-        address = tronWeb.address.fromPrivateKey(sy,true);
-        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
-        sy = "0000012";
-        address = tronWeb.address.fromPrivateKey(sy,true);
-        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
-        sy = "0000000000000000000000000000000000000000000000000000000000000000";
-        address = tronWeb.address.fromPrivateKey(sy,true);
-        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
-        sy = "0x124";
-        address = tronWeb.address.fromPrivateKey(sy,true);
-        console.log("sy: "+sy+",address: "+util.inspect(address,true,null,true))
+        assert.equal(ADDRESS_BASE58,tronWeb.address.fromPrivateKey(PRIVATE_KEY,true));
+        assert.equal(tronWeb.address.fromPrivateKey(PRIVATE_KEY+"1",true),tronWeb.address.fromPrivateKey("0"+PRIVATE_KEY+"1",true));
+        assert.equal(tronWeb.address.fromPrivateKey(PRIVATE_KEY+"10",true),'TEMfXbLCs7Ag2fjAFrWkNJP8tPrDSV9Rrz');
+        assert.equal(tronWeb.address.fromPrivateKey("0"+PRIVATE_KEY+"1",true),'TEipNR4EDbNJpsAa4DnHSFGHakXd38XhFp');
+        assert.equal(tronWeb.address.fromPrivateKey("0",true),false);
+        assert.equal(tronWeb.address.fromPrivateKey("0x124",true),false);
+        assert.equal(tronWeb.address.fromPrivateKey("0dbdfa83d48bc9dfa823479234ccf9db2b34c9f89724ad8979243e987e9de243",true),'TPiNqcyhxY2xVMfMRUQ3d5qyaq8EdFuQkh');
     });
 });
 

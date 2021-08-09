@@ -107,7 +107,7 @@ describe('TronWeb.lib.event', async function () {
 
             console.log("events:"+util.inspect(events,true,null,true))
             assert.equal(events[0].resourceNode, 'fullNode')
-            if (events[0].result != '{}') {
+            if (!JSON.stringify('_receiver' in events[0].result)) {
                 assert.equal(events[0].result._receiver.substring(2), accounts.hex[2].substring(2))
                 assert.equal(events[0].result._sender.substring(2), ADDRESS_HEX.substring(2).toLowerCase())
             }
