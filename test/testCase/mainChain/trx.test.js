@@ -26,8 +26,8 @@ describe('TronWeb.trx', function () {
 
     before(async function () {
         tronWeb = tronWebBuilder.createInstance();
-        // await tronWebBuilder.newTestAccountsInMain(43);
-        // accounts = await tronWebBuilder.getTestAccountsInMain(43);
+        await tronWebBuilder.newTestAccountsInMain(43);
+        accounts = await tronWebBuilder.getTestAccountsInMain(43);
         emptyAccount = await TronWeb.createAccount();
     });
 
@@ -1797,7 +1797,7 @@ describe('TronWeb.trx', function () {
     });
 
     describe("#broadcastHex", async function () {
-        const transactionHex = "0a84010a021e632208f43ed1478c125b3640e0cea2d7b12f5a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b12154132be9f156cd9bc91d7eee8630310e2ca8d1910c718e80770b8829fd7b12f1241c5e3477cb8a03efeeffb2eac5797605a048037936b139df3d4c74339e6c43ffa0e9e2acaed55dc066fa68217489e69e2d7c9533d5c8f20d536d53959ba8ce2cc00"
+        const transactionHex = "0a84010a0267e8220876946da17952aa0a40a893b4d2b22f5a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541607183c28d799eea6198a68d3b00173f3cb81b3918e8077091bdb0d2b22f12416a6295914fb712e154c729427c11d34f230351d386f1e3f37a2c701bc053f5e96cc469b8987169fe2baf0b972257498167a93d534cc92bfe30b10178d63c70db01"
         it('should broadcast a hex transaction', async function () {
             let result = await tronWeb.trx.broadcastHex(transactionHex);
             console.log("result1: "+util.inspect(result,true,null,true))
@@ -1825,7 +1825,7 @@ describe('TronWeb.trx', function () {
             );
         });
     });
-    describe.only("#signForHasVisible", async function () {
+    /*describe.only("#signForHasVisible", async function () {
         it('sign', async function () {
             const sss = await tronWeb.transactionBuilder.sendTrx('419311b30b2b95d1a59222912c98ac55b09ab06eba', 10);
             console.log("sss: "+util.inspect(sss,true,null,true))
@@ -1842,5 +1842,5 @@ describe('TronWeb.trx', function () {
             await wait(3);
             console.log("result: "+util.inspect(result,true,null,true))
         });
-    });
+    });*/
 });
