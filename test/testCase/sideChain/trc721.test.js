@@ -109,11 +109,11 @@ describe('TronWeb Instance', function() {
             );
         });
 
-        it('should throw if an invalid fee limit is passed', async function () {
+        it.only('should throw if an invalid fee limit is passed', async function () {
             const feeLimit = 100000000000;
             await assertThrow(
                 tronWeb.sidechain.depositTrc721(trc721Id, DEPOSIT_FEE, feeLimit, contractAddress),
-                'Invalid feeLimit provided'
+                'Contract validate error : feeLimit must be >= 0 and <= 1000000000'
             );
         });
 
@@ -160,11 +160,11 @@ describe('TronWeb Instance', function() {
             );
         });
 
-        it('should throw if an invalid fee limit is passed', async function () {
+        it.only('should throw if an invalid fee limit is passed', async function () {
             const feeLimit = 100000000000;
             await assertThrow(
                 tronWeb.sidechain.mappingTrc721(createTxId, MAPPING_FEE, feeLimit),
-                'Invalid feeLimit provided'
+                'Contract validate error : feeLimit must be >= 0 and <= 1000000000'
             );
         });
     });

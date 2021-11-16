@@ -119,7 +119,7 @@ describe('TronWeb Instance', function() {
             const feeLimit = 100000000000;
             await assertThrow(
                 tronWeb.sidechain.depositTrc20(num, DEPOSIT_FEE, feeLimit, contractAddress),
-                'Invalid feeLimit provided'
+                'Contract validate error : feeLimit must be >= 0 and <= 1000000000'
             );
         });
 
@@ -171,7 +171,7 @@ describe('TronWeb Instance', function() {
             const feeLimit = 100000000000;
             await assertThrow(
                 tronWeb.sidechain.mappingTrc20(createTxId, MAPPING_FEE, feeLimit),
-                'Invalid feeLimit provided'
+                'Contract validate error : feeLimit must be >= 0 and <= 1000000000'
             );
         });
     });
@@ -262,7 +262,7 @@ describe('TronWeb Instance', function() {
                 const feeLimit = 100000000000;
                 await assertThrow(
                     tronWeb.sidechain.withdrawTrc20(100, WITHDRAW_FEE, feeLimit, sideChainContractAddress),
-                    'Invalid feeLimit provided'
+                    'contract validate error : feeLimit must be >= 0 and <= 1000000000'
                 );
             });
 
