@@ -109,7 +109,7 @@ describe('TronWeb Instance', function() {
             );
         });
 
-        it.only('should throw if an invalid fee limit is passed', async function () {
+        it('should throw if an invalid fee limit is passed', async function () {
             const feeLimit = 100000000000;
             await assertThrow(
                 tronWeb.sidechain.depositTrc721(trc721Id, DEPOSIT_FEE, feeLimit, contractAddress),
@@ -160,7 +160,7 @@ describe('TronWeb Instance', function() {
             );
         });
 
-        it.only('should throw if an invalid fee limit is passed', async function () {
+        it('should throw if an invalid fee limit is passed', async function () {
             const feeLimit = 100000000000;
             await assertThrow(
                 tronWeb.sidechain.mappingTrc721(createTxId, MAPPING_FEE, feeLimit),
