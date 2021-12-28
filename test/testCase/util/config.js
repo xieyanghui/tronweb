@@ -117,7 +117,9 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
         eventServer: 'https://testhttpapi.tronex.io',*/
         /**
          * nileex
-         * mainChain:event.test.js;index.test.index.js
+         * mainChain:event.test.js;
+         * index.test.index.js;
+         * other.test.js-testTronGrid()
          */
         // fullNode: 'https://api.nileex.io',
         // solidityNode: 'https://api.nileex.io',
@@ -147,7 +149,7 @@ rH4WZ2xKqbSvQNcyrdAP5TUORcJWc7zg6GCkRJdjXPOqk78n4tDmh2jtG826DAwY
             solidityNode: 'http://39.107.81.225:9197',
             eventServer: 'http://39.107.81.225:9193',
             mainGatewayAddress: 'TQkNERN1Rqrn5y9iS4UJ2XGLYnfBRYsEPD',
-            mainGatewayAddress_hex: '41A21C2F33C92D06F81F1B88A367245ABD07856554',
+            mainGatewayAddress_hex: '41a21c2f33c92d06f81f1b88a367245abd07856554',
             sideGatewayAddress: 'TMvwL2aiUWHe3Ydx4KZGZVWbyA7M87RSHQ',
             sideGatewayAddress_hex: '4183339828469509404084D4A87489B526897B6792',
             sideChainId: '41F7AFFF7316CDA1E1BC9B21B7CC98BB84A4EA5510'

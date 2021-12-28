@@ -50,6 +50,7 @@ describe('TronWeb.trx', function () {
             const idx = 10;
 
             it('should get account by hex or base58 address', async function () {
+                await wait(20);
                 let account = await tronWeb.trx.getAccount(accounts.hex[idx]);
                 assert.equal(account.address, accounts.hex[idx]);
                 account = await tronWeb.trx.getAccount(accounts.b58[idx]);
@@ -1797,7 +1798,7 @@ describe('TronWeb.trx', function () {
     });
 
     describe("#broadcastHex", async function () {
-        const transactionHex = "0a84010a0267e8220876946da17952aa0a40a893b4d2b22f5a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541607183c28d799eea6198a68d3b00173f3cb81b3918e8077091bdb0d2b22f12416a6295914fb712e154c729427c11d34f230351d386f1e3f37a2c701bc053f5e96cc469b8987169fe2baf0b972257498167a93d534cc92bfe30b10178d63c70db01"
+        const transactionHex = "0a84010a026b332208e8d5a8f94e69a93b40b8d585dcde2f5a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541539ad7c6256f92ddc9772ed7e54d5befb4de7b5c18e807708a9682dcde2f12418b4eb833e1abf983160588de6791caefb5788ec6ca41de634111184f229e5fec0ce859ba4b0b17557e8685dfdae2d5dcf1322d5c8c942206637af0a64d2ac1b800"
         it('should broadcast a hex transaction', async function () {
             let result = await tronWeb.trx.broadcastHex(transactionHex);
             console.log("result1: "+util.inspect(result,true,null,true))

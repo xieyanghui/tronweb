@@ -10,12 +10,13 @@ const tronWeb = new TronWeb(
 async function action() {
     let index = 0
     const instance = await tronWeb.contract().at('TLa2f6VPqDgRE67v1736s7bJ8Ray5wYjU7');
-    console.log(instance)
+    // console.log(instance)
     const watch = await instance.Transfer().watch((err, info) => {
         // console.log(err, info)
         if(info){
             index++
-            console.log(info.block, info.timestamp, info.contract, info.transaction, index)
+            // console.log(info.block, info.timestamp, info.contract, info.transaction, index)
+            console.log(info);
         }
     })
     // setTimeout(() => {
