@@ -689,6 +689,9 @@ describe('TronWeb.transactionBuilder', function () {
 
             const dataAfter = await contractInstance.getBytes32().call();
             assert.equal(dataAfter, val);
+            contractInstance.getBytes32().call((err, data)=>{
+                assert.equal(data.toString(),dataAfter.toString())
+            });
         });
 
         it('should call/send(type is changeBytes) successfully', async function () {
@@ -709,6 +712,9 @@ describe('TronWeb.transactionBuilder', function () {
 
             const dataAfter = await contractInstance.getBytes().call();
             assert.equal(dataAfter, val);
+            contractInstance.getBytes().call((err, data)=>{
+                assert.equal(data.toString(),dataAfter.toString())
+            });
         });
 
         it('should call/send(type is changeString) successfully', async function () {
@@ -749,6 +755,9 @@ describe('TronWeb.transactionBuilder', function () {
 
             const dataAfter = await contractInstance.getActionChoices().call();
             assert.equal(dataAfter, val);
+            contractInstance.getActionChoices().call((err, data)=>{
+                assert.equal(data.toString(),dataAfter.toString())
+            });
         });
 
         it('should call/send(type is int64[]) successfully', async function () {
@@ -773,6 +782,9 @@ describe('TronWeb.transactionBuilder', function () {
             const dataAfter = await contractInstance.getInt64NegativeArray().call();
             assert.equal(parseInt(dataAfter[0]._hex, 16), val[0]);
             assert.equal(parseInt(dataAfter[1]._hex, 16), val[1]);
+            contractInstance.getInt64NegativeArray().call((err, data)=>{
+                assert.equal(data.toString(),dataAfter.toString())
+            });
         });
 
         it('should call/send(type is uint32[2][]) successfully', async function () {
@@ -804,6 +816,9 @@ describe('TronWeb.transactionBuilder', function () {
             assert.equal(dataAfter[0][1], val[0][1]);
             assert.equal(dataAfter[1][0], val[1][0]);
             assert.equal(dataAfter[1][1], val[1][1]);
+            contractInstance.getInt32Array().call((err, data)=>{
+                assert.equal(data.toString(),dataAfter.toString())
+            });
         });
 
         it('should call/send(type is uint256[2][2]) successfully', async function () {
@@ -833,6 +848,9 @@ describe('TronWeb.transactionBuilder', function () {
             assert.equal(dataAfter[0][1], val[0][1]);
             assert.equal(dataAfter[1][0], val[1][0]);
             assert.equal(dataAfter[1][1], val[1][1]);
+            contractInstance.getInt256Array().call((err, data)=>{
+                assert.equal(data.toString(),dataAfter.toString())
+            });
         });
 
         it('should call/send(type is setMappinga(uint256)) successfully', async function () {
@@ -853,6 +871,9 @@ describe('TronWeb.transactionBuilder', function () {
 
             const dataAfter = await contractInstance.getMappinga(address).call();
             assert.equal(dataAfter, val);
+            contractInstance.getMappinga(address).call((err, data)=>{
+                assert.equal(data.toString(),dataAfter.toString())
+            });
         });
     });
 });
