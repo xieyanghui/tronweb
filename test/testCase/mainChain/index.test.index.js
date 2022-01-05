@@ -1,4 +1,5 @@
 const {ADDRESS_HEX, ADDRESS_BASE58, FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SIDE_CHAIN, SUN_NETWORK} = require('../util/config');
+const {abiV2Test2} = require('../util/contracts');
 const tronWebBuilder = require('../util/tronWebBuilder');
 const broadcaster = require('../util/broadcaster');
 const TronWeb = tronWebBuilder.TronWeb;
@@ -2118,5 +2119,33 @@ describe("#fromPrivateKey", function () {
         assert.equal(tronWeb.address.fromPrivateKey("0x124",true),false);
         assert.equal(tronWeb.address.fromPrivateKey("0dbdfa83d48bc9dfa823479234ccf9db2b34c9f89724ad8979243e987e9de243",true),'TPiNqcyhxY2xVMfMRUQ3d5qyaq8EdFuQkh');
     });
+});
+
+
+describe("#abiV2Test2", async function () {
+    const tronWeb = tronWebBuilder.createInstance();
+
+    it.only('call', async function () {
+        // nile SaiValuesAggregator
+        contractInstance2 = await tronWeb.contract(abiV2Test2.abi,"41E38397ADACF9C723C06CE1F5E2E1E84CA487D07D");
+        const res = await contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016a').call();
+        const res1 =  contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016a').call((err, data)=>{
+            console.log("data:"+data)
+            // assert.equal(data,'22679439,4104001be68322c0c3640c6a1384c891697b53c231,false,9999999999000000000000,800000000000000000000,788074048671296707459,965939200859391734,0,0,0,120000000011983924')
+        });
+        console.log("res1:"+res)
+        assert.equal(res[1],'4104001be68322c0c3640c6a1384c891697b53c231')
+        assert.equal(res[2],false)
+        array = res[3]
+        assert.equal(parseInt(array[0],10),9999999999000000000000)
+        assert.equal(parseInt(array[1],10),800000000000000000000)
+        assert.equal(parseInt(array[2],10),788074048671296707459)
+        assert.equal(parseInt(array[3],10),965980848288551324)
+        assert.equal(parseInt(array[4],10),0)
+        assert.equal(parseInt(array[5],10),0)
+        assert.equal(parseInt(array[6],10),0)
+        assert.equal(parseInt(array[7],10),120000000011983924)
+    });
+
 });
 

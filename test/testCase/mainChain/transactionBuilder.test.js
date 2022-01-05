@@ -1,4 +1,4 @@
-const {testRevert, testConstant, arrayParam, tronToken, testAddressArray, trcTokenTest070, trcTokenTest059, funcABIV2, funcABIV2_2, funcABIV2_3, funcABIV2_4} = require('../util/contracts');
+const {testRevert, testConstant, arrayParam, tronToken, testAddressArray, trcTokenTest070, trcTokenTest059, funcABIV2, funcABIV2_2, funcABIV2_3, funcABIV2_4, abiV2Test1,abiV2Test2} = require('../util/contracts');
 const assertThrow = require('../util/assertThrow');
 const broadcaster = require('../util/broadcaster');
 const pollAccountFor = require('../util/pollAccountFor');
@@ -21,8 +21,10 @@ const {
     PRIVATE_KEY,
     getTokenOptions,
     isProposalApproved,
-    TOKEN_ID
+    TOKEN_ID,
+    FEE_LIMIT
 } = require('../util/config');
+const { equals, getValues } = require('../util/testUtils');
 
 describe('TronWeb.transactionBuilder', function () {
 
@@ -2256,4 +2258,279 @@ describe('TronWeb.transactionBuilder', function () {
         });
     });
 
+    describe("#encodeABIV2 test1", async function () {
+        const tronWeb = tronWebBuilder.createInstance();
+        let contractInstance;
+        let contractAddress;
+        before(async function () {
+            // createSmartContract
+            const options = {
+                abi: abiV2Test1.abi,
+                bytecode: abiV2Test1.bytecode,
+                feeLimit:FEE_LIMIT,
+                funcABIV2: abiV2Test1.abi[0],
+                parametersV2: [
+                    [5],
+                    ADDRESS_BASE58,
+                    TOKEN_ID,
+                    ["q","w","e"],
+                    ["0xf579f9c22b185800e3b6e6886ffc8584215c05a5","0xd9dcae335acd3d4ffd2e6915dc702a59136ab46f"]
+                ],
+            };
+            const transaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+            await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
+            console.log("transaction.txID:"+transaction.txID)
+            assert.equal(transaction.txID.length, 64);
+            let createInfo;
+            contractAddress="41674f4632185a848b5cb18172de090112c6ab5676";
+            while (true) {
+                createInfo = await tronWeb.trx.getTransactionInfo(transaction.txID);
+                if (Object.keys(createInfo).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    contractAddress = transaction.contract_address;
+                    console.log("contractAddress:"+contractAddress)
+                    break;
+                }
+            }
+            contractInstance = await tronWeb.contract(abiV2Test1.abi,contractAddress);
+            const originAddress = await contractInstance.origin().call();
+            assert.ok(equals(originAddress, ADDRESS_BASE58));
+            const token = parseInt(await contractInstance.token().call(), 10);
+            assert.ok(equals(token, TOKEN_ID));
+            const strs = await contractInstance.getStrs().call();
+            assert.ok(equals(strs, ["q","w","e"]));
+            const bys = await contractInstance.getBys().call();
+            assert.ok(equals(bys, ["0xf579f9c22b185800e3b6e6886ffc8584215c05a5","0xd9dcae335acd3d4ffd2e6915dc702a59136ab46f"]));
+        })
+
+        it.only('send&call', async function () {
+            // strs
+            await contractInstance.changeStrs(["z","x"]).send({}, PRIVATE_KEY);
+            const strs = await contractInstance.getStrs().call();
+            assert.ok(equals(strs, ["z","x"]));
+
+            // bys
+            await contractInstance.changeBys(["0x60F68C9B9e50","0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"]).send({}, PRIVATE_KEY);
+            const bys = await contractInstance.getBys().call();
+            assert.ok(equals(bys, ["0x60F68C9B9e50".toLowerCase(),"0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"]));
+
+            // data
+            let txid=await contractInstance.changeMapAll(0,["a","s"],0,["0x60F68C9B9e50","0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"],[687],[9,0,23,1],ADDRESS_BASE58,TOKEN_ID).send({}, PRIVATE_KEY);
+            console.log("txid: "+txid)
+            let triggerInfo;
+            while (true) {
+                triggerInfo = await tronWeb.trx.getTransactionInfo(txid);
+                if (Object.keys(triggerInfo).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            assert.equal(triggerInfo.contractResult[0].substr(88,40),ADDRESS_HEX.substr(2))
+            assert.equal(parseInt(triggerInfo.contractResult[0].substr(192,64),16),4)
+            assert.equal(parseInt(triggerInfo.contractResult[0].substr(256,64),16),9)
+            assert.equal(parseInt(triggerInfo.contractResult[0].substr(320,64),16),0)
+            assert.equal(parseInt(triggerInfo.contractResult[0].substr(384,64),16),23)
+            assert.equal(parseInt(triggerInfo.contractResult[0].substr(448,64),16),1)
+
+            // StructArray
+            txid=await contractInstance.changeStructArray([3],[4]).send({}, PRIVATE_KEY);
+            while (true) {
+                const tx = await tronWeb.trx.getTransactionInfo(txid);
+                if (Object.keys(tx).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            const structArray = await contractInstance.getStructArray().call();
+            assert.equal(structArray[1],3);
+            assert.equal(structArray[2],4);
+
+            // bool
+            await contractInstance.changeBool(true).send({}, PRIVATE_KEY);
+            const bool = await contractInstance.getBool().call();
+            assert.ok(equals(bool, true));
+
+            // int
+            await contractInstance.changeInt(68236424).send({}, PRIVATE_KEY);
+            const intValue = await contractInstance.getInt().call();
+            assert.ok(equals(intValue, 68236424));
+
+            // negativeInt
+            await contractInstance.changeNegativeInt(-68236424).send({}, PRIVATE_KEY);
+            const negativeIntValue = await contractInstance.getNegativeInt().call();
+            assert.ok(equals(negativeIntValue, -68236424));
+        });
+
+        it.only('triggerSmartContract&triggerConstantContract', async function () {
+            // strs
+            let triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
+                contractAddress, "changeStrs(string[])", {feeLimit:FEE_LIMIT,funcABIV2:abiV2Test1.abi[13],parametersV2:[["o","p"]]}, [], ADDRESS_BASE58);
+            let triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
+            assert.equal(triggerTx.transaction.txID.length, 64);
+            let triggerInfo;
+            while (true) {
+                triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
+                if (Object.keys(triggerInfo).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            let transaction = await tronWeb.transactionBuilder.triggerConstantContract(
+                contractAddress,
+                "getStrs()",
+                {},
+                []);
+            assert.equal(transaction.constant_result[0].substr(320,64),'6f00000000000000000000000000000000000000000000000000000000000000')
+            assert.equal(transaction.constant_result[0].substr(448,64),'7000000000000000000000000000000000000000000000000000000000000000')
+
+            // bys
+            triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
+                contractAddress, "changeBys(bytes[])", {feeLimit:FEE_LIMIT,funcABIV2:abiV2Test1.abi[9],parametersV2:[["0x298fa36a9e2ebd6d3698e552987294fa8b65cd00","0x60f68c9b9e50"]]}, [], ADDRESS_BASE58);
+            triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
+            assert.equal(triggerTx.transaction.txID.length, 64);
+            console.log("1111")
+            while (true) {
+                triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
+                if (Object.keys(triggerInfo).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            transaction = await tronWeb.transactionBuilder.triggerConstantContract(
+                contractAddress,
+                "getBys()",
+                {},
+                []);
+            console.log("2222")
+            assert.equal(transaction.constant_result[0].substr(320,40),'298fa36a9e2ebd6d3698e552987294fa8b65cd00')
+            assert.equal(transaction.constant_result[0].substr(448,12),'60f68c9b9e50')
+
+            // data
+            triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
+                contractAddress, "changeMapAll(uint256,string[],uint256,bytes[],(uint256),uint256[],address,trcToken)", {feeLimit:FEE_LIMIT,funcABIV2:abiV2Test1.abi[11],parametersV2:[0,["a","s"],0,["0x60F68C9B9e50","0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"],[687],[9,0,23,1],ADDRESS_BASE58,TOKEN_ID]},
+                [], ADDRESS_BASE58);
+            triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
+            assert.equal(triggerTx.transaction.txID.length, 64);
+            while (true) {
+                triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
+                if (Object.keys(triggerInfo).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            console.log("triggerInfo:"+util.inspect(triggerInfo))
+            // assert.equal(triggerInfo.contractResult[0].substr(88,40),ADDRESS_HEX.substr(2))
+            // assert.equal(parseInt(triggerInfo.contractResult[0].substr(192,64),16),4)
+            // assert.equal(parseInt(triggerInfo.contractResult[0].substr(256,64),16),9)
+            // assert.equal(parseInt(triggerInfo.contractResult[0].substr(320,64),16),0)
+            // assert.equal(parseInt(triggerInfo.contractResult[0].substr(384,64),16),23)
+            // assert.equal(parseInt(triggerInfo.contractResult[0].substr(448,64),16),1)
+
+            // StructArray
+            triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
+                contractAddress, "changeStructArray((uint256),(uint256))", {feeLimit:FEE_LIMIT,funcABIV2:abiV2Test1.abi[14],parametersV2:[[909],[404]]},
+                [], ADDRESS_BASE58);
+            triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
+            assert.equal(triggerTx.transaction.txID.length, 64);
+            console.log("StructArray  tx: "+triggerTx.transaction.txID)
+            while (true) {
+                triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
+                if (Object.keys(triggerInfo).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            transaction = await tronWeb.transactionBuilder.triggerConstantContract(
+                contractAddress,
+                "getStructArray()",
+                {},
+                []);
+            console.log("contractResult-getStructArray:"+transaction.constant_result[0])
+            // assert.equal(structArray[3],909);
+            // assert.equal(structArray[4],404);
+
+            // bool
+            triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
+                contractAddress, "changeBool(bool)", {feeLimit:FEE_LIMIT,funcABIV2:abiV2Test1.abi[8],parametersV2:[false]},
+                [], ADDRESS_BASE58);
+            triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
+            assert.equal(triggerTx.transaction.txID.length, 64);
+            while (true) {
+                triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
+                if (Object.keys(triggerInfo).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            transaction = await tronWeb.transactionBuilder.triggerConstantContract(
+                contractAddress,
+                "getBool()",
+                {},
+                []);
+            assert.equal(parseInt(transaction.constant_result[0].substr(63,1),16),0);
+
+            // int
+            triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
+                contractAddress, "changeInt(int256)", {feeLimit:FEE_LIMIT,funcABIV2:abiV2Test1.abi[10],parametersV2:[37497]},
+                [], ADDRESS_BASE58);
+            triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
+            assert.equal(triggerTx.transaction.txID.length, 64);
+            while (true) {
+                triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
+                if (Object.keys(triggerInfo).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            transaction = await tronWeb.transactionBuilder.triggerConstantContract(
+                contractAddress,
+                "getInt()",
+                {},
+                []);
+            assert.equal(parseInt(transaction.constant_result[0],16),37497);
+
+            // negativeInt
+            triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
+                contractAddress, "changeNegativeInt(int256)", {feeLimit:FEE_LIMIT,funcABIV2:abiV2Test1.abi[12],parametersV2:[-37497]},
+                [], ADDRESS_BASE58);
+            triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
+            assert.equal(triggerTx.transaction.txID.length, 64);
+            console.log("triggerTx:"+triggerTx.transaction.txID)
+
+            while (true) {
+                triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
+                if (Object.keys(triggerInfo).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            transaction = await tronWeb.transactionBuilder.triggerConstantContract(
+                contractAddress,
+                "getNegativeInt()",
+                {},
+                []);
+            console.log("transaction.constant_result[0]:"+transaction.constant_result[0])
+            assert.equal(transaction.constant_result[0],'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6d87');
+        });
+    });
 });
