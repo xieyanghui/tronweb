@@ -2125,7 +2125,7 @@ describe("#fromPrivateKey", function () {
 describe("#abiV2Test2", async function () {
     const tronWeb = tronWebBuilder.createInstance();
 
-    it.only('call', async function () {
+    it('call', async function () {
         // nile SaiValuesAggregator
         contractInstance2 = await tronWeb.contract(abiV2Test2.abi,"41E38397ADACF9C723C06CE1F5E2E1E84CA487D07D");
         const res = await contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016a').call();
