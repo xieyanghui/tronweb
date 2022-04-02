@@ -1,6 +1,8 @@
-const {PRIVATE_KEY, ADDRESS_BASE58} = require('../util/config');
+const {PRIVATE_KEY, ADDRESS_BASE58, FEE_LIMIT, TOKEN_ID, ADDRESS_HEX} = require('../util/config');
 const testRevertContract = require('../util/contracts').testRevert;
 const testSetValContract = require('../util/contracts').testSetVal;
+const outputNameTest1 = require('../util/contracts').outputNameTest1;
+const outputNameTest2 = require('../util/contracts').outputNameTest2;
 const testEmptyAbi = require('../util/contracts').testEmptyAbi;
 const tronWebBuilder = require('../util/tronWebBuilder');
 const assertThrow = require('../util/assertThrow');
@@ -11,6 +13,7 @@ const chai = require('chai');
 const util = require('util');
 const assert = chai.assert;
 const _ = require('lodash');
+const { equals, getValues } = require('../util/testUtils');
 
 describe('#contract.method', function () {
 
@@ -229,4 +232,393 @@ describe('#contract.method', function () {
 
     });
 
+    describe("#call()&send()-outputs-name-test1", async function () {
+        const tronWeb = tronWebBuilder.createInstance();
+        let contractInstance;
+        let contractAddress;
+        before(async function () {
+            // createSmartContract
+            const options = {
+                abi: outputNameTest1.abi,
+                bytecode: outputNameTest1.bytecode,
+                feeLimit:FEE_LIMIT,
+                funcABIV2: outputNameTest1.abi[0],
+                parametersV2: [
+                    [5],
+                    ADDRESS_BASE58,
+                    TOKEN_ID,
+                    ["q","w","e"],
+                    ["0xf579f9c22b185800e3b6e6886ffc8584215c05a5","0xd9dcae335acd3d4ffd2e6915dc702a59136ab46f"]
+                ],
+            };
+            const transaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+            await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
+            console.log("transaction.txID:"+transaction.txID)
+            assert.equal(transaction.txID.length, 64);
+            let createInfo;
+            while (true) {
+                createInfo = await tronWeb.trx.getTransactionInfo(transaction.txID);
+                if (Object.keys(createInfo).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    contractAddress = transaction.contract_address;
+                    console.log("contractAddress:"+contractAddress)
+                    break;
+                }
+            }
+            contractInstance = await tronWeb.contract(outputNameTest1.abi,contractAddress);
+            const originAddress = await contractInstance.origin().call();
+            assert.ok(equals(originAddress, ADDRESS_BASE58));
+            const token = parseInt(await contractInstance.token().call(), 10);
+            assert.ok(equals(token, TOKEN_ID));
+            const strs = await contractInstance.getStrs().call();
+            assert.equal(util.inspect(strs), "[ [ 'q', 'w', 'e' ], stringArrayData: [ 'q', 'w', 'e' ] ]");
+            assert.ok(equals(strs.stringArrayData, ["q", "w", "e"]));
+            const bys = await contractInstance.getBys().call();
+            assert.equal(util.inspect(bys), "[ [ '0xf579f9c22b185800e3b6e6886ffc8584215c05a5',\n"
+                + "    '0xd9dcae335acd3d4ffd2e6915dc702a59136ab46f' ],\n"
+                + "  bytesArrayData: [ '0xf579f9c22b185800e3b6e6886ffc8584215c05a5',\n"
+                + "    '0xd9dcae335acd3d4ffd2e6915dc702a59136ab46f' ] ]");
+            assert.ok(equals(bys.bytesArrayData, ["0xf579f9c22b185800e3b6e6886ffc8584215c05a5","0xd9dcae335acd3d4ffd2e6915dc702a59136ab46f"]));
+        })
+
+        it('send&call', async function () {
+            // strs
+            let result = await contractInstance.changeStrs(["z","x"]).send({shouldPollResponse:true}, PRIVATE_KEY);
+            const strs = await contractInstance.getStrs().call();
+            assert.equal(util.inspect(result), util.inspect(strs));
+            assert.equal(util.inspect(strs), "[ [ 'z', 'x' ], stringArrayData: [ 'z', 'x' ] ]");
+            assert.ok(equals(strs.stringArrayData, ["z","x"]));
+
+            // bys
+            result = await contractInstance.changeBys(["0x60F68C9B9e50","0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"]).send({shouldPollResponse:true}, PRIVATE_KEY);
+            const bys = await contractInstance.getBys().call();
+            assert.equal(util.inspect(result), util.inspect(bys));
+            assert.equal(util.inspect(bys), "[ [ '0x60f68c9b9e50',\n"
+                + "    '0x298fa36a9e2ebd6d3698e552987294fa8b65cd00' ],\n"
+                + "  bytesArrayData: [ '0x60f68c9b9e50',\n"
+                + "    '0x298fa36a9e2ebd6d3698e552987294fa8b65cd00' ] ]");
+            assert.ok(equals(bys.bytesArrayData, ["0x60F68C9B9e50".toLowerCase(),"0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"]));
+
+            // data
+            result = await contractInstance.changeMapAll(0,["a","s"],0,["0x60F68C9B9e50","0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"],[687],[9,0,23,1],ADDRESS_BASE58,TOKEN_ID).send({shouldPollResponse:true}, PRIVATE_KEY);
+            assert.equal(util.inspect(result), "[ BigNumber { _hex: '0x00', _isBigNumber: true },\n"
+                + "  '415624c12e308b03a1a6b21d9b86e3942fac1ab92b',\n"
+                + "  [ BigNumber { _hex: '0x09', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x00', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x17', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x01', _isBigNumber: true } ],\n"
+                + "  uintData: BigNumber { _hex: '0x00', _isBigNumber: true },\n"
+                + "  addressData: '415624c12e308b03a1a6b21d9b86e3942fac1ab92b',\n"
+                + "  uintArrayDate: [ BigNumber { _hex: '0x09', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x00', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x17', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x01', _isBigNumber: true } ] ]");
+
+            // changeMapAll2--3ceng struct
+            result = await contractInstance.changeMapAll2(0,["a","s"],0,["0x60F68C9B9e50","0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"],[[[687],[9,0,23,1],"TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s",1000007]]).send({shouldPollResponse:true}, PRIVATE_KEY);
+            assert.equal(util.inspect(result), "[ BigNumber { _hex: '0x0f4247', _isBigNumber: true },\n"
+                + "  '415ab90009b529c5406b4f8a6fc4dab8a2bc778c75',\n"
+                + "  [ BigNumber { _hex: '0x09', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x00', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x17', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x01', _isBigNumber: true } ],\n"
+                + "  tokenData: BigNumber { _hex: '0x0f4247', _isBigNumber: true },\n"
+                + "  addressData: '415ab90009b529c5406b4f8a6fc4dab8a2bc778c75' ]");
+
+            // changeMapAll3--4ceng struct
+            result = await contractInstance.changeMapAll3(0,["a","s"],0,["0x60F68C9B9e50","0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"],[[[[67],[11,2,2323,1001],"TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s",1000007]]]).send({shouldPollResponse:true}, PRIVATE_KEY);
+            assert.equal(util.inspect(result), "[ BigNumber { _hex: '0x0f4247', _isBigNumber: true },\n"
+                + "  '415ab90009b529c5406b4f8a6fc4dab8a2bc778c75',\n"
+                + "  [ BigNumber { _hex: '0x0b', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x02', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x0913', _isBigNumber: true },\n"
+                + "    BigNumber { _hex: '0x03e9', _isBigNumber: true } ],\n"
+                + "  tokenData: BigNumber { _hex: '0x0f4247', _isBigNumber: true } ]");
+
+            // StructArray
+            result = await contractInstance.changeStructArray([3],[4]).send({shouldPollResponse:true}, PRIVATE_KEY);
+            console.log("result3:"+util.inspect(result))
+
+            const structArray = await contractInstance.getStructArray().call();
+            console.log("structArray:"+util.inspect(structArray))
+            assert.equal(util.inspect(result), util.inspect(structArray));
+            contractInstance.getStructArray().call((err, data)=>{
+                assert.equal(data.toString(),structArray.toString())
+            });
+
+            // bool
+            result = await contractInstance.changeBool(true).send({shouldPollResponse:true}, PRIVATE_KEY);
+            const bool = await contractInstance.getBool().call();
+            assert.equal(util.inspect(result), util.inspect(bool));
+            assert.equal(util.inspect(bool), "[ true, boolData: true ]");
+            assert.ok(equals(bool.boolData, true));
+
+            // int
+            result = await contractInstance.changeInt(68236424).send({shouldPollResponse:true}, PRIVATE_KEY);
+            const intValue = await contractInstance.getInt().call();
+            assert.equal(util.inspect(result), util.inspect(intValue));
+            assert.equal(util.inspect(result), "[ BigNumber { _hex: '0x04113488', _isBigNumber: true },\n"
+                + "  intData: BigNumber { _hex: '0x04113488', _isBigNumber: true } ]");
+            assert.ok(equals(intValue.intData, 68236424));
+        });
+    });
+
+    describe("#call()&send()-outputs-name-test2", async function () {
+        let contractAddress1;
+        let contractInstance;
+        let accounts;
+        let tronWeb;
+        let emptyAccount;
+        before(async function () {
+            emptyAccount = await TronWeb.createAccount();
+            tronWeb = tronWebBuilder.createInstance();
+            await tronWebBuilder.newTestAccountsInMain(2);
+            accounts = await tronWebBuilder.getTestAccountsInMain(2);
+            const sendTrxTx = await tronWeb.trx.sendTrx(accounts.hex[0], 1000000000);
+            assert.isTrue(sendTrxTx.result);
+            await wait(5);
+
+            const options = {
+                abi: outputNameTest2.abi,
+                bytecode: outputNameTest2.bytecode,
+                parameters: [accounts.hex[0], TOKEN_ID, ["1"], ["0xdCad3a6d3569DF655070DEd0"]],
+                feeLimit: 1000e6
+            };
+            const createTransaction1 = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+            const createTx1 = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction1);
+            assert.equal(createTx1.transaction.txID.length, 64);
+            let createInfo1;
+            while (true) {
+                createInfo1 = await tronWeb.trx.getTransactionInfo(createTx1.transaction.txID);
+                if (Object.keys(createInfo1).length === 0) {
+                    await wait(3);
+                    continue;
+                } else {
+                    console.log("createInfo1:" + util.inspect(createInfo1))
+                    break;
+                }
+            }
+            contractAddress1 = createInfo1.contract_address;
+            console.log("contractAddress1:" + contractAddress1)
+            contractInstance = await tronWeb.contract(outputNameTest2.abi,contractAddress1);
+        });
+
+        describe('contractTypes call/send test start()', function () {
+            it('should call/send(type is Int) successfully', async function () {
+                const val = 123;
+                let result = await contractInstance.changeInt(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                })
+                assert.equal(util.inspect(result), "[ BigNumber { _hex: '0x7b', _isBigNumber: true },\n"
+                    + "  intData: BigNumber { _hex: '0x7b', _isBigNumber: true } ]");
+                const dataAfter = await contractInstance.getInt().call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                const After = parseInt(dataAfter.intData._hex, 16);
+                assert.equal(After, val);
+            });
+
+            it('should call/send(type is changeUint) successfully', async function () {
+                const val = 1123;
+                let result = await contractInstance.changeUint(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                })
+                assert.equal(util.inspect(result), "[ BigNumber { _hex: '0x0463', _isBigNumber: true },\n"
+                    + "  uintData: BigNumber { _hex: '0x0463', _isBigNumber: true } ]");
+                const dataAfter = await contractInstance.getUint().call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                const After = parseInt(dataAfter.uintData._hex, 16);
+                assert.equal(After, val);
+            });
+
+            it('should call/send(type is changeAddress) successfully', async function () {
+                const val = accounts.hex[1];
+                let result = await contractInstance.changeAddress(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                })
+                const dataAfter = await contractInstance.getAddress().call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                assert.equal(dataAfter.addressData, val);
+            });
+
+            it('should call/send(type is changeBytes32) successfully', async function () {
+                const val = "0xb55a21aaee0ce8f1c8ffaa0dbd23105cb55a21aaee0ce8f1c8ffaa0dbd23105a";
+                let result = await contractInstance.changeBytes32(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                })
+                assert.equal(util.inspect(result), "[ '0xb55a21aaee0ce8f1c8ffaa0dbd23105cb55a21aaee0ce8f1c8ffaa0dbd23105a',\n"
+                    + "  bytes32Data: '0xb55a21aaee0ce8f1c8ffaa0dbd23105cb55a21aaee0ce8f1c8ffaa0dbd23105a' ]");
+                const dataAfter = await contractInstance.getBytes32().call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                assert.equal(dataAfter.bytes32Data, val);
+                contractInstance.getBytes32().call((err, data)=>{
+                    assert.equal(data.toString(),dataAfter.toString())
+                });
+            });
+
+            it('should call/send(type is changeBytes) successfully', async function () {
+                const val = "0xb55a21aaee0ce8f1c8ffaa0dbd23105cb55a21aaee0ce8f1c8ffaa0dbd23105890";
+                let result = await contractInstance.changeBytes(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                })
+                assert.equal(util.inspect(result), "[ '0xb55a21aaee0ce8f1c8ffaa0dbd23105cb55a21aaee0ce8f1c8ffaa0dbd23105890',\n"
+                    + "  bytesData: '0xb55a21aaee0ce8f1c8ffaa0dbd23105cb55a21aaee0ce8f1c8ffaa0dbd23105890' ]");
+
+                const dataAfter = await contractInstance.getBytes().call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                assert.equal(dataAfter.bytesData, val);
+                contractInstance.getBytes().call((err, data)=>{
+                    assert.equal(data.toString(),dataAfter.toString())
+                });
+            });
+
+            it('should call/send(type is changeString) successfully', async function () {
+                const val = "b55a21aaee0ce8f1c8ff122344400403lkkhhj";
+                let result = await contractInstance.changeString(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                })
+                assert.equal(util.inspect(result), "[ 'b55a21aaee0ce8f1c8ff122344400403lkkhhj',\n"
+                    + "  stringData: 'b55a21aaee0ce8f1c8ff122344400403lkkhhj' ]");
+
+                const dataAfter = await contractInstance.getString().call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                assert.equal(dataAfter.stringData, val);
+            });
+
+            it('should call/send(type is ActionChoices) successfully', async function () {
+                const val = "3";
+                let result = await contractInstance.changeActionChoices(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                })
+                assert.equal(util.inspect(result), "[ 3, enumData: 3 ]");
+
+                const dataAfter = await contractInstance.getActionChoices().call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                assert.equal(dataAfter.enumData, val);
+                contractInstance.getActionChoices().call((err, data)=>{
+                    assert.equal(data.toString(),dataAfter.toString())
+                });
+            });
+
+            it('should call/send(type is int64[]) successfully', async function () {
+                const val = [-111,123];
+                let result = await contractInstance.changeInt64NegativeArray(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                })
+                assert.equal(util.inspect(result), "[ [ BigNumber { _hex: '-0x6f', _isBigNumber: true },\n"
+                    + "    BigNumber { _hex: '0x7b', _isBigNumber: true } ],\n"
+                    + "  int64Data: [ BigNumber { _hex: '-0x6f', _isBigNumber: true },\n"
+                    + "    BigNumber { _hex: '0x7b', _isBigNumber: true } ] ]");
+
+                const dataAfter = await contractInstance.getInt64NegativeArray().call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                assert.equal(parseInt(dataAfter.int64Data[0]._hex, 16), val[0]);
+                assert.equal(parseInt(dataAfter.int64Data[1]._hex, 16), val[1]);
+                contractInstance.getInt64NegativeArray().call((err, data)=>{
+                    assert.equal(data.toString(),dataAfter.toString())
+                });
+            });
+
+            it('should call/send(type is uint32[2][]) successfully', async function () {
+                const val = [[122, 332], [991, 884]];
+                let result = await contractInstance.changeInt32Array(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                })
+                assert.equal(util.inspect(result), "[ [ [ 122, 332 ], [ 991, 884 ] ],\n"
+                    + "  uint32ArrayData: [ [ 122, 332 ], [ 991, 884 ] ] ]");
+
+                const dataAfter = await contractInstance.getInt32Array().call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                assert.equal(dataAfter.uint32ArrayData[0][0], val[0][0]);
+                assert.equal(dataAfter.uint32ArrayData[0][1], val[0][1]);
+                assert.equal(dataAfter.uint32ArrayData[1][0], val[1][0]);
+                assert.equal(dataAfter.uint32ArrayData[1][1], val[1][1]);
+                contractInstance.getInt32Array().call((err, data)=>{
+                    assert.equal(data.toString(),dataAfter.toString())
+                });
+            });
+
+            it('should call/send(type is uint256[2][2]) successfully', async function () {
+                const val = [[100, 122], [133, 144]];
+                let result = await contractInstance.changeInt256Array(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                })
+                assert.equal(util.inspect(result), "[ [ [ [BigNumber], [BigNumber] ], [ [BigNumber], [BigNumber] ] ],\n"
+                    + "  uint256ArrayData: [ [ [BigNumber], [BigNumber] ], [ [BigNumber], [BigNumber] ] ] ]");
+
+                const dataAfter = await contractInstance.getInt256Array().call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                assert.equal(dataAfter.uint256ArrayData[0][0], val[0][0]);
+                assert.equal(dataAfter.uint256ArrayData[0][1], val[0][1]);
+                assert.equal(dataAfter.uint256ArrayData[1][0], val[1][0]);
+                assert.equal(dataAfter.uint256ArrayData[1][1], val[1][1]);
+                contractInstance.getInt256Array().call((err, data)=>{
+                    assert.equal(data.toString(),dataAfter.toString())
+                });
+            });
+
+            it('should call/send(type is setMappinga(uint256)) successfully', async function () {
+                const address = tronWeb.address.fromPrivateKey(PRIVATE_KEY);
+
+                const val = 1122;
+                let result = await contractInstance.setMappinga(val).send({
+                    feeLimit:1000000000,
+                    callValue:0,
+                    tokenId:0,
+                    tokenValue:0,
+                    shouldPollResponse:true
+                });
+                assert.equal(util.inspect(result), "[ BigNumber { _hex: '0x0462', _isBigNumber: true },\n"
+                    + "  uint256Data: BigNumber { _hex: '0x0462', _isBigNumber: true } ]");
+
+                const dataAfter = await contractInstance.getMappinga(address).call();
+                assert.equal(util.inspect(result), util.inspect(dataAfter));
+                assert.equal(dataAfter.uint256Data, val);
+                contractInstance.getMappinga(address).call((err, data)=>{
+                    assert.equal(data.toString(),dataAfter.toString())
+                });
+            });
+        });
+    });
 });
