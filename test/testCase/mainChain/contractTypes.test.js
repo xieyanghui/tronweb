@@ -1,18 +1,14 @@
 const {funcContractTypesCall} = require('../util/contracts');
-const assertThrow = require('../util/assertThrow');
 const broadcaster = require('../util/broadcaster');
-const pollAccountFor = require('../util/pollAccountFor');
 const tronWebBuilder = require('../util/tronWebBuilder');
-const assertEqualHex = require('../util/assertEqualHex');
-const waitChainData = require('../util/waitChainData');
 const publicMethod = require('../util/PublicMethod');
-const txPars = require('../util/txPars');
 const wait = require('../util/wait');
-const jlog = require('../util/jlog');
 const util = require('util');
 const chai = require('chai');
 const assert = chai.assert;
 const _ = require('lodash');
+const txPars = require('../util/txPars');
+const testConstantParameters = require('../util/contracts').testConstantParameters;
 const TronWeb = tronWebBuilder.TronWeb;
 
 const {
@@ -28,6 +24,7 @@ const {
 describe('TronWeb.transactionBuilder', function () {
     let contractAddress;
     let contractAddress1;
+    let contractConstantAddress;
     let accounts;
     let tronWeb;
     let emptyAccount;
@@ -88,9 +85,35 @@ describe('TronWeb.transactionBuilder', function () {
         }
         contractAddress1 = createInfo1.contract_address;
         console.log("contractAddress1:" + contractAddress1)
+
+
+        const options2 = {
+            abi: testConstantParameters.abi,
+            bytecode: testConstantParameters.bytecode,
+            parameters: [],
+            feeLimit: 1000e6
+        };
+        const createTransaction2 = await tronWeb.transactionBuilder.createSmartContract(options2, ADDRESS_BASE58);
+        // console.log("createTransaction:" + util.inspect(createTransaction))
+        const createTx2 = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction2);
+        // console.log("createTx:" + util.inspect(createTx))
+        assert.equal(createTx2.transaction.txID.length, 64);
+        let createInfo2;
+        while (true) {
+            createInfo2 = await tronWeb.trx.getTransactionInfo(createTx2.transaction.txID);
+            if (Object.keys(createInfo2).length === 0) {
+                await wait(3);
+                continue;
+            } else {
+                console.log("createInfo2:" + util.inspect(createInfo2))
+                break;
+            }
+        }
+        contractConstantAddress = createInfo2.contract_address;
+        console.log("contractConstantAddress:" + contractConstantAddress)
     });
 
-    describe('contractTypes triggerSmartContract test start()', function () {
+    describe('contractTypes SmartContract test start()', function () {
         it('should triggerSmartContract(type is Int) successfully', async function () {
             const issuerAddress = accounts.hex[0];
             transaction = await tronWeb.transactionBuilder.triggerConstantContract(contractAddress, 'getInt()', {},
@@ -874,6 +897,34 @@ describe('TronWeb.transactionBuilder', function () {
             contractInstance.getMappinga(address).call((err, data)=>{
                 assert.equal(data.toString(),dataAfter.toString())
             });
+        });
+    });
+
+    describe('trigger contract constantMethod with parameters',function(){
+        it('trigger constantMethod with paramters', async function () {
+            const options = getTokenOptions();
+
+            options.precision = 0;
+            let transaction = await tronWeb.transactionBuilder.createToken(options, accounts.b58[0]);
+            let parameter = txPars(transaction);
+            await broadcaster.broadcaster(null, accounts.pks[0], transaction)
+            let tokenList = await tronWeb.trx.getTokensIssuedByAddress(accounts.b58[0])
+            let tokenID = tokenList[options.name].id
+            let token = await tronWeb.trx.getTokenByID(tokenID)
+            console.log(tokenID,token)
+
+            const options1 = {
+                parameters: [],
+                callValue:0,
+                tokenId:tokenID,
+                tokenValue:1
+            };
+            const issuerAddress = accounts.hex[0];
+            transaction = await tronWeb.transactionBuilder.triggerConstantContract(contractConstantAddress, 'getm()', options1,
+                [], issuerAddress);
+            assert.equal(transaction.constant_result[0].slice(0,64), '0000000000000000000000000000000000000000000000000000000000000001');
+            const t = await publicMethod.to64String(parseInt(tokenID).toString(16))
+            assert.equal(t,transaction.constant_result[0].slice(64));
         });
     });
 });
