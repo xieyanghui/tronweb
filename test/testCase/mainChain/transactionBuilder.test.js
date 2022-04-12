@@ -2141,7 +2141,7 @@ describe('TronWeb.transactionBuilder', function () {
 
     describe("#triggerSmartContractWithFuncABIV2 (V2 input)", async function () {
 
-        it('should create or trigger a smart contract with funcABIV2 (V2 input)', async function () {
+        it.only('should create or trigger a smart contract with funcABIV2 (V2 input)', async function () {
             let coder = tronWeb.utils.abi;
             const issuerAddress = accounts.hex[0];
             const issuerPk = accounts.pks[0];
@@ -2171,8 +2171,7 @@ describe('TronWeb.transactionBuilder', function () {
             const deployed = await tronWeb
             .contract(abi, transaction.contract_address)
             let check = await deployed.test().call();
-
-            assert.ok(equals(check, outputValues[0]));
+            assert.ok(equals(check[0], outputValues[0]));
         });
 
         it('should create or trigger a smart contract with funcABIV2 (V2 input test send )', async function () {
