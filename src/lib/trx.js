@@ -670,7 +670,10 @@ export default class Trx {
 
         if (!callback)
             return this.injectPromise(this.sign, transaction, privateKey, useTronHeader, multisig);
-
+        
+            if(!privateKey){
+                return callback(null, await window.sendTronMsg("sign", transaction, useTronHeader, multisig));
+            }
         // Message signing
         if (utils.isString(transaction)) {
 
